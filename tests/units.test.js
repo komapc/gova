@@ -1,5 +1,6 @@
 /**
  * units.test.js — Testoj por Units-modulo
+ * NOTO: Ĉi tiu testo bezonas retumilan medion. Malfermu tests/run-tests.html
  */
 
 // Simpla test-kadro
@@ -23,9 +24,15 @@ const assert = {
   }
 };
 
-// Ŝarĝi Units-modulon
+// Kontroli ĉu Units-modulo estas ŝargita
 if (typeof Units === 'undefined') {
-  throw new Error('Units module not loaded');
+  console.error('❌ Units module not loaded');
+  console.error('ℹ️  This test requires a browser environment.');
+  console.error('ℹ️  Please open tests/run-tests.html in your browser.');
+  if (typeof process !== 'undefined') {
+    process.exit(1);
+  }
+  throw new Error('Units module not loaded - use browser test runner');
 }
 
 // Test-rezultoj

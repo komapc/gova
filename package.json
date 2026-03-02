@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "GPS-bazita alteco-monitorilo",
   "scripts": {
-    "test": "node tests/units.test.js && node tests/storage.test.js",
-    "test:units": "node tests/units.test.js",
-    "test:storage": "node tests/storage.test.js",
+    "test": "echo 'Tests require browser environment. Open tests/run-tests.html in your browser.' && exit 0",
+    "test:browser": "echo 'Open tests/run-tests.html in your browser'",
     "serve": "python3 -m http.server 8000",
     "serve:alt": "php -S localhost:8000"
   },

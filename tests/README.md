@@ -2,14 +2,19 @@
 
 ## Kiel Ruli Testojn
 
-### Retumila Testoj
+### Retumila Testoj (REKOMENDITA)
 Malfermu `tests/run-tests.html` en via retumilo por vidi interaktivajn test-rezultojn.
 
-### Node.js Testoj (se instalita)
 ```bash
-node tests/units.test.js
-node tests/storage.test.js
+# Starigi lokan servilon
+python3 -m http.server 8000
+# Poste malfermu: http://localhost:8000/tests/run-tests.html
 ```
+
+### Node.js Testoj
+⚠️ **Noto**: La testoj estas dizajnitaj por retumila medio. Por Node.js-testoj, vi bezonus aldoni eksportajn deklaron al la moduloj.
+
+Por nun, uzu la retumilan test-rulilon supre.
 
 ## Test-Kovrado
 

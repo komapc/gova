@@ -1,17 +1,20 @@
 /**
  * storage.test.js — Testoj por Storage-modulo
+ * NOTO: Ĉi tiu testo bezonas retumilan medion. Malfermu tests/run-tests.html
  */
 
-// Mock localStorage
-global.localStorage = (() => {
-  let store = {};
-  return {
-    getItem: (key) => store[key] || null,
-    setItem: (key, value) => { store[key] = String(value); },
-    removeItem: (key) => { delete store[key]; },
-    clear: () => { store = {}; }
-  };
-})();
+// Mock localStorage por testa medio
+if (typeof localStorage === 'undefined') {
+  global.localStorage = (() => {
+    let store = {};
+    return {
+      getItem: (key) => store[key] || null,
+      setItem: (key, value) => { store[key] = String(value); },
+      removeItem: (key) => { delete store[key]; },
+      clear: () => { store = {}; }
+    };
+  })();
+}
 
 // Simpla test-kadro
 const assert = {
@@ -32,9 +35,15 @@ const assert = {
   }
 };
 
-// Ŝarĝi Storage-modulon
+// Kontroli ĉu Storage-modulo estas ŝargita
 if (typeof Storage === 'undefined') {
-  throw new Error('Storage module not loaded');
+  console.error('❌ Storage module not loaded');
+  console.error('ℹ️  This test requires a browser environment.');
+  console.error('ℹ️  Please open tests/run-tests.html in your browser.');
+  if (typeof process !== 'undefined') {
+    process.exit(1);
+  }
+  throw new Error('Storage module not loaded - use browser test runner');
 }
 
 // Test-rezultoj
