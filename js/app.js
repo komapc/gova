@@ -11,6 +11,7 @@
   const elUnit = document.getElementById('altitude-unit');
   const elStatusIndicator = document.getElementById('status-indicator');
   const elBaseIndicator = document.getElementById('base-indicator');
+  const elPullIndicator = document.getElementById('pull-indicator');
   
   const elSettingsOverlay = document.getElementById('settings-overlay');
   const elSettingsSheet = document.getElementById('settings-sheet');
@@ -38,9 +39,12 @@
   let currentUnit = Storage.getUnit();
   let isRefreshing = false;
   let touchStartTime = 0;
+  let touchStartY = 0;
+  let isPulling = false;
   let longPressTimer = null;
   const LONG_PRESS_DURATION = 500; // ms
   const DEBOUNCE_REFRESH = 2000; // ms
+  const PULL_THRESHOLD = 80; // px
   let lastRefreshTime = 0;
 
   // --- BroadcastChannel por unuo-sinkronigo inter paĝoj ---
@@ -193,9 +197,11 @@
     }
   }
 
-  // --- Tuŝ/Muso-Eventoj por Tap/Long-Press ---
+  // --- Tuŝ/Muso-Eventoj por Tap/Long-Press/Pull-to-Refresh ---
   function _handleTouchStart(e) {
     touchStartTime = Date.now();
+    touchStartY = e.touches ? e.touches[0].clientY : e.clientY;
+    isPulling = false;
     
     longPressTimer = setTimeout(() => {
       // Long press detektita - malfermi agordojn
@@ -207,10 +213,50 @@
     }, LONG_PRESS_DURATION);
   }
 
+  function _handleTouchMove(e) {
+    // Nuligi long press se fingro moviĝas
+    clearTimeout(longPressTimer);
+    
+    // Pull-to-refresh logiko
+    if (elSettingsOverlay.classList.contains('hidden') && !isRefreshing) {
+      const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+      const deltaY = currentY - touchStartY;
+      
+      // Nur se swipe down kaj proksime al supro
+      if (deltaY > 10 && touchStartY < 100) {
+        isPulling = true;
+        const pullDistance = Math.min(deltaY, 150);
+        
+        elPullIndicator.classList.remove('hidden');
+        elPullIndicator.classList.add('visible');
+        
+        if (pullDistance >= PULL_THRESHOLD) {
+          elPullIndicator.classList.add('pulling');
+        } else {
+          elPullIndicator.classList.remove('pulling');
+        }
+      }
+    }
+  }
+
   function _handleTouchEnd(e) {
     const touchDuration = Date.now() - touchStartTime;
     
     clearTimeout(longPressTimer);
+    
+    // Pull-to-refresh
+    if (isPulling) {
+      const currentY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+      const deltaY = currentY - touchStartY;
+      
+      if (deltaY >= PULL_THRESHOLD) {
+        _triggerPullRefresh();
+      } else {
+        _hidePullIndicator();
+      }
+      isPulling = false;
+      return;
+    }
     
     if (touchDuration < LONG_PRESS_DURATION) {
       // Mallonga tuŝo - refreŝi
@@ -218,9 +264,19 @@
     }
   }
 
-  function _handleTouchMove(e) {
-    // Nuligi long press se fingro moviĝas
-    clearTimeout(longPressTimer);
+  function _triggerPullRefresh() {
+    elPullIndicator.classList.add('refreshing');
+    elPullIndicator.classList.remove('pulling');
+    _manualRefresh().finally(() => {
+      setTimeout(_hidePullIndicator, 500);
+    });
+  }
+
+  function _hidePullIndicator() {
+    elPullIndicator.classList.remove('visible', 'pulling', 'refreshing');
+    setTimeout(() => {
+      elPullIndicator.classList.add('hidden');
+    }, 300);
   }
 
   // --- Agordoj-Administrado ---

@@ -1,6 +1,7 @@
 {
   "name": "Gova — Alteco",
   "short_name": "Gova",
+  "version": "3.1.0",
   "description": "Montras vian altecon super marnivelo per GPS",
   "start_url": "./",
   "display": "standalone",

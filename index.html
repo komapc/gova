@@ -27,6 +27,11 @@
 
   <!-- Tutekrana tuŝ-areo -->
   <main id="main" class="fullscreen-tap-area" aria-label="Alteco">
+    <!-- Pull-to-refresh indikilo -->
+    <div id="pull-indicator" class="pull-indicator hidden">
+      <div class="pull-icon">↓</div>
+    </div>
+    
     <div class="altitude-display">
       <span id="altitude-value" class="altitude-value" aria-live="polite" aria-atomic="true">—</span>
       <span id="altitude-unit" class="altitude-unit">m</span>
@@ -96,6 +101,9 @@
 
       <!-- Ferma Butono -->
       <button id="btn-close-settings" class="btn-primary">Fermi</button>
+
+      <!-- Versio -->
+      <div class="version-info">v3.1.0</div>
 
     </div>
   </div>
