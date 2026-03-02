@@ -118,9 +118,10 @@
         if (Units.getDisplayAltitude(500, 400) !== 100) throw new Error('Relativa alteco malĝusta');
       });
 
-      test('formatAltitude formatas metrojn', () => {
-        const r = Units.formatAltitude(1234, 'm', false);
-        if (r.unit !== 'm') throw new Error('Unuo malĝusta');
+      test('formatAltitude formatas metrojn korekte', () => {
+        const result = Units.formatAltitude(1234, 'm', false);
+        if (!result.value.includes('1,234') && !result.value.includes('1234')) throw new Error('Metroj malĝuste formatitaj');
+        if (result.unit !== 'm') throw new Error('Unuo malĝusta');
       });
 
       test('formatAltitude aldonas + prefikson', () => {

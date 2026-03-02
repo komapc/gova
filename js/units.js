@@ -41,15 +41,17 @@ const Units = (() => {
 
     if (unit === 'ft') {
       const ft = toFeet(meters);
+      // Montri 1 decimalan lokon por futoj
       return {
-        value: Math.round(ft).toLocaleString('en'),
+        value: (Math.round(ft * 10) / 10).toLocaleString('en', { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
         unit: 'ft',
         prefix,
       };
     }
 
+    // Montri 1 decimalan lokon por metroj
     return {
-      value: Math.round(meters).toLocaleString('en'),
+      value: (Math.round(meters * 10) / 10).toLocaleString('en', { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
       unit: 'm',
       prefix,
     };
