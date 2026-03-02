@@ -1,0 +1,36 @@
+# Sistemaj dosieroj
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Redaktilaj dosieroj
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node (se uzata estonte)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vercel
+.vercel/
+
+# Loka testado
+*.local
+
+# Sekurecaj dosieroj
+*.pem
+*.key
+*.jks
+gova-release.jks
+
+# Android konstrua eligo
+android/app/build/
+android/.gradle/
+android/local.properties
+android/*.apk
+android/*.aab
