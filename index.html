@@ -18,6 +18,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Gova" />
   <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
+  <link rel="icon" type="image/svg+xml" href="icons/logo.svg" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="css/main.css" />
@@ -27,6 +28,11 @@
 
   <!-- Tutekrana tuŝ-areo -->
   <main id="main" class="fullscreen-tap-area" aria-label="Alteco">
+    <!-- Pull-to-refresh indikilo -->
+    <div id="pull-indicator" class="pull-indicator hidden">
+      <div class="pull-icon">↓</div>
+    </div>
+    
     <div class="altitude-display">
       <span id="altitude-value" class="altitude-value" aria-live="polite" aria-atomic="true">—</span>
       <span id="altitude-unit" class="altitude-unit">m</span>
@@ -40,8 +46,15 @@
   <!-- Agorda Folio (glitas supren je longpremo) -->
   <div id="settings-overlay" class="settings-overlay hidden" role="dialog" aria-modal="true" aria-label="Agordoj">
     <div id="settings-sheet" class="settings-sheet">
-      
       <div class="settings-handle" aria-hidden="true"></div>
+
+      <div class="brand-header">
+        <img src="icons/logo.svg" alt="Gova" class="settings-logo">
+        <div class="brand-text">
+          <h1 class="settings-title">Gova</h1>
+          <p class="settings-subtitle">Alteco-Monitorilo</p>
+        </div>
+      </div>
 
       <!-- GPS-Stato -->
       <div class="settings-section">
@@ -87,6 +100,27 @@
         <button id="btn-view-history" class="btn-secondary">Vidi Historion</button>
       </div>
 
+      <!-- Konservitaj Punktoj -->
+      <div class="settings-section">
+        <label class="settings-label">Konservitaj Punktoj</label>
+        <button id="btn-save-point" class="btn-secondary">💾 Konservi Nunan Punkton</button>
+        
+        <div id="today-points" class="today-points">
+          <div class="point-item" id="today-high-point">
+            <span class="point-icon">⬆️</span>
+            <span class="point-label">Hodiaŭa plej alta:</span>
+            <span class="point-value">—</span>
+          </div>
+          <div class="point-item" id="today-low-point">
+            <span class="point-icon">⬇️</span>
+            <span class="point-label">Hodiaŭa plej malalta:</span>
+            <span class="point-value">—</span>
+          </div>
+        </div>
+        
+        <button id="btn-view-points" class="btn-secondary">📍 Vidi Ĉiujn Punktojn (<span id="points-count">0</span>)</button>
+      </div>
+
       <!-- Instalo -->
       <div id="install-section" class="settings-section hidden">
         <label class="settings-label">Instali Aplikaĵon</label>
@@ -97,6 +131,9 @@
       <!-- Ferma Butono -->
       <button id="btn-close-settings" class="btn-primary">Fermi</button>
 
+      <!-- Versio -->
+      <div class="version-info">v3.1.0</div>
+
     </div>
   </div>
 
@@ -106,6 +143,7 @@
   <script src="js/storage.js"></script>
   <script src="js/units.js"></script>
   <script src="js/history.js"></script>
+  <script src="js/saved-points.js"></script>
   <script src="js/chart.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/install.js"></script>

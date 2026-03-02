@@ -11,6 +11,7 @@
   const elUnit = document.getElementById('altitude-unit');
   const elStatusIndicator = document.getElementById('status-indicator');
   const elBaseIndicator = document.getElementById('base-indicator');
+  const elPullIndicator = document.getElementById('pull-indicator');
   
   const elSettingsOverlay = document.getElementById('settings-overlay');
   const elSettingsSheet = document.getElementById('settings-sheet');
@@ -29,6 +30,11 @@
   const elThemeLight = document.getElementById('theme-light');
   const elThemeDark = document.getElementById('theme-dark');
   const elBtnViewHistory = document.getElementById('btn-view-history');
+  const elBtnSavePoint = document.getElementById('btn-save-point');
+  const elBtnViewPoints = document.getElementById('btn-view-points');
+  const elPointsCount = document.getElementById('points-count');
+  const elTodayHighPoint = document.getElementById('today-high-point');
+  const elTodayLowPoint = document.getElementById('today-low-point');
   const elInstallSection = document.getElementById('install-section');
   const elBtnInstall = document.getElementById('btn-install');
   
@@ -38,9 +44,12 @@
   let currentUnit = Storage.getUnit();
   let isRefreshing = false;
   let touchStartTime = 0;
+  let touchStartY = 0;
+  let isPulling = false;
   let longPressTimer = null;
   const LONG_PRESS_DURATION = 500; // ms
   const DEBOUNCE_REFRESH = 2000; // ms
+  const PULL_THRESHOLD = 80; // px
   let lastRefreshTime = 0;
 
   // --- BroadcastChannel por unuo-sinkronigo inter paĝoj ---
@@ -147,6 +156,9 @@
 
     // Aldoni al historio
     History.add(altMeters, accuracy || 0, coords.latitude, coords.longitude);
+    
+    // Ĝisdatigi hodiaŭajn punktojn
+    SavedPoints.updateTodayPoints(altMeters, coords.latitude, coords.longitude);
   }
 
   // --- GPS-Eraro-Callback ---
@@ -193,9 +205,11 @@
     }
   }
 
-  // --- Tuŝ/Muso-Eventoj por Tap/Long-Press ---
+  // --- Tuŝ/Muso-Eventoj por Tap/Long-Press/Pull-to-Refresh ---
   function _handleTouchStart(e) {
     touchStartTime = Date.now();
+    touchStartY = e.touches ? e.touches[0].clientY : e.clientY;
+    isPulling = false;
     
     longPressTimer = setTimeout(() => {
       // Long press detektita - malfermi agordojn
@@ -207,10 +221,50 @@
     }, LONG_PRESS_DURATION);
   }
 
+  function _handleTouchMove(e) {
+    // Nuligi long press se fingro moviĝas
+    clearTimeout(longPressTimer);
+    
+    // Pull-to-refresh logiko
+    if (elSettingsOverlay.classList.contains('hidden') && !isRefreshing) {
+      const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+      const deltaY = currentY - touchStartY;
+      
+      // Nur se swipe down kaj proksime al supro
+      if (deltaY > 10 && touchStartY < 100) {
+        isPulling = true;
+        const pullDistance = Math.min(deltaY, 150);
+        
+        elPullIndicator.classList.remove('hidden');
+        elPullIndicator.classList.add('visible');
+        
+        if (pullDistance >= PULL_THRESHOLD) {
+          elPullIndicator.classList.add('pulling');
+        } else {
+          elPullIndicator.classList.remove('pulling');
+        }
+      }
+    }
+  }
+
   function _handleTouchEnd(e) {
     const touchDuration = Date.now() - touchStartTime;
     
     clearTimeout(longPressTimer);
+    
+    // Pull-to-refresh
+    if (isPulling) {
+      const currentY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+      const deltaY = currentY - touchStartY;
+      
+      if (deltaY >= PULL_THRESHOLD) {
+        _triggerPullRefresh();
+      } else {
+        _hidePullIndicator();
+      }
+      isPulling = false;
+      return;
+    }
     
     if (touchDuration < LONG_PRESS_DURATION) {
       // Mallonga tuŝo - refreŝi
@@ -218,9 +272,19 @@
     }
   }
 
-  function _handleTouchMove(e) {
-    // Nuligi long press se fingro moviĝas
-    clearTimeout(longPressTimer);
+  function _triggerPullRefresh() {
+    elPullIndicator.classList.add('refreshing');
+    elPullIndicator.classList.remove('pulling');
+    _manualRefresh().finally(() => {
+      setTimeout(_hidePullIndicator, 500);
+    });
+  }
+
+  function _hidePullIndicator() {
+    elPullIndicator.classList.remove('visible', 'pulling', 'refreshing');
+    setTimeout(() => {
+      elPullIndicator.classList.add('hidden');
+    }, 300);
   }
 
   // --- Agordoj-Administrado ---
@@ -265,6 +329,61 @@
     elThemeAuto.setAttribute('aria-pressed', currentTheme === 'auto');
     elThemeDark.setAttribute('aria-pressed', currentTheme === 'dark');
     elThemeLight.setAttribute('aria-pressed', currentTheme === 'light');
+    
+    // Ĝisdatigi konservitajn punktojn
+    _updateSavedPointsUI();
+  }
+  
+  // --- Ĝisdatigi Konservitajn Punktojn UI ---
+  function _updateSavedPointsUI() {
+    const summary = SavedPoints.getSummary();
+    
+    // Ĝisdatigi nombron
+    elPointsCount.textContent = summary.count;
+    
+    // Ĝisdatigi hodiaŭan plej altan
+    if (summary.todayHigh) {
+      const formatted = Units.formatAltitude(summary.todayHigh.altitude, currentUnit, false);
+      const time = new Date(summary.todayHigh.timestamp).toLocaleTimeString('eo', { hour: '2-digit', minute: '2-digit' });
+      elTodayHighPoint.querySelector('.point-value').textContent = `${formatted.value} ${formatted.unit} (${time})`;
+    } else {
+      elTodayHighPoint.querySelector('.point-value').textContent = '—';
+    }
+    
+    // Ĝisdatigi hodiaŭan plej malalta
+    if (summary.todayLow) {
+      const formatted = Units.formatAltitude(summary.todayLow.altitude, currentUnit, false);
+      const time = new Date(summary.todayLow.timestamp).toLocaleTimeString('eo', { hour: '2-digit', minute: '2-digit' });
+      elTodayLowPoint.querySelector('.point-value').textContent = `${formatted.value} ${formatted.unit} (${time})`;
+    } else {
+      elTodayLowPoint.querySelector('.point-value').textContent = '—';
+    }
+  }
+  
+  // --- Konservi Nunan Punkton ---
+  function _saveCurrentPoint() {
+    const currentAlt = Storage.getLastAlt();
+    if (currentAlt === null) {
+      _showToast('Neniu GPS-datumo disponebla');
+      return;
+    }
+    
+    // Bezonas koordinatojn - uzu lastajn el historio
+    const history = History.getAll();
+    if (history.length === 0) {
+      _showToast('Neniu loko-datumo disponebla');
+      return;
+    }
+    
+    const lastEntry = history[history.length - 1];
+    const point = SavedPoints.save(currentAlt, lastEntry.latitude, lastEntry.longitude);
+    
+    if (point) {
+      _showToast(`Punkto konservita: ${point.name}`);
+      _updateSavedPointsUI();
+    } else {
+      _showToast('Eraro konservante punkton');
+    }
   }
 
   // --- Unuo-Ŝanĝo ---
@@ -322,14 +441,21 @@
     // Inicializi instalo-administradon
     Install.init(
       () => {
-        // Kiam instalo eblas
-        elInstallSection.classList.remove('hidden');
+        // Kiam instalo eblas (beforeinstallprompt)
+        if (!Install.isInstalled()) {
+          elInstallSection.classList.remove('hidden');
+        }
       },
       () => {
-        // Kiam instalita
+        // Kiam instalita (appinstalled aŭ jam instalita)
         elInstallSection.classList.add('hidden');
       }
     );
+    
+    // Tuja kontrolo - kaŝi se jam instalita
+    if (Install.isInstalled()) {
+      elInstallSection.classList.add('hidden');
+    }
 
     if (!GPS.isAvailable()) {
       _setStatus('error', 'GPS ne disponebla');
@@ -372,6 +498,14 @@
   // Historio-butono
   elBtnViewHistory.addEventListener('click', () => {
     window.location.href = 'history.html';
+  });
+  
+  // Saved Points butonoj
+  elBtnSavePoint.addEventListener('click', _saveCurrentPoint);
+  
+  elBtnViewPoints.addEventListener('click', () => {
+    // TODO: Krei saved-points.html paĝon
+    _showToast('Punktoj-paĝo baldaŭ venos!', 2000);
   });
   
   // Instalo-butono
