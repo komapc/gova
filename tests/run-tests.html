@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="eo">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gova — Testoj</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      background: #0A0A0A;
+      color: #E5E5E5;
+    }
+    h1 { color: #2563EB; }
+    .test-suite {
+      margin: 2rem 0;
+      padding: 1rem;
+      background: #1A1A1A;
+      border-radius: 8px;
+    }
+    .test-result {
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .pass { background: #065F46; color: #D1FAE5; }
+    .fail { background: #991B1B; color: #FEE2E2; }
+    .summary {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #2563EB;
+      color: white;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+    pre {
+      background: #262626;
+      padding: 1rem;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gova — Test-Rezultoj</h1>
+  <div id="results"></div>
+
+  <script src="../js/storage.js"></script>
+  <script src="../js/units.js"></script>
+  <script>
+    const resultsDiv = document.getElementById('results');
+    let totalPassed = 0;
+    let totalFailed = 0;
+
+    function runTestSuite(name, testFn) {
+      const suiteDiv = document.createElement('div');
+      suiteDiv.className = 'test-suite';
+      suiteDiv.innerHTML = `<h2>${name}</h2>`;
+      
+      const results = { passed: 0, failed: 0, tests: [] };
+      
+      const originalConsole = {
+        log: console.log,
+        error: console.error
+      };
+      
+      const logs = [];
+      console.log = (...args) => logs.push({ type: 'log', args });
+      console.error = (...args) => logs.push({ type: 'error', args });
+      
+      try {
+        testFn(results);
+      } catch (err) {
+        logs.push({ type: 'error', args: [err.message] });
+      }
+      
+      console.log = originalConsole.log;
+      console.error = originalConsole.error;
+      
+      logs.forEach(log => {
+        const div = document.createElement('div');
+        div.className = 'test-result ' + (log.type === 'error' ? 'fail' : 'pass');
+        div.textContent = log.args.join(' ');
+        suiteDiv.appendChild(div);
+      });
+      
+      totalPassed += results.passed;
+      totalFailed += results.failed;
+      
+      resultsDiv.appendChild(suiteDiv);
+    }
+
+    // --- Units Tests ---
+    runTestSuite('Units Module', (results) => {
+      function test(name, fn) {
+        try {
+          fn();
+          results.passed++;
+          console.log(`✓ ${name}`);
+        } catch (err) {
+          results.failed++;
+          console.error(`✗ ${name}: ${err.message}`);
+        }
+      }
+
+      test('toFeet konvertas metrojn al futoj', () => {
+        if (Math.round(Units.toFeet(100)) !== 328) throw new Error('toFeet(100) malĝusta');
+      });
+
+      test('getDisplayAltitude redonas absolutan altecon', () => {
+        if (Units.getDisplayAltitude(500, null) !== 500) throw new Error('Absoluta alteco malĝusta');
+      });
+
+      test('getDisplayAltitude kalkulas relativan altecon', () => {
+        if (Units.getDisplayAltitude(500, 400) !== 100) throw new Error('Relativa alteco malĝusta');
+      });
+
+      test('formatAltitude formatas metrojn', () => {
+        const r = Units.formatAltitude(1234, 'm', false);
+        if (r.unit !== 'm') throw new Error('Unuo malĝusta');
+      });
+
+      test('formatAltitude aldonas + prefikson', () => {
+        const r = Units.formatAltitude(100, 'm', true);
+        if (r.prefix !== '+') throw new Error('Prefikso malĝusta');
+      });
+
+      test('formatAccuracy formatas precizecon', () => {
+        const r = Units.formatAccuracy(15, 'm');
+        if (!r.includes('±')) throw new Error('Precizeco malĝusta');
+      });
+    });
+
+    // --- Storage Tests ---
+    runTestSuite('Storage Module', (results) => {
+      function test(name, fn) {
+        localStorage.clear();
+        try {
+          fn();
+          results.passed++;
+          console.log(`✓ ${name}`);
+        } catch (err) {
+          results.failed++;
+          console.error(`✗ ${name}: ${err.message}`);
+        }
+      }
+
+      test('getUnit redonas defaŭltan valoron', () => {
+        if (Storage.getUnit() !== 'm') throw new Error('Defaŭlta unuo malĝusta');
+      });
+
+      test('setUnit kaj getUnit funkcias', () => {
+        Storage.setUnit('ft');
+        if (Storage.getUnit() !== 'ft') throw new Error('setUnit/getUnit malĝusta');
+      });
+
+      test('getLastAlt redonas null', () => {
+        if (Storage.getLastAlt() !== null) throw new Error('getLastAlt devus esti null');
+      });
+
+      test('setLastAlt kaj getLastAlt funkcias', () => {
+        Storage.setLastAlt(1234.5);
+        if (Storage.getLastAlt() !== 1234.5) throw new Error('setLastAlt/getLastAlt malĝusta');
+      });
+
+      test('getBaseHeight redonas null', () => {
+        if (Storage.getBaseHeight() !== null) throw new Error('getBaseHeight devus esti null');
+      });
+
+      test('setBaseHeight kaj getBaseHeight funkcias', () => {
+        Storage.setBaseHeight(500);
+        if (Storage.getBaseHeight() !== 500) throw new Error('setBaseHeight/getBaseHeight malĝusta');
+      });
+
+      test('clearBaseHeight forigas bazon', () => {
+        Storage.setBaseHeight(300);
+        Storage.clearBaseHeight();
+        if (Storage.getBaseHeight() !== null) throw new Error('clearBaseHeight malĝusta');
+      });
+
+      test('hasBaseHeight funkcias', () => {
+        if (Storage.hasBaseHeight() !== false) throw new Error('hasBaseHeight devus esti false');
+        Storage.setBaseHeight(100);
+        if (Storage.hasBaseHeight() !== true) throw new Error('hasBaseHeight devus esti true');
+      });
+    });
+
+    // Summary
+    const summaryDiv = document.createElement('div');
+    summaryDiv.className = 'summary';
+    summaryDiv.innerHTML = `
+      <div>Totala Testoj: ${totalPassed + totalFailed}</div>
+      <div>Sukcesaj: ${totalPassed}</div>
+      <div>Malsukcesaj: ${totalFailed}</div>
+    `;
+    resultsDiv.appendChild(summaryDiv);
+  </script>
+</body>
+</html>

@@ -12,6 +12,41 @@ python3 -m http.server 8000
 # Then open: http://localhost:8000
 ```
 
+## Automated Tests
+
+### Running Tests
+
+**Browser Tests (Recommended):**
+Open `tests/run-tests.html` in your browser to see interactive test results.
+
+**Node.js Tests:**
+```bash
+npm test              # Run all tests
+npm run test:units    # Run units tests only
+npm run test:storage  # Run storage tests only
+```
+
+### Test Coverage
+
+**Units Module (`js/units.js`):**
+- ✓ Meter to feet conversion
+- ✓ Absolute altitude calculation
+- ✓ Relative altitude calculation
+- ✓ Formatting in meters and feet
+- ✓ Prefix handling for relative values (+/-)
+- ✓ Accuracy formatting
+- ✓ Null value handling
+
+**Storage Module (`js/storage.js`):**
+- ✓ Unit persistence (m/ft)
+- ✓ Last altitude storage
+- ✓ Accuracy storage
+- ✓ Location name storage
+- ✓ Base height storage and clearing
+- ✓ Invalid data handling
+
+See `tests/README.md` for more details.
+
 ## Testing Checklist
 
 ### 1. Basic Functionality ✓

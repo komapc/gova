@@ -1,0 +1,15 @@
+{
+  "name": "gova",
+  "version": "1.0.0",
+  "description": "GPS-bazita alteco-monitorilo",
+  "scripts": {
+    "test": "node tests/units.test.js && node tests/storage.test.js",
+    "test:units": "node tests/units.test.js",
+    "test:storage": "node tests/storage.test.js",
+    "serve": "python3 -m http.server 8000",
+    "serve:alt": "php -S localhost:8000"
+  },
+  "keywords": ["gps", "altitude", "pwa", "esperanto"],
+  "author": "",
+  "license": "MIT"
+}

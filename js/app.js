@@ -25,6 +25,13 @@
   const elBaseHeightInfo = document.getElementById('base-height-info');
   const elBtnCloseSettings = document.getElementById('btn-close-settings');
   
+  const elThemeAuto = document.getElementById('theme-auto');
+  const elThemeLight = document.getElementById('theme-light');
+  const elThemeDark = document.getElementById('theme-dark');
+  const elBtnViewHistory = document.getElementById('btn-view-history');
+  const elInstallSection = document.getElementById('install-section');
+  const elBtnInstall = document.getElementById('btn-install');
+  
   const elToast = document.getElementById('toast');
 
   // --- Stato ---
@@ -137,6 +144,9 @@
     // Ĝisdatigi montrado
     _updateAltitudeDisplay(altMeters, accuracy, true);
     _setStatus('locked', mslAlt !== null ? 'GPS + MSL-korekcio' : 'GPS ŝlosita');
+
+    // Aldoni al historio
+    History.add(altMeters, accuracy || 0, coords.latitude, coords.longitude);
   }
 
   // --- GPS-Eraro-Callback ---
@@ -246,6 +256,15 @@
     } else {
       elBaseHeightInfo.textContent = 'Neniu baza alteco agordita';
     }
+
+    // Ĝisdatigi temo-butonojn
+    const currentTheme = Theme.get();
+    elThemeAuto.classList.toggle('active', currentTheme === 'auto');
+    elThemeDark.classList.toggle('active', currentTheme === 'dark');
+    elThemeLight.classList.toggle('active', currentTheme === 'light');
+    elThemeAuto.setAttribute('aria-pressed', currentTheme === 'auto');
+    elThemeDark.setAttribute('aria-pressed', currentTheme === 'dark');
+    elThemeLight.setAttribute('aria-pressed', currentTheme === 'light');
   }
 
   // --- Unuo-Ŝanĝo ---
@@ -293,6 +312,34 @@
     }
   });
 
+  // --- Inicializado ---
+  function init() {
+    _loadCachedValues();
+
+    // Inicializi temon
+    Theme.init();
+
+    // Inicializi instalo-administradon
+    Install.init(
+      () => {
+        // Kiam instalo eblas
+        elInstallSection.classList.remove('hidden');
+      },
+      () => {
+        // Kiam instalita
+        elInstallSection.classList.add('hidden');
+      }
+    );
+
+    if (!GPS.isAvailable()) {
+      _setStatus('error', 'GPS ne disponebla');
+      _showToast('Via aparato aŭ retumilo ne subtenas GPS', 6000);
+      return;
+    }
+
+    GPS.startAutoRefresh(_onGpsSuccess, _onGpsError, 5000);
+  }
+
   // --- Okazaĵ-Aŭskultiloj ---
   
   // Tuŝ-eventoj por ĉefa ekrano
@@ -316,6 +363,24 @@
   // Baza-alteco-butonoj
   elBtnSetBase.addEventListener('click', _setBaseHeight);
   elBtnClearBase.addEventListener('click', _clearBaseHeight);
+  
+  // Temo-butonoj
+  elThemeAuto.addEventListener('click', () => Theme.set('auto'));
+  elThemeLight.addEventListener('click', () => Theme.set('light'));
+  elThemeDark.addEventListener('click', () => Theme.set('dark'));
+  
+  // Historio-butono
+  elBtnViewHistory.addEventListener('click', () => {
+    window.location.href = 'history.html';
+  });
+  
+  // Instalo-butono
+  elBtnInstall.addEventListener('click', async () => {
+    const success = await Install.prompt();
+    if (success) {
+      _showToast('Aplikaĵo instalita!', 3000);
+    }
+  });
   
   // Fermi agordojn
   elBtnCloseSettings.addEventListener('click', _closeSettings);
@@ -345,19 +410,6 @@
       _manualRefresh();
     }
   });
-
-  // --- Inicializado ---
-  function init() {
-    _loadCachedValues();
-
-    if (!GPS.isAvailable()) {
-      _setStatus('error', 'GPS ne disponebla');
-      _showToast('Via aparato aŭ retumilo ne subtenas GPS', 6000);
-      return;
-    }
-
-    GPS.startAutoRefresh(_onGpsSuccess, _onGpsError, 5000);
-  }
 
   init();
 })();
