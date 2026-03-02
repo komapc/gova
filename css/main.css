@@ -1,5 +1,5 @@
 /* =========================================
-   GOVA — Ĉefaj Stiloj
+   GOVA — Minimuma Stilo
    ========================================= */
 
 /* --- CSS Custom Properties --- */
@@ -67,292 +67,360 @@ body {
   -moz-osx-font-smoothing: grayscale;
   transition: background-color var(--transition-normal),
               color var(--transition-normal);
+  overflow: hidden;
 }
 
-/* --- Kapsekcio --- */
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.app-title {
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
-}
-
-.btn-icon {
+/* --- Tutekrana Tuŝ-Areo --- */
+.fullscreen-tap-area {
+  width: 100vw;
+  height: 100dvh;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--color-text-secondary);
   cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast);
+  user-select: none;
+  -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
+  position: relative;
+  touch-action: manipulation;
 }
 
-.btn-icon:hover,
-.btn-icon:focus-visible {
-  background: var(--color-surface);
+/* --- Alteca Montrado --- */
+.altitude-display {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  transition: transform var(--transition-fast);
+}
+
+.altitude-value {
+  font-family: var(--font-mono);
+  font-size: clamp(6rem, 25vw, 16rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
   color: var(--color-text-primary);
-  outline: none;
+  transition: color var(--transition-fast);
 }
 
-.btn-icon:active {
-  transform: scale(0.93);
-}
-
-.btn-icon svg {
-  width: 22px;
-  height: 22px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-/* --- Ĉefa Enhavo --- */
-.app-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 20px;
-  gap: 12px;
-}
-
-/* --- GPS-Stato --- */
-.gps-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8125rem;
-  font-weight: 500;
+.altitude-unit {
+  font-family: var(--font-mono);
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 400;
   color: var(--color-text-secondary);
-  padding: 6px 14px;
-  border-radius: 999px;
-  background: var(--color-surface);
-  transition: color var(--transition-normal);
+  opacity: 0.6;
+  transition: opacity var(--transition-fast);
+}
+
+/* Tuŝ-Reago */
+.fullscreen-tap-area:active .altitude-display {
+  transform: scale(0.98);
+}
+
+.fullscreen-tap-area:active .altitude-value {
+  color: var(--color-accent);
+}
+
+.fullscreen-tap-area.refreshing .altitude-value {
+  color: var(--color-accent);
+  animation: pulse-color 1s ease-in-out infinite;
+}
+
+@keyframes pulse-color {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* --- Stato-Indikilo (supre-dekstre) --- */
+.status-indicator {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+  opacity: 0.4;
+  transition: opacity var(--transition-normal), background var(--transition-normal);
+  pointer-events: none;
+}
+
+.status-indicator[data-state="searching"] {
+  background: var(--color-warning);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.status-indicator[data-state="locked"] {
+  background: var(--color-success);
+}
+
+.status-indicator[data-state="error"] {
+  background: var(--color-error);
+  opacity: 0.6;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.2); }
+}
+
+/* --- Baza Alteco Indikilo (malsupre-maldekstre) --- */
+.base-indicator {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  font-size: 1.5rem;
+  color: var(--color-text-secondary);
+  opacity: 0.3;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+}
+
+.base-indicator.hidden {
+  display: none;
+}
+
+/* --- Agorda Tavolo --- */
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  opacity: 1;
+  transition: opacity var(--transition-normal);
+}
+
+.settings-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.settings-sheet {
+  background: var(--color-bg);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  max-height: 80vh;
+  overflow-y: auto;
+  transform: translateY(0);
+  transition: transform var(--transition-normal);
+  box-shadow: var(--shadow-md);
+}
+
+.settings-overlay.hidden .settings-sheet {
+  transform: translateY(100%);
+}
+
+/* Agorda Tenilo */
+.settings-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--color-text-secondary);
+  opacity: 0.3;
+  border-radius: 2px;
+  margin: 0 auto 1.5rem;
+}
+
+/* Agordaj Sekcioj */
+.settings-section {
+  margin-bottom: 2rem;
+}
+
+.settings-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Stato-Vico */
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .status-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--color-text-secondary);
   flex-shrink: 0;
   transition: background var(--transition-normal);
 }
 
-.gps-status[data-state="searching"] .status-dot {
+.status-dot[data-state="searching"] {
   background: var(--color-warning);
   animation: pulse 1.5s ease-in-out infinite;
 }
 
-.gps-status[data-state="locked"] .status-dot {
+.status-dot[data-state="locked"] {
   background: var(--color-success);
 }
 
-.gps-status[data-state="error"] .status-dot {
+.status-dot[data-state="error"] {
   background: var(--color-error);
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.85); }
+.status-text {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
 }
 
-/* --- Alteca Nombro --- */
-.altitude-container {
+.accuracy-text {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+/* Unuo-Elektilo */
+.unit-selector {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.unit-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-primary);
+  font-family: var(--font-system);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.unit-btn:hover {
+  border-color: var(--color-accent);
+}
+
+.unit-btn.active {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: white;
+}
+
+.unit-btn:active {
+  transform: scale(0.97);
+}
+
+/* Baza Alteco Kontroloj */
+.base-height-controls {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 0;
+  gap: 0.75rem;
 }
 
-.altitude-value {
-  font-family: var(--font-mono);
-  font-size: clamp(5rem, 20vw, 12rem);
-  font-weight: 700;
-  line-height: 0.9;
-  letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
+.btn-secondary {
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
   color: var(--color-text-primary);
-  transition: color var(--transition-fast);
-  min-width: 3ch;
-  text-align: right;
-}
-
-.altitude-value.updating {
-  color: var(--color-accent);
-}
-
-.altitude-unit {
-  font-family: var(--font-mono);
-  font-size: clamp(1.5rem, 5vw, 3rem);
-  font-weight: 400;
-  color: var(--color-text-secondary);
-  align-self: flex-end;
-  margin-bottom: 0.3em;
-  margin-left: 4px;
-}
-
-.altitude-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-}
-
-/* --- Precizeco --- */
-.accuracy-label {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-  font-variant-numeric: tabular-nums;
-  min-height: 1.4em;
-}
-
-/* --- Loknomo --- */
-.location-name {
+  font-family: var(--font-system);
   font-size: 0.9375rem;
-  color: var(--color-text-secondary);
-  text-align: center;
-  max-width: 280px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-height: 1.4em;
-  font-weight: 400;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* --- Lasta Ĝisdatigo --- */
-.last-update {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
-  opacity: 0.7;
-  min-height: 1.2em;
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: var(--color-surface);
 }
 
-/* --- Piedo --- */
-.app-footer {
-  padding: 16px 20px 32px;
-  display: flex;
-  justify-content: center;
+.btn-secondary:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
-.btn-refresh {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 28px;
+.btn-secondary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 1rem;
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: var(--color-accent);
-  color: #fff;
+  color: white;
   font-family: var(--font-system);
   font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  margin-top: 1rem;
+  transition: all var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
-  box-shadow: var(--shadow-md);
-  letter-spacing: 0.01em;
 }
 
-.btn-refresh:hover {
-  opacity: 0.88;
+.btn-primary:hover {
+  opacity: 0.9;
 }
 
-.btn-refresh:active {
-  transform: scale(0.96);
-  opacity: 0.8;
+.btn-primary:active {
+  transform: scale(0.98);
 }
 
-.btn-refresh:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btn-refresh svg {
-  width: 18px;
-  height: 18px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.btn-refresh.spinning svg {
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* --- Erarmesaĝo --- */
-.error-message {
+.info-text {
   font-size: 0.875rem;
-  color: var(--color-error);
-  text-align: center;
-  max-width: 280px;
-  display: none;
-}
-
-.error-message.visible {
-  display: block;
-}
-
-/* --- Offline-Indikilo --- */
-.offline-banner {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-  font-size: 0.8125rem;
   color: var(--color-text-secondary);
+  margin: 0;
 }
 
-.offline-banner.visible {
-  display: flex;
+/* --- Toasto --- */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  padding: 0.875rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-md);
+  z-index: 2000;
+  max-width: 90vw;
+  text-align: center;
+  opacity: 1;
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
 }
 
-.offline-banner svg {
-  width: 16px;
-  height: 16px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2;
-  stroke-linecap: round;
-  flex-shrink: 0;
+.toast.hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(1rem);
+  pointer-events: none;
 }
 
 /* --- Respondeca Aranĝo --- */
 @media (min-width: 600px) {
-  .app-main {
-    gap: 16px;
-  }
-
   .altitude-value {
-    font-size: clamp(8rem, 18vw, 14rem);
+    font-size: clamp(8rem, 20vw, 18rem);
+  }
+  
+  .altitude-unit {
+    font-size: clamp(2.5rem, 7vw, 5rem);
   }
 }
 
@@ -360,6 +428,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }

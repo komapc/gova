@@ -8,6 +8,7 @@ const Storage = (() => {
     LAST_ALT: 'gova_last_altitude',
     LAST_ACCURACY: 'gova_last_accuracy',
     LAST_LOCATION: 'gova_last_location_name',
+    BASE_HEIGHT: 'gova_base_height',
   };
 
   function safeGet(key, fallback = null) {
@@ -94,6 +95,30 @@ const Storage = (() => {
     safeRemove(KEYS.LAST_LOCATION);
   }
 
+  // --- Baza Alteco (metroj) ---
+
+  /** @returns {number|null} */
+  function getBaseHeight() {
+    const val = safeGet(KEYS.BASE_HEIGHT);
+    if (val === null) return null;
+    const n = parseFloat(val);
+    return isNaN(n) ? null : n;
+  }
+
+  /** @param {number} meters */
+  function setBaseHeight(meters) {
+    safeSet(KEYS.BASE_HEIGHT, meters);
+  }
+
+  function clearBaseHeight() {
+    safeRemove(KEYS.BASE_HEIGHT);
+  }
+
+  /** @returns {boolean} */
+  function hasBaseHeight() {
+    return getBaseHeight() !== null;
+  }
+
   return {
     getUnit,
     setUnit,
@@ -104,5 +129,9 @@ const Storage = (() => {
     getLastLocation,
     setLastLocation,
     clearLastLocation,
+    getBaseHeight,
+    setBaseHeight,
+    clearBaseHeight,
+    hasBaseHeight,
   };
 })();

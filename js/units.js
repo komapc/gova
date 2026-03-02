@@ -15,27 +15,43 @@ const Units = (() => {
   }
 
   /**
+   * Kalkulas montrotan altecon (relativa aŭ absoluta)
+   * @param {number} currentMeters - Nuna alteco en metroj
+   * @param {number|null} baseMeters - Baza alteco en metroj
+   * @returns {number} - Relativa aŭ absoluta alteco
+   */
+  function getDisplayAltitude(currentMeters, baseMeters) {
+    if (baseMeters === null) return currentMeters;
+    return currentMeters - baseMeters;
+  }
+
+  /**
    * Formatas altecon kun la ĝusta unuo.
    * @param {number|null} meters - Alteco en metroj
    * @param {'m'|'ft'} unit - Unuo
-   * @returns {{ value: string, unit: string }}
+   * @param {boolean} isRelative - Ĉu montras relativan altecon
+   * @returns {{ value: string, unit: string, prefix: string }}
    */
-  function formatAltitude(meters, unit) {
+  function formatAltitude(meters, unit, isRelative = false) {
     if (meters === null || meters === undefined || isNaN(meters)) {
-      return { value: '—', unit: unit === 'ft' ? 'ft' : 'm' };
+      return { value: '—', unit: unit === 'ft' ? 'ft' : 'm', prefix: '' };
     }
+
+    const prefix = isRelative ? (meters >= 0 ? '+' : '') : '';
 
     if (unit === 'ft') {
       const ft = toFeet(meters);
       return {
         value: Math.round(ft).toLocaleString('en'),
         unit: 'ft',
+        prefix,
       };
     }
 
     return {
       value: Math.round(meters).toLocaleString('en'),
       unit: 'm',
+      prefix,
     };
   }
 
@@ -69,6 +85,7 @@ const Units = (() => {
 
   return {
     toFeet,
+    getDisplayAltitude,
     formatAltitude,
     formatAccuracy,
     getUnitLabel,
