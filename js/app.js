@@ -30,6 +30,11 @@
   const elThemeLight = document.getElementById('theme-light');
   const elThemeDark = document.getElementById('theme-dark');
   const elBtnViewHistory = document.getElementById('btn-view-history');
+  const elBtnSavePoint = document.getElementById('btn-save-point');
+  const elBtnViewPoints = document.getElementById('btn-view-points');
+  const elPointsCount = document.getElementById('points-count');
+  const elTodayHighPoint = document.getElementById('today-high-point');
+  const elTodayLowPoint = document.getElementById('today-low-point');
   const elInstallSection = document.getElementById('install-section');
   const elBtnInstall = document.getElementById('btn-install');
   
@@ -151,6 +156,9 @@
 
     // Aldoni al historio
     History.add(altMeters, accuracy || 0, coords.latitude, coords.longitude);
+    
+    // Ĝisdatigi hodiaŭajn punktojn
+    SavedPoints.updateTodayPoints(altMeters, coords.latitude, coords.longitude);
   }
 
   // --- GPS-Eraro-Callback ---
@@ -321,6 +329,61 @@
     elThemeAuto.setAttribute('aria-pressed', currentTheme === 'auto');
     elThemeDark.setAttribute('aria-pressed', currentTheme === 'dark');
     elThemeLight.setAttribute('aria-pressed', currentTheme === 'light');
+    
+    // Ĝisdatigi konservitajn punktojn
+    _updateSavedPointsUI();
+  }
+  
+  // --- Ĝisdatigi Konservitajn Punktojn UI ---
+  function _updateSavedPointsUI() {
+    const summary = SavedPoints.getSummary();
+    
+    // Ĝisdatigi nombron
+    elPointsCount.textContent = summary.count;
+    
+    // Ĝisdatigi hodiaŭan plej altan
+    if (summary.todayHigh) {
+      const formatted = Units.formatAltitude(summary.todayHigh.altitude, currentUnit, false);
+      const time = new Date(summary.todayHigh.timestamp).toLocaleTimeString('eo', { hour: '2-digit', minute: '2-digit' });
+      elTodayHighPoint.querySelector('.point-value').textContent = `${formatted.value} ${formatted.unit} (${time})`;
+    } else {
+      elTodayHighPoint.querySelector('.point-value').textContent = '—';
+    }
+    
+    // Ĝisdatigi hodiaŭan plej malalta
+    if (summary.todayLow) {
+      const formatted = Units.formatAltitude(summary.todayLow.altitude, currentUnit, false);
+      const time = new Date(summary.todayLow.timestamp).toLocaleTimeString('eo', { hour: '2-digit', minute: '2-digit' });
+      elTodayLowPoint.querySelector('.point-value').textContent = `${formatted.value} ${formatted.unit} (${time})`;
+    } else {
+      elTodayLowPoint.querySelector('.point-value').textContent = '—';
+    }
+  }
+  
+  // --- Konservi Nunan Punkton ---
+  function _saveCurrentPoint() {
+    const currentAlt = Storage.getLastAlt();
+    if (currentAlt === null) {
+      _showToast('Neniu GPS-datumo disponebla');
+      return;
+    }
+    
+    // Bezonas koordinatojn - uzu lastajn el historio
+    const history = History.getAll();
+    if (history.length === 0) {
+      _showToast('Neniu loko-datumo disponebla');
+      return;
+    }
+    
+    const lastEntry = history[history.length - 1];
+    const point = SavedPoints.save(currentAlt, lastEntry.latitude, lastEntry.longitude);
+    
+    if (point) {
+      _showToast(`Punkto konservita: ${point.name}`);
+      _updateSavedPointsUI();
+    } else {
+      _showToast('Eraro konservante punkton');
+    }
   }
 
   // --- Unuo-Ŝanĝo ---
@@ -428,6 +491,14 @@
   // Historio-butono
   elBtnViewHistory.addEventListener('click', () => {
     window.location.href = 'history.html';
+  });
+  
+  // Saved Points butonoj
+  elBtnSavePoint.addEventListener('click', _saveCurrentPoint);
+  
+  elBtnViewPoints.addEventListener('click', () => {
+    // TODO: Krei saved-points.html paĝon
+    _showToast('Punktoj-paĝo baldaŭ venos!', 2000);
   });
   
   // Instalo-butono

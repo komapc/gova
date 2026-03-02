@@ -92,6 +92,27 @@
         <button id="btn-view-history" class="btn-secondary">Vidi Historion</button>
       </div>
 
+      <!-- Konservitaj Punktoj -->
+      <div class="settings-section">
+        <label class="settings-label">Konservitaj Punktoj</label>
+        <button id="btn-save-point" class="btn-secondary">💾 Konservi Nunan Punkton</button>
+        
+        <div id="today-points" class="today-points">
+          <div class="point-item" id="today-high-point">
+            <span class="point-icon">⬆️</span>
+            <span class="point-label">Hodiaŭa plej alta:</span>
+            <span class="point-value">—</span>
+          </div>
+          <div class="point-item" id="today-low-point">
+            <span class="point-icon">⬇️</span>
+            <span class="point-label">Hodiaŭa plej malalta:</span>
+            <span class="point-value">—</span>
+          </div>
+        </div>
+        
+        <button id="btn-view-points" class="btn-secondary">📍 Vidi Ĉiujn Punktojn (<span id="points-count">0</span>)</button>
+      </div>
+
       <!-- Instalo -->
       <div id="install-section" class="settings-section hidden">
         <label class="settings-label">Instali Aplikaĵon</label>
@@ -114,6 +135,7 @@
   <script src="js/storage.js"></script>
   <script src="js/units.js"></script>
   <script src="js/history.js"></script>
+  <script src="js/saved-points.js"></script>
   <script src="js/chart.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/install.js"></script>
