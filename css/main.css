@@ -432,3 +432,78 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* === TEMO-ELEKTILO === */
+.theme-selector {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--color-surface);
+  padding: 0.25rem;
+  border-radius: var(--radius-md);
+}
+
+.theme-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.theme-btn.active {
+  background: var(--color-accent);
+  color: white;
+}
+
+.theme-btn:not(.active):hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--color-text-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  .theme-btn:not(.active):hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* === INSTALO-SEKCIO === */
+#install-section {
+  border-top: 1px solid var(--color-border);
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+#install-section .info-text {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* === HELA TEMO DEVIGO === */
+:root.light {
+  --color-bg: #FAFAFA;
+  --color-surface: #F0F0F0;
+  --color-text-primary: #0A0A0A;
+  --color-text-secondary: #6B7280;
+  --color-accent: #2563EB;
+  --color-border: rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.10);
+}
+
+/* === MALHELA TEMO DEVIGO === */
+:root.dark {
+  --color-bg: #0A0A0A;
+  --color-surface: #141414;
+  --color-text-primary: #F5F5F5;
+  --color-text-secondary: #9CA3AF;
+  --color-accent: #3B82F6;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
