@@ -5,8 +5,8 @@
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const reg = await navigator.serviceWorker.register('/sw.js', {
-        scope: '/',
+      const reg = await navigator.serviceWorker.register('./sw.js', {
+        scope: './',
       });
       console.log('[SW] Registrita:', reg.scope);
 
