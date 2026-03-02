@@ -441,14 +441,21 @@
     // Inicializi instalo-administradon
     Install.init(
       () => {
-        // Kiam instalo eblas
-        elInstallSection.classList.remove('hidden');
+        // Kiam instalo eblas (beforeinstallprompt)
+        if (!Install.isInstalled()) {
+          elInstallSection.classList.remove('hidden');
+        }
       },
       () => {
-        // Kiam instalita
+        // Kiam instalita (appinstalled aŭ jam instalita)
         elInstallSection.classList.add('hidden');
       }
     );
+    
+    // Tuja kontrolo - kaŝi se jam instalita
+    if (Install.isInstalled()) {
+      elInstallSection.classList.add('hidden');
+    }
 
     if (!GPS.isAvailable()) {
       _setStatus('error', 'GPS ne disponebla');
