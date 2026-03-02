@@ -4,7 +4,7 @@
 
 const Chart = (() => {
   /**
-   * Desegnas linean grafikon sur canvas.
+   * Desegnas linean grafikon sur canvas kun glatigo kaj gradientoj.
    * @param {HTMLCanvasElement} canvas
    * @param {Array} data - Array de {timestamp, altitude}
    * @param {Object} options - Opcioj
@@ -19,21 +19,27 @@ const Chart = (() => {
     const {
       lineColor = '#2563EB',
       fillColor = 'rgba(37, 99, 235, 0.1)',
-      gridColor = 'rgba(255, 255, 255, 0.1)',
+      gridColor = 'rgba(255, 255, 255, 0.05)',
       textColor = '#9CA3AF',
       showGrid = true,
       showLabels = true,
-      padding = 40
+      padding = 50,
+      smooth = true
     } = options;
 
     // Viŝi canvas
     ctx.clearRect(0, 0, width, height);
 
-    // Kalkuli min/max
+    // Kalkuli min/max por skali
     const altitudes = data.map(d => d.altitude);
     const minAlt = Math.min(...altitudes);
     const maxAlt = Math.max(...altitudes);
-    const range = maxAlt - minAlt || 1;
+    const altRange = maxAlt - minAlt || 10; // minimume 10m gamo por aspekto
+    
+    // Aldoni iom da "spiro" supre kaj malsupre
+    const displayMin = minAlt - altRange * 0.1;
+    const displayMax = maxAlt + altRange * 0.1;
+    const displayRange = displayMax - displayMin;
 
     const minTime = data[0].timestamp;
     const maxTime = data[data.length - 1].timestamp;
@@ -43,21 +49,22 @@ const Chart = (() => {
     const chartWidth = width - padding * 2;
     const chartHeight = height - padding * 2;
 
-    // Funkcio por mapigi valorojn al koordinatoj
+    // Funkcioj por mapigi valorojn al koordinatoj
     const xScale = (timestamp) => {
       return padding + ((timestamp - minTime) / timeRange) * chartWidth;
     };
 
     const yScale = (altitude) => {
-      return height - padding - ((altitude - minAlt) / range) * chartHeight;
+      return height - padding - ((altitude - displayMin) / displayRange) * chartHeight;
     };
 
-    // Desegni kradon
+    // 1. Desegni kradon
     if (showGrid) {
       ctx.strokeStyle = gridColor;
       ctx.lineWidth = 1;
+      ctx.setLineDash([5, 5]);
 
-      // Horizontalaj linioj (5 linioj)
+      // Horizontalaj linioj
       for (let i = 0; i <= 4; i++) {
         const y = padding + (chartHeight / 4) * i;
         ctx.beginPath();
@@ -65,73 +72,118 @@ const Chart = (() => {
         ctx.lineTo(width - padding, y);
         ctx.stroke();
       }
-
-      // Vertikalaj linioj (4 linioj)
-      for (let i = 0; i <= 3; i++) {
-        const x = padding + (chartWidth / 3) * i;
-        ctx.beginPath();
-        ctx.moveTo(x, padding);
-        ctx.lineTo(x, height - padding);
-        ctx.stroke();
-      }
+      ctx.setLineDash([]);
     }
 
-    // Desegni etikedojn
+    // 2. Desegni etikedojn
     if (showLabels) {
       ctx.fillStyle = textColor;
-      ctx.font = '12px system-ui, sans-serif';
+      ctx.font = '500 12px system-ui, -apple-system, sans-serif';
       ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
 
-      // Y-akso etikedoj
       for (let i = 0; i <= 4; i++) {
-        const alt = minAlt + (range / 4) * (4 - i);
+        const alt = displayMax - (displayRange / 4) * i;
         const y = padding + (chartHeight / 4) * i;
-        ctx.fillText(Math.round(alt) + 'm', padding - 10, y + 4);
+        ctx.fillText(Math.round(alt) + ' m', padding - 12, y);
       }
 
-      // X-akso etikedoj (tempo)
       ctx.textAlign = 'center';
-      for (let i = 0; i <= 3; i++) {
-        const time = minTime + (timeRange / 3) * i;
-        const x = padding + (chartWidth / 3) * i;
+      const steps = data.length > 5 ? 3 : 1;
+      for (let i = 0; i <= steps; i++) {
+        const time = minTime + (timeRange / steps) * i;
+        const x = padding + (chartWidth / steps) * i;
         const date = new Date(time);
         const label = date.toLocaleTimeString('eo', { hour: '2-digit', minute: '2-digit' });
-        ctx.fillText(label, x, height - padding + 20);
+        ctx.fillText(label, x, height - padding + 25);
       }
     }
 
-    // Desegni plenigan areon
-    ctx.fillStyle = fillColor;
+    // Prepari punktojn
+    const points = data.map(d => ({
+      x: xScale(d.timestamp),
+      y: yScale(d.altitude)
+    }));
+
+    // 3. Desegni gradientan plenigon
+    const gradient = ctx.createLinearGradient(0, padding, 0, height - padding);
+    gradient.addColorStop(0, fillColor.replace('0.1', '0.3').replace('0.2', '0.4'));
+    gradient.addColorStop(1, 'rgba(37, 99, 235, 0)');
+
+    ctx.fillStyle = gradient;
     ctx.beginPath();
-    ctx.moveTo(xScale(data[0].timestamp), height - padding);
+    ctx.moveTo(points[0].x, height - padding);
     
-    data.forEach(point => {
-      ctx.lineTo(xScale(point.timestamp), yScale(point.altitude));
-    });
+    if (smooth && points.length > 2) {
+      ctx.lineTo(points[0].x, points[0].y);
+      for (let i = 0; i < points.length - 1; i++) {
+        const xc = (points[i].x + points[i + 1].x) / 2;
+        const yc = (points[i].y + points[i + 1].y) / 2;
+        ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+      }
+      ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+    } else {
+      points.forEach(p => ctx.lineTo(p.x, p.y));
+    }
     
-    ctx.lineTo(xScale(data[data.length - 1].timestamp), height - padding);
+    ctx.lineTo(points[points.length - 1].x, height - padding);
     ctx.closePath();
     ctx.fill();
 
-    // Desegni lineon
+    // 4. Desegni la ĉefan linion
     ctx.strokeStyle = lineColor;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
+    
+    // Aldoni subtilan ombron/brilon
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetY = 2;
+
     ctx.beginPath();
-    
-    data.forEach((point, i) => {
-      const x = xScale(point.timestamp);
-      const y = yScale(point.altitude);
-      
-      if (i === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
+    if (smooth && points.length > 2) {
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 0; i < points.length - 1; i++) {
+        const xc = (points[i].x + points[i + 1].x) / 2;
+        const yc = (points[i].y + points[i + 1].y) / 2;
+        ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
       }
-    });
-    
+      ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+    } else {
+      points.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+    }
     ctx.stroke();
+    
+    // Forigi ombron por ceteraj elementoj
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    // 5. Elstarigi ekstremojn (Min/Max)
+    const highlightPoint = (point, color, label) => {
+      ctx.fillStyle = color;
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      
+      ctx.fillStyle = textColor;
+      ctx.font = 'bold 10px system-ui, sans-serif';
+      ctx.fillText(label, point.x, point.y - 12);
+    };
+
+    if (points.length > 1) {
+      const maxIdx = altitudes.indexOf(maxAlt);
+      const minIdx = altitudes.indexOf(minAlt);
+      
+      highlightPoint(points[maxIdx], '#EF4444', 'MAX');
+      highlightPoint(points[minIdx], '#10B981', 'MIN');
+    }
   }
 
   /**
