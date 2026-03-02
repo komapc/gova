@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="eo">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Gova — montras vian altecon super marnivelo per GPS" />
+  <meta name="theme-color" content="#2563EB" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#2563EB" media="(prefers-color-scheme: dark)" />
+
+  <!-- PWA -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Gova" />
+
+  <!-- Ikonoj -->
+  <link rel="icon" type="image/x-icon" href="/icons/favicon.ico" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png" />
+  <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png" />
+
+  <!-- Manifesto -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Stiloj -->
+  <link rel="stylesheet" href="/css/main.css" />
+
+  <title>Gova — Alteco</title>
+</head>
+<body>
+
+  <!-- Ofline-Sciigo -->
+  <div id="offline-banner" class="offline-banner" role="status" aria-live="polite">
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <line x1="1" y1="1" x2="23" y2="23"/>
+      <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/>
+      <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/>
+      <path d="M10.71 5.05A16 16 0 0 1 22.56 9"/>
+      <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/>
+      <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+      <circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/>
+    </svg>
+    Ofline — GPS funkcias, loknomo ne disponebla
+  </div>
+
+  <!-- Kapsekco -->
+  <header class="app-header">
+    <span class="app-title">Gova</span>
+    <a href="/settings.html" class="btn-icon" aria-label="Agordoj" title="Agordoj">
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </a>
+  </header>
+
+  <!-- Ĉefa Enhavo -->
+  <main class="app-main" role="main">
+
+    <!-- GPS-Stato -->
+    <div id="gps-status" class="gps-status" data-state="searching" role="status" aria-live="polite">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span id="status-text">Serĉas GPS...</span>
+    </div>
+
+    <!-- Alteco -->
+    <div class="altitude-container" aria-label="Alteco">
+      <div class="altitude-row">
+        <span id="altitude-value" class="altitude-value" aria-live="polite" aria-atomic="true">—</span>
+        <span id="altitude-unit" class="altitude-unit" aria-hidden="true">m</span>
+      </div>
+    </div>
+
+    <!-- Precizeco -->
+    <p id="accuracy-label" class="accuracy-label" aria-live="polite"></p>
+
+    <!-- Erarmesaĝo -->
+    <p id="error-message" class="error-message" role="alert"></p>
+
+    <!-- Loknomo -->
+    <p id="location-name" class="location-name" aria-live="polite"></p>
+
+    <!-- Lasta Ĝisdatigo -->
+    <p id="last-update" class="last-update" aria-live="polite"></p>
+
+  </main>
+
+  <!-- Piedo kun Refreŝ-Butono -->
+  <footer class="app-footer">
+    <button id="btn-refresh" class="btn-refresh" type="button" aria-label="Refreŝi altecon">
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <polyline points="23 4 23 10 17 10"/>
+        <polyline points="1 20 1 14 7 14"/>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+      </svg>
+      Refreŝi
+    </button>
+  </footer>
+
+  <!-- Skripto-Ordo: dependecoj unue -->
+  <script src="/js/storage.js"></script>
+  <script src="/js/units.js"></script>
+  <script src="/js/gps.js"></script>
+  <script src="/js/location-name.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/sw-register.js"></script>
+
+</body>
+</html>
