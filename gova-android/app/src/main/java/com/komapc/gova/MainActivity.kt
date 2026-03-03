@@ -97,6 +97,9 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
     var lastNetworkFetchTime by remember { mutableStateOf(0L) }
     var baseHeight by remember { mutableStateOf<Double?>(null) }
     var isRefreshing by remember { mutableStateOf(false) }
+    var isSettingsOpen by remember { mutableStateOf(false) }
+    var useFeet by remember { mutableStateOf(false) }
+
     var hasPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
@@ -178,74 +181,57 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                     onLongPress = {
                         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
                         vibrator.vibrate(50)
-                        // Set current GPS as base
-                        gpsAltitude?.let { baseHeight = it }
+                        isSettingsOpen = true
                     }
                 )
             },
         color = Color(0xFF0A0A0A)
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val isLandscape = maxWidth > maxHeight
             
-            // MAIN DISPLAY (GPS or Baro)
-            Column(
-                modifier = Modifier.align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Priority: MSL -> Baro -> raw GPS
-                val currentAlt = mslAltitude ?: baroAltitude.value ?: gpsAltitude ?: 0.0
-                val displayValue = if (mslAltitude != null || baroAltitude.value != null || gpsAltitude != null) {
-                    val valToDisplay = if (baseHeight != null) currentAlt - baseHeight!! else currentAlt
-                    String.format("%.0f", valToDisplay)
-                } else "—"
-
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(
-                        text = displayValue,
-                        color = if (isRefreshing) Color(0xFF3B82F6) else Color.White,
-                        fontSize = 100.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily.Monospace
-                    )
-                    Text(
-                        text = "m",
-                        color = Color.Gray,
-                        fontSize = 30.sp,
-                        modifier = Modifier.padding(bottom = 20.dp, start = 4.dp)
-                    )
-                }
-                
-                if (baseHeight != null) {
-                    Text("Δ RELATIVA", color = Color(0xFF3B82F6), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                }
-            }
-
-            // INFO GRID (Bottom)
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 80.dp)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Raw Data Row
+            if (isLandscape) {
+                // LANDSCAPE LAYOUT
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                    modifier = Modifier.fillMaxSize().padding(32.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    InfoItem("GPS", gpsAltitude, vAccuracy)
-                    InfoItem("MSL", mslAltitude, null)
-                    InfoItem("BARO", baroAltitude.value, null)
+                    // Left Side: Altitude
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        AltitudeDisplay(mslAltitude, baroAltitude.value, gpsAltitude, baseHeight, isRefreshing, useFeet)
+                    }
+
+                    // Right Side: Info Grid
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        InfoGrid(gpsAltitude, mslAltitude, baroAltitude.value, hAccuracy, vAccuracy, useFeet)
+                    }
                 }
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                // Accuracy Text
-                Text(
-                    text = "Precizeco: H ±${String.format("%.0f", hAccuracy ?: 0f)}m | V ±${String.format("%.0f", vAccuracy ?: 0f)}m",
-                    color = Color.Gray.copy(alpha = 0.6f),
-                    fontSize = 12.sp
-                )
+            } else {
+                // PORTRAIT LAYOUT
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Column(
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        AltitudeDisplay(mslAltitude, baroAltitude.value, gpsAltitude, baseHeight, isRefreshing, useFeet)
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 80.dp)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        InfoGrid(gpsAltitude, mslAltitude, baroAltitude.value, hAccuracy, vAccuracy, useFeet)
+                    }
+                }
             }
 
             // Disclaimer (very bottom)
@@ -257,6 +243,21 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 16.dp)
             )
+
+            // SETTINGS MODAL
+            if (isSettingsOpen) {
+                SettingsSheet(
+                    gpsAltitude = gpsAltitude,
+                    mslAltitude = mslAltitude,
+                    baroAltitude = baroAltitude.value,
+                    baseHeight = baseHeight,
+                    useFeet = useFeet,
+                    onClose = { isSettingsOpen = false },
+                    onToggleUnits = { useFeet = !useFeet },
+                    onSetBase = { baseHeight = mslAltitude ?: baroAltitude.value ?: gpsAltitude },
+                    onClearBase = { baseHeight = null }
+                )
+            }
         }
     }
 
@@ -269,17 +270,175 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
 }
 
 @Composable
-fun InfoItem(label: String, value: Double?, accuracy: Float?) {
+fun AltitudeDisplay(msl: Double?, baro: Double?, gps: Double?, base: Double?, isRefreshing: Boolean, useFeet: Boolean) {
+    val currentAlt = msl ?: baro ?: gps ?: 0.0
+    val rawValue = if (msl != null || baro != null || gps != null) {
+        if (base != null) currentAlt - base else currentAlt
+    } else null
+    
+    val displayValue = if (rawValue != null) {
+        val convertedValue = if (useFeet) rawValue * 3.28084 else rawValue
+        String.format("%.0f", convertedValue)
+    } else "—"
+
+    Row(verticalAlignment = Alignment.Bottom) {
+        Text(
+            text = displayValue,
+            color = if (isRefreshing) Color(0xFF3B82F6) else Color.White,
+            fontSize = 100.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Monospace
+        )
+        Text(
+            text = if (useFeet) "ft" else "m",
+            color = Color.Gray,
+            fontSize = 30.sp,
+            modifier = Modifier.padding(bottom = 20.dp, start = 4.dp)
+        )
+    }
+    
+    if (base != null) {
+        Text("Δ RELATIVA", color = Color(0xFF3B82F6), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun InfoGrid(gps: Double?, msl: Double?, baro: Double?, hAcc: Float?, vAcc: Float?, useFeet: Boolean) {
+    // Raw Data Row
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        InfoItem("GPS", gps, vAcc, useFeet)
+        InfoItem("MSL", msl, null, useFeet)
+        InfoItem("BARO", baro, null, useFeet)
+    }
+    
+    Spacer(modifier = Modifier.height(24.dp))
+    
+    // Accuracy Text
+    val hAccDisp = if (useFeet) (hAcc ?: 0f) * 3.28084f else (hAcc ?: 0f)
+    val vAccDisp = if (useFeet) (vAcc ?: 0f) * 3.28084f else (vAcc ?: 0f)
+    val unitStr = if (useFeet) "ft" else "m"
+    
+    Text(
+        text = "Precizeco: H ±${String.format("%.0f", hAccDisp)}${unitStr} | V ±${String.format("%.0f", vAccDisp)}${unitStr}",
+        color = Color.Gray.copy(alpha = 0.6f),
+        fontSize = 12.sp
+    )
+}
+
+@Composable
+fun SettingsSheet(
+    gpsAltitude: Double?,
+    mslAltitude: Double?,
+    baroAltitude: Double?,
+    baseHeight: Double?,
+    useFeet: Boolean,
+    onClose: () -> Unit,
+    onToggleUnits: () -> Unit,
+    onSetBase: () -> Unit,
+    onClearBase: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.8f))
+            .clickable { onClose() }
+    ) {
+        Surface(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .clickable(enabled = false) {}, // Prevent closing when clicking the sheet itself
+            color = Color(0xFF1A1A1A),
+            shape = MaterialTheme.shapes.large
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .navigationBarsPadding()
+            ) {
+                Text(
+                    "AGORDOJ",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                // Units Section
+                Text("UNUOJ", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(if (useFeet) "Futoj (ft)" else "Metroj (m)", color = Color.White)
+                    Switch(checked = useFeet, onCheckedChange = { onToggleUnits() })
+                }
+
+                Divider(color = Color.Gray.copy(alpha = 0.2f), modifier = Modifier.padding(vertical = 12.dp))
+
+                // Base Height Section
+                Text("BAZA ALTECO", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Button(
+                        onClick = { onSetBase(); onClose() },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
+                    ) {
+                        Text("FIKSI BAZON")
+                    }
+                    Button(
+                        onClick = { onClearBase(); onClose() },
+                        modifier = Modifier.weight(1f),
+                        enabled = baseHeight != null,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
+                    ) {
+                        Text("FORIGI")
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Close Button
+                TextButton(
+                    onClick = { onClose() },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text("FERMI", color = Color.Gray)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun InfoItem(label: String, value: Double?, accuracy: Float?, useFeet: Boolean) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = label, color = Color.Gray, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+        val displayVal = if (value != null) {
+            val converted = if (useFeet) value * 3.28084 else value
+            String.format("%.1f %s", converted, if (useFeet) "ft" else "m")
+        } else "—"
+        
         Text(
-            text = value?.let { String.format("%.1f m", it) } ?: "—",
+            text = displayVal,
             color = Color.White.copy(alpha = 0.8f),
             fontSize = 18.sp,
             fontFamily = FontFamily.Monospace
         )
         accuracy?.let {
-            Text(text = "±${String.format("%.0f", it)}m", color = Color.Gray, fontSize = 9.sp)
+            val accDisp = if (useFeet) it * 3.28084f else it
+            Text(text = "±${String.format("%.0f", accDisp)}", color = Color.Gray, fontSize = 9.sp)
         }
     }
 }
