@@ -1,5 +1,7 @@
 # Gova — Resumo de Ŝanĝoj
 
+> **Noto:** Spite al la suba rekomendo, ni decidis kaj sukcese efektivigis nativan Android-aplikaĵon (en `gova-android/`) por ekhavi rektan aliron al la aparatara barometro por pli preciza alteco-mezurado.
+
 ## ✅ Aldonitaj Testoj
 
 ### Kreitaj Dosieroj
