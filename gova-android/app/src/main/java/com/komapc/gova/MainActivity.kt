@@ -140,9 +140,19 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient) {
                     fontSize = 14.sp,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(32.dp)
+                        .padding(bottom = 64.dp)
                 )
             }
+
+            // Disclaimer
+            Text(
+                text = "Atento: Alteco-datumoj eble ne estas tute precizaj pro GPS-limigoj.",
+                color = Color.Gray.copy(alpha = 0.4f),
+                fontSize = 10.sp,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp)
+            )
         }
     }
 
