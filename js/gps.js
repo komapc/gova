@@ -51,18 +51,58 @@ const GPS = (() => {
   /**
    * Akiras altecon de Open-Elevation API (kiam rete).
    * Redonas null se eraro aŭ ofline.
+   * Uzas localStorage por kaŝmemoro por ŝpari ret-petojn kaj por senreta uzo.
    * @param {number} lat
    * @param {number} lon
    * @returns {Promise<number|null>}
    */
   async function getMSLAltitude(lat, lon) {
+    const CACHE_KEY = 'gova_msl_cache';
+    const MAX_DIST_M = 100; // 100m radiuso
+    const MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 horoj
+
+    // 1. Kontroli lokan kaŝmemoron
+    try {
+      const cachedData = localStorage.getItem(CACHE_KEY);
+      if (cachedData) {
+        const cache = JSON.parse(cachedData);
+        const now = Date.now();
+        
+        // Trovi proksiman punkton en kaŝmemoro
+        const found = cache.find(p => {
+          const dLat = Math.abs(p.lat - lat);
+          const dLon = Math.abs(p.lon - lon);
+          // Tre simpla distanco-proksimumo (0.001 grado ~= 111m)
+          return dLat < 0.0009 && dLon < 0.0009 && (now - p.ts < MAX_AGE_MS);
+        });
+
+        if (found) return found.alt;
+      }
+    } catch (e) {}
+
+    // 2. Se ne trovis aŭ malnova, peti de API
     if (!navigator.onLine) return null;
+    
     try {
       const url = `https://api.open-elevation.com/api/v1/lookup?locations=${lat},${lon}`;
       const resp = await fetch(url, { signal: AbortSignal.timeout(8000) });
       if (!resp.ok) return null;
       const data = await resp.json();
-      return data?.results?.[0]?.elevation ?? null;
+      const alt = data?.results?.[0]?.elevation ?? null;
+
+      // 3. Konservi en kaŝmemoro
+      if (alt !== null) {
+        try {
+          let cache = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]');
+          // Limigi kaŝmemoron al 50 lokoj
+          if (cache.length > 50) cache.shift();
+          
+          cache.push({ lat, lon, alt, ts: Date.now() });
+          localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+        } catch (e) {}
+      }
+
+      return alt;
     } catch {
       return null;
     }
@@ -77,33 +117,13 @@ const GPS = (() => {
   function startAutoRefresh(onSuccess, onError, intervalMs = 5000) {
     stopAutoRefresh();
 
-    let mslCache = { lat: null, lon: null, alt: null, ts: 0 };
-    const MSL_CACHE_TTL = 60000; // 1 minuto
-
     async function fetchAndReport() {
       try {
         const pos = await getOnce();
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
 
-        // Uzu kaŝmemoron se la loko ne multe ŝanĝiĝis (< 100m)
-        const now = Date.now();
-        const cachedRecent = (now - mslCache.ts) < MSL_CACHE_TTL;
-        const sameArea =
-          mslCache.lat !== null &&
-          Math.abs(lat - mslCache.lat) < 0.001 &&
-          Math.abs(lon - mslCache.lon) < 0.001;
-
-        let mslAlt = null;
-        if (cachedRecent && sameArea) {
-          mslAlt = mslCache.alt;
-        } else {
-          mslAlt = await getMSLAltitude(lat, lon);
-          if (mslAlt !== null) {
-            mslCache = { lat, lon, alt: mslAlt, ts: now };
-          }
-        }
-
+        const mslAlt = await getMSLAltitude(lat, lon);
         onSuccess(pos, mslAlt);
       } catch (err) {
         onError(err);

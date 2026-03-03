@@ -504,8 +504,7 @@
   elBtnSavePoint.addEventListener('click', _saveCurrentPoint);
   
   elBtnViewPoints.addEventListener('click', () => {
-    // TODO: Krei saved-points.html paĝon
-    _showToast('Punktoj-paĝo baldaŭ venos!', 2000);
+    window.location.href = 'points.html';
   });
   
   // Instalo-butono

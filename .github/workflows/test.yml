@@ -41,6 +41,9 @@ jobs:
         test -f js/install.js
         test -f css/main.css
         test -f css/history.css
+        test -f gova-android/gradle.properties
+        test -f gova-android/app/build.gradle
+        test -f gova-android/app/src/main/AndroidManifest.xml
         echo "All files present!"
     
     - name: Test summary

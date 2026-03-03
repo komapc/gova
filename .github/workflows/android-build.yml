@@ -3,9 +3,8 @@ name: Build Android App Bundle (AAB)
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - 'gova-android/**'
-      - '.github/workflows/android-build.yml'
+  pull_request:
+    branches: [ "main" ]
   workflow_dispatch: # Permesas mane lanĉi la konstruon el GitHub
 
 jobs:
