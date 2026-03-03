@@ -3,11 +3,19 @@
 ## 📱 Android App (Current focus)
 - [x] Fix syntax and logic in `MainActivity.kt`
 - [ ] Verify Android build locally or via CI
-- [ ] Configure `assetlinks.json` for domain verification
+- [x] Implement EGM96 Geoid correction for accurate MSL altitude
 - [ ] Implement background GPS monitoring
 - [ ] Add home screen widget
 - [ ] Add notifications for altitude changes
 - [ ] Optimize battery consumption
+- [ ] **Android Watch (Wear OS)**
+    - [ ] Create Wear OS module
+    - [ ] Design complication for altitude
+    - [ ] Optimize UI for small screens
+- [ ] **Google Play Store**
+    - [ ] Register Google Play Developer account ($25)
+    - [ ] Prepare store listing (Espéranto, English)
+    - [ ] Upload signed AAB (Android App Bundle)
 
 ## 🌐 PWA Enhancements
 - [ ] **Installability**

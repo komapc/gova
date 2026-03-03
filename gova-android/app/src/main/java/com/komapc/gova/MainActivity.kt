@@ -33,7 +33,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
 import kotlin.math.pow
 
 class MainActivity : ComponentActivity(), SensorEventListener {
@@ -82,11 +88,13 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 @Composable
 fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: State<Double?>) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     var gpsAltitude by remember { mutableStateOf<Double?>(null) }
     var mslAltitude by remember { mutableStateOf<Double?>(null) }
     var hAccuracy by remember { mutableStateOf<Float?>(null) }
     var vAccuracy by remember { mutableStateOf<Float?>(null) }
     
+    var lastNetworkFetchTime by remember { mutableStateOf(0L) }
     var baseHeight by remember { mutableStateOf<Double?>(null) }
     var isRefreshing by remember { mutableStateOf(false) }
     var hasPermission by remember {
@@ -117,9 +125,42 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                     }
                 }
                 
-                // On Android, "altitude" is already Ellipsoid height.
-                // We don't have a built-in EGM96 provider, but we could add one.
-                // For now, let's treat the location altitude as the primary.
+                // Try to get MSL natively (Android 14+ / API 34)
+                if (Build.VERSION.SDK_INT >= 34 /* Build.VERSION_CODES.UPSIDE_DOWN_CAKE */) {
+                    if (location.hasMslAltitude()) {
+                        mslAltitude = location.mslAltitudeMeters
+                    }
+                }
+                
+                // Fallback to Open-Elevation API for Geoid correction if native MSL is unavailable
+                if (mslAltitude == null && (System.currentTimeMillis() - lastNetworkFetchTime > 60000)) {
+                    lastNetworkFetchTime = System.currentTimeMillis()
+                    coroutineScope.launch {
+                        try {
+                            val result = withContext(Dispatchers.IO) {
+                                val url = URL("https://api.open-elevation.com/api/v1/lookup?locations=${location.latitude},${location.longitude}")
+                                val connection = url.openConnection() as HttpURLConnection
+                                connection.requestMethod = "GET"
+                                connection.connectTimeout = 5000
+                                connection.readTimeout = 5000
+                                
+                                if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                                    val response = connection.inputStream.bufferedReader().use { it.readText() }
+                                    val jsonObject = JSONObject(response)
+                                    val results = jsonObject.getJSONArray("results")
+                                    if (results.length() > 0) {
+                                        results.getJSONObject(0).getDouble("elevation")
+                                    } else null
+                                } else null
+                            }
+                            if (result != null) {
+                                mslAltitude = result
+                            }
+                        } catch (e: Exception) {
+                            // Ignored, fallback to GPS altitude will remain
+                        }
+                    }
+                }
             }
         } else {
             launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -151,8 +192,9 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val currentAlt = baroAltitude.value ?: gpsAltitude ?: 0.0
-                val displayValue = if (gpsAltitude != null || baroAltitude.value != null) {
+                // Priority: MSL -> Baro -> raw GPS
+                val currentAlt = mslAltitude ?: baroAltitude.value ?: gpsAltitude ?: 0.0
+                val displayValue = if (mslAltitude != null || baroAltitude.value != null || gpsAltitude != null) {
                     val valToDisplay = if (baseHeight != null) currentAlt - baseHeight!! else currentAlt
                     String.format("%.0f", valToDisplay)
                 } else "—"
@@ -192,6 +234,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     InfoItem("GPS", gpsAltitude, vAccuracy)
+                    InfoItem("MSL", mslAltitude, null)
                     InfoItem("BARO", baroAltitude.value, null)
                 }
                 

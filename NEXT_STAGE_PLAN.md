@@ -1,5 +1,7 @@
 # Gova — Plano por Venonta Etapo
 
+> **Noto (Ĝisdatigo):** La Android-aplikaĵo estis finfine elektita kaj efektivigita kiel **plene nativa aplikaĵo** (per Kotlin kaj Jetpack Compose) por utiligi la aparatan barometron, anstataŭ uzi Capacitor aŭ TWA. Vidu `docs/plans/ANDROID_APP_PLAN.md` kaj la `gova-android` dosierujon.
+
 ## Nuna Stato
 Gova estas funkcianta PWA (Progressive Web App) kun:
 - ✓ GPS-bazita alteco-monitorado

@@ -1,5 +1,7 @@
 # Gova — Testoj kaj Venonta Etapo
 
+> **Noto:** Spite al la subaj rekomendoj por nur plibonigi la PWA-on, ni poste decidis konstrui plene nativan Android-aplikaĵon (per Kotlin kaj Jetpack Compose) por havi rektan aliron al la aparatara barometro. Vidu la dosierujon `gova-android/`.
+
 ## ✅ Kio Estas Farita
 
 ### 1. Testoj Aldonitaj
