@@ -29,7 +29,7 @@ jobs:
       uses: gradle/actions/setup-gradle@v3
       with:
         gradle-version: 8.5
-        cache-disabled: false
+        cache-disabled: true # Temporarily disabled to bypass GitHub cache service 400 errors
 
     - name: Generate Gradle Wrapper
       run: gradle wrapper --gradle-version 8.5
@@ -39,7 +39,7 @@ jobs:
         keytool -genkey -v -keystore gova-release.keystore -alias gova -keyalg RSA -keysize 2048 -validity 10000 -storepass "govapassword" -keypass "govapassword" -dname "CN=Koma PC, OU=Gova, O=Gova, L=City, ST=State, C=US"
         
     - name: Build Release AAB
-      run: gradle bundleRelease --no-daemon
+      run: ./gradlew bundleRelease --no-daemon
       
     - name: Upload AAB Artifact
       uses: actions/upload-artifact@v4
