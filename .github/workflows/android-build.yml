@@ -31,14 +31,14 @@ jobs:
         cache-disabled: false
 
     - name: Generate Gradle Wrapper
-      run: gradle wrapper
+      run: gradle wrapper --gradle-version 8.5
 
     - name: Generate Release Keystore
       run: |
         keytool -genkey -v -keystore gova-release.keystore -alias gova -keyalg RSA -keysize 2048 -validity 10000 -storepass "govapassword" -keypass "govapassword" -dname "CN=Koma PC, OU=Gova, O=Gova, L=City, ST=State, C=US"
         
     - name: Build Release AAB
-      run: ./gradlew bundleRelease --no-daemon
+      run: gradle bundleRelease --no-daemon
       
     - name: Upload AAB Artifact
       uses: actions/upload-artifact@v4
