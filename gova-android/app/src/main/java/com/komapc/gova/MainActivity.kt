@@ -285,7 +285,7 @@ fun AltitudeDisplay(msl: Double?, baro: Double?, gps: Double?, base: Double?, is
         Text(
             text = displayValue,
             color = if (isRefreshing) Color(0xFF3B82F6) else Color.White,
-            fontSize = 100.sp,
+            fontSize = 120.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Monospace
         )
