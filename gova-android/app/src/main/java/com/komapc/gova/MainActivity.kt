@@ -4,42 +4,20 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.os.Vibrator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
-import com.google.android.gms.location.*
-import kotlinx.coroutines.delay
-
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
-import android.os.Build
-import android.os.Vibrator
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -93,7 +71,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         if (event?.sensor?.type == Sensor.TYPE_PRESSURE) {
             val pressure = event.values[0]
             // Standard formula for altitude from pressure (P0 = 1013.25 hPa)
-            val altitude = 44330 * (1 - (pressure / 1013.25).pow(1 / 5.255))
+            val altitude = 44330 * (1 - (pressure / 1013.25f).pow(1 / 5.255f))
             _baroAltitude.value = altitude.toDouble()
         }
     }
@@ -259,15 +237,6 @@ fun InfoItem(label: String, value: Double?, accuracy: Float?) {
         )
         accuracy?.let {
             Text(text = "±${String.format("%.0f", it)}m", color = Color.Gray, fontSize = 9.sp)
-        }
-    }
-}
-
-
-    LaunchedEffect(isRefreshing) {
-        if (isRefreshing) {
-            delay(1000)
-            isRefreshing = false
         }
     }
 }
