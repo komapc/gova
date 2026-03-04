@@ -449,6 +449,15 @@ fun SettingsSheet(
                 ) {
                     Text("FERMI", color = Color.Gray)
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "v3.2.0 (Marto 2026)",
+                    color = Color.Gray.copy(alpha = 0.5f),
+                    fontSize = 12.sp,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
             }
         }
     }
