@@ -93,6 +93,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
     val coroutineScope = rememberCoroutineScope()
     var gpsAltitude by remember { mutableStateOf<Double?>(null) }
     var mslAltitude by remember { mutableStateOf<Double?>(null) }
+    var teroAltitude by remember { mutableStateOf<Double?>(null) }
     var hAccuracy by remember { mutableStateOf<Float?>(null) }
     var vAccuracy by remember { mutableStateOf<Float?>(null) }
     
@@ -138,8 +139,8 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                     }
                 }
                 
-                // Fallback to Open-Elevation API for Geoid correction if native MSL is unavailable
-                if (mslAltitude == null && (System.currentTimeMillis() - lastNetworkFetchTime > 60000)) {
+                // Fetch ground elevation (TERO) from Open-Elevation API
+                if (System.currentTimeMillis() - lastNetworkFetchTime > 60000) {
                     lastNetworkFetchTime = System.currentTimeMillis()
                     coroutineScope.launch {
                         try {
@@ -160,7 +161,10 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                                 } else null
                             }
                             if (result != null) {
-                                mslAltitude = result
+                                teroAltitude = result
+                                if (mslAltitude == null) {
+                                    mslAltitude = result
+                                }
                             }
                         } catch (e: Exception) {
                             // Ignored, fallback to GPS altitude will remain
@@ -213,7 +217,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        InfoGrid(gpsAltitude, mslAltitude, baroAltitude.value, hAccuracy, vAccuracy, useFeet)
+                        InfoGrid(gpsAltitude, mslAltitude, teroAltitude, baroAltitude.value, hAccuracy, vAccuracy, useFeet)
                     }
                 }
             } else {
@@ -234,7 +238,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                                 .fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            InfoGrid(gpsAltitude, mslAltitude, baroAltitude.value, hAccuracy, vAccuracy, useFeet)
+                            InfoGrid(gpsAltitude, mslAltitude, teroAltitude, baroAltitude.value, hAccuracy, vAccuracy, useFeet)
                         }
                     }
                 }
@@ -257,12 +261,13 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                 SettingsSheet(
                     gpsAltitude = gpsAltitude,
                     mslAltitude = mslAltitude,
+                    teroAltitude = teroAltitude,
                     baroAltitude = baroAltitude.value,
                     baseHeight = baseHeight,
                     useFeet = useFeet,
                     onClose = { isSettingsOpen = false },
                     onToggleUnits = { useFeet = !useFeet },
-                    onSetBase = { baseHeight = mslAltitude ?: baroAltitude.value ?: gpsAltitude },
+                    onSetBase = { baseHeight = teroAltitude ?: mslAltitude ?: baroAltitude.value ?: gpsAltitude },
                     onClearBase = { baseHeight = null }
                 )
             }
@@ -311,15 +316,26 @@ fun AltitudeDisplay(gps: Double?, msl: Double?, baro: Double?, base: Double?, is
 }
 
 @Composable
-fun InfoGrid(gps: Double?, msl: Double?, baro: Double?, hAcc: Float?, vAcc: Float?, useFeet: Boolean) {
+fun InfoGrid(gps: Double?, msl: Double?, tero: Double?, baro: Double?, hAcc: Float?, vAcc: Float?, useFeet: Boolean) {
+    // S.TERO calculation (GPS or MSL altitude above ground level)
+    val agl = if (tero != null) {
+        val currentAlt = gps ?: msl
+        if (currentAlt != null) {
+            maxOf(0.0, currentAlt - tero)
+        } else null
+    } else null
+
     // Raw Data Row
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         InfoItem("GPS", gps, vAcc, useFeet)
-        InfoItem("MSL", msl, null, useFeet)
-        InfoItem("BARO", baro, null, useFeet)
+        InfoItem("TERO", tero, null, useFeet)
+        InfoItem("S.TERO", agl, null, useFeet)
+        if (baro != null) {
+            InfoItem("BARO", baro, null, useFeet)
+        }
     }
     
     Spacer(modifier = Modifier.height(24.dp))
@@ -340,6 +356,7 @@ fun InfoGrid(gps: Double?, msl: Double?, baro: Double?, hAcc: Float?, vAcc: Floa
 fun SettingsSheet(
     gpsAltitude: Double?,
     mslAltitude: Double?,
+    teroAltitude: Double?,
     baroAltitude: Double?,
     baseHeight: Double?,
     useFeet: Boolean,
@@ -433,9 +450,9 @@ fun SettingsSheet(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "Precizeco: GPS baziĝas sur satelitoj (WGS84). MSL uzas Geoid-modelon. Barometro mezuras aerpremon (plej preciza por mallongaj ŝanĝoj).",
+                        "Precizeco: GPS baziĝas sur WGS84. MSL uzas Geoid-modelon. TERO estas ground elevation. BARO uzas aerpremon.",
                         color = Color.White.copy(alpha = 0.5f),
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         lineHeight = 16.sp
                     )
                 }
