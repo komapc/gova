@@ -39,9 +39,16 @@
   const elBtnInstall = document.getElementById('btn-install');
   
   const elToast = document.getElementById('toast');
+  const elInfoGrid = document.getElementById('info-grid');
+  const elValGps = document.getElementById('val-gps');
+  const elValAcc = document.getElementById('val-acc');
+  const elValMsl = document.getElementById('val-msl');
+  const elValBaro = document.getElementById('val-baro');
+  const elItemBaro = document.getElementById('item-baro');
 
   // --- Stato ---
   let currentUnit = Storage.getUnit();
+  let currentViewMode = 'informative'; // 'minimal' aŭ 'informative'
   let isRefreshing = false;
   let touchStartTime = 0;
   let touchStartY = 0;
@@ -97,15 +104,23 @@
     elAltitude.textContent = formatted.prefix + formatted.value;
     elUnit.textContent = formatted.unit;
     
+    // Ĝisdatigi Infan Gradon (Informative mode)
+    if (elValGps) {
+        const gpsFmt = Units.formatAltitude(meters, currentUnit, false);
+        elValGps.textContent = `${gpsFmt.value} ${gpsFmt.unit}`;
+    }
+    
     // Montri/kaŝi bazan indikilón
     elBaseIndicator.classList.toggle('hidden', !isRelative);
     
-    // Ĝisdatigi precizecon en agordoj
+    // Ĝisdatigi precizecon
     if (accuracyMeters !== null) {
       const accStr = Units.formatAccuracy(accuracyMeters, currentUnit);
       elAccuracyText.textContent = `Precizeco: ${accStr}`;
+      if (elValAcc) elValAcc.textContent = accStr;
     } else {
       elAccuracyText.textContent = '';
+      if (elValAcc) elValAcc.textContent = '';
     }
     
     // Konservi en localStorage
@@ -152,6 +167,13 @@
 
     // Ĝisdatigi montrado
     _updateAltitudeDisplay(altMeters, accuracy, true);
+    
+    // Ĝisdatigi MSL en info-grid
+    if (mslAlt !== null && elValMsl) {
+        const mslFmt = Units.formatAltitude(mslAlt, currentUnit, false);
+        elValMsl.textContent = `${mslFmt.value} ${mslFmt.unit}`;
+    }
+
     _setStatus('locked', mslAlt !== null ? 'GPS + MSL-korekcio' : 'GPS ŝlosita');
 
     // Aldoni al historio
@@ -267,9 +289,15 @@
     }
     
     if (touchDuration < LONG_PRESS_DURATION) {
-      // Mallonga tuŝo - refreŝi
+      // Mallonga tuŝo - Alterni inter Minimal kaj Informative
+      _toggleViewMode();
       _manualRefresh();
     }
+  }
+
+  function _toggleViewMode() {
+    currentViewMode = currentViewMode === 'minimal' ? 'informative' : 'minimal';
+    elMain.dataset.viewMode = currentViewMode;
   }
 
   function _triggerPullRefresh() {
@@ -434,6 +462,9 @@
   // --- Inicializado ---
   function init() {
     _loadCachedValues();
+    
+    // Komenca vido-reĝimo
+    elMain.dataset.viewMode = currentViewMode;
 
     // Inicializi temon
     Theme.init();

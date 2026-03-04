@@ -27,7 +27,7 @@
 <body>
 
   <!-- Tutekrana tuŝ-areo -->
-  <main id="main" class="fullscreen-tap-area" aria-label="Alteco">
+  <main id="main" class="fullscreen-tap-area" data-view-mode="informative" aria-label="Alteco">
     <!-- Pull-to-refresh indikilo -->
     <div id="pull-indicator" class="pull-indicator hidden">
       <div class="pull-icon">↓</div>
@@ -36,6 +36,23 @@
     <div class="altitude-display">
       <span id="altitude-value" class="altitude-value" aria-live="polite" aria-atomic="true">—</span>
       <span id="altitude-unit" class="altitude-unit">m</span>
+    </div>
+    
+    <!-- Detala krado por Informative reĝimo -->
+    <div id="info-grid" class="info-grid">
+      <div class="info-item">
+        <span class="info-label">GPS</span>
+        <span id="val-gps" class="info-value">—</span>
+        <span id="val-acc" class="info-accuracy"></span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">MSL</span>
+        <span id="val-msl" class="info-value">—</span>
+      </div>
+      <div id="item-baro" class="info-item hidden">
+        <span class="info-label">BARO</span>
+        <span id="val-baro" class="info-value">—</span>
+      </div>
     </div>
     
     <!-- Subtilaj indikiloj -->

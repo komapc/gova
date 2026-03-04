@@ -85,6 +85,8 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 }
 
+enum class ViewMode { MINIMAL, INFORMATIVE }
+
 @Composable
 fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: State<Double?>) {
     val context = LocalContext.current
@@ -99,6 +101,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
     var isRefreshing by remember { mutableStateOf(false) }
     var isSettingsOpen by remember { mutableStateOf(false) }
     var useFeet by remember { mutableStateOf(false) }
+    var currentViewMode by remember { mutableStateOf(ViewMode.INFORMATIVE) }
 
     var hasPermission by remember {
         mutableStateOf(
@@ -176,6 +179,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
+                        currentViewMode = if (currentViewMode == ViewMode.MINIMAL) ViewMode.INFORMATIVE else ViewMode.MINIMAL
                         isRefreshing = true
                     },
                     onLongPress = {
@@ -201,10 +205,10 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        AltitudeDisplay(mslAltitude, baroAltitude.value, gpsAltitude, baseHeight, isRefreshing, useFeet)
+                        AltitudeDisplay(gpsAltitude, mslAltitude, baroAltitude.value, baseHeight, isRefreshing, useFeet)
                     }
 
-                    // Right Side: Info Grid
+                    // Right Side: Info Grid (Always visible in Landscape for better space usage, or could be hidden if preferred)
                     Column(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -219,30 +223,34 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                         modifier = Modifier.align(Alignment.Center),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        AltitudeDisplay(mslAltitude, baroAltitude.value, gpsAltitude, baseHeight, isRefreshing, useFeet)
+                        AltitudeDisplay(gpsAltitude, mslAltitude, baroAltitude.value, baseHeight, isRefreshing, useFeet)
                     }
 
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(bottom = 80.dp)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        InfoGrid(gpsAltitude, mslAltitude, baroAltitude.value, hAccuracy, vAccuracy, useFeet)
+                    if (currentViewMode == ViewMode.INFORMATIVE) {
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 80.dp)
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            InfoGrid(gpsAltitude, mslAltitude, baroAltitude.value, hAccuracy, vAccuracy, useFeet)
+                        }
                     }
                 }
             }
 
-            // Disclaimer (very bottom)
-            Text(
-                text = "Atento: Alteco-datumoj baziĝas sur GPS/Barometro kaj eble ne estas tute precizaj.",
-                color = Color.Gray.copy(alpha = 0.4f),
-                fontSize = 10.sp,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp)
-            )
+            // Disclaimer (very bottom, only in Informative)
+            if (currentViewMode == ViewMode.INFORMATIVE) {
+                Text(
+                    text = "Atento: Alteco-datumoj baziĝas sur GPS/Barometro kaj eble ne estas tute precizaj.",
+                    color = Color.Gray.copy(alpha = 0.4f),
+                    fontSize = 10.sp,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 16.dp)
+                )
+            }
 
             // SETTINGS MODAL
             if (isSettingsOpen) {
@@ -270,15 +278,15 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
 }
 
 @Composable
-fun AltitudeDisplay(msl: Double?, baro: Double?, gps: Double?, base: Double?, isRefreshing: Boolean, useFeet: Boolean) {
-    val currentAlt = msl ?: baro ?: gps ?: 0.0
-    val rawValue = if (msl != null || baro != null || gps != null) {
+fun AltitudeDisplay(gps: Double?, msl: Double?, baro: Double?, base: Double?, isRefreshing: Boolean, useFeet: Boolean) {
+    val currentAlt = gps ?: msl ?: baro ?: 0.0
+    val rawValue = if (gps != null || msl != null || baro != null) {
         if (base != null) currentAlt - base else currentAlt
     } else null
     
     val displayValue = if (rawValue != null) {
         val convertedValue = if (useFeet) rawValue * 3.28084 else rawValue
-        String.format("%.0f", convertedValue)
+        String.format("%.1f", convertedValue)
     } else "—"
 
     Row(verticalAlignment = Alignment.Bottom) {
@@ -293,7 +301,7 @@ fun AltitudeDisplay(msl: Double?, baro: Double?, gps: Double?, base: Double?, is
             text = if (useFeet) "ft" else "m",
             color = Color.Gray,
             fontSize = 30.sp,
-            modifier = Modifier.padding(bottom = 20.dp, start = 4.dp)
+            modifier = Modifier.padding(bottom = 24.dp, start = 4.dp)
         )
     }
     
