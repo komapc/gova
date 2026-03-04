@@ -415,6 +415,31 @@ fun SettingsSheet(
                     }
                 }
 
+                Divider(color = Color.Gray.copy(alpha = 0.2f), modifier = Modifier.padding(vertical = 12.dp))
+
+                // About Section
+                Text("PRI GOVA", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .background(Color.White.copy(alpha = 0.05f), MaterialTheme.shapes.medium)
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        "Gova estas malfermkoda ilo por monitori altecon en Esperanto.",
+                        color = Color.White.copy(alpha = 0.7f),
+                        fontSize = 14.sp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "Precizeco: GPS baziĝas sur satelitoj (WGS84). MSL uzas Geoid-modelon. Barometro mezuras aerpremon (plej preciza por mallongaj ŝanĝoj).",
+                        color = Color.White.copy(alpha = 0.5f),
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Close Button
