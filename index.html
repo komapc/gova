@@ -11,7 +11,7 @@
   </script>
   
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#2563EB" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -26,33 +26,53 @@
 </head>
 <body>
 
-  <!-- Tutekrana tuŝ-areo -->
-  <main id="main" class="fullscreen-tap-area" data-view-mode="informative" aria-label="Alteco">
+  <!-- Tutekrana tuŝ-areo kun glit-ujo -->
+  <main id="main" class="fullscreen-tap-area" aria-label="Alteco">
+    <div id="screens-container" class="screens-container" data-current-screen="0">
+      
+      <!-- EKRANO 1: MINIMALA -->
+      <section class="screen minimal-screen">
+        <div class="altitude-display">
+          <span id="alt-val-min" class="altitude-value">—</span>
+          <span class="altitude-unit">m</span>
+        </div>
+      </section>
+
+      <!-- EKRANO 2: INFORMATIVA -->
+      <section class="screen informative-screen">
+        <div class="altitude-display">
+          <span id="alt-val-inf" class="altitude-value">—</span>
+          <span class="altitude-unit">m</span>
+        </div>
+        
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">GPS</span>
+            <span class="val-gps info-value">—</span>
+            <span class="val-acc info-accuracy"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">MSL</span>
+            <span class="val-msl info-value">—</span>
+          </div>
+          <div class="info-item item-baro hidden">
+            <span class="info-label">BARO</span>
+            <span class="val-baro info-value">—</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Paĝaj Indikiloj (Dots) -->
+    <div class="pagination-dots">
+      <span class="dot active" data-index="0"></span>
+      <span class="dot" data-index="1"></span>
+    </div>
+
     <!-- Pull-to-refresh indikilo -->
     <div id="pull-indicator" class="pull-indicator hidden">
       <div class="pull-icon">↓</div>
-    </div>
-    
-    <div class="altitude-display">
-      <span id="altitude-value" class="altitude-value" aria-live="polite" aria-atomic="true">—</span>
-      <span id="altitude-unit" class="altitude-unit">m</span>
-    </div>
-    
-    <!-- Detala krado por Informative reĝimo -->
-    <div id="info-grid" class="info-grid">
-      <div class="info-item">
-        <span class="info-label">GPS</span>
-        <span id="val-gps" class="info-value">—</span>
-        <span id="val-acc" class="info-accuracy"></span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">MSL</span>
-        <span id="val-msl" class="info-value">—</span>
-      </div>
-      <div id="item-baro" class="info-item hidden">
-        <span class="info-label">BARO</span>
-        <span id="val-baro" class="info-value">—</span>
-      </div>
     </div>
     
     <!-- Subtilaj indikiloj -->
@@ -138,6 +158,18 @@
         <button id="btn-view-points" class="btn-secondary">📍 Vidi Ĉiujn Punktojn (<span id="points-count">0</span>)</button>
       </div>
 
+      <!-- Pri Gova (About) -->
+      <div class="settings-section">
+        <label class="settings-label">Pri Gova</label>
+        <div class="about-card">
+          <p class="info-text">Gova estas malfermkoda ilo por monitori altecon en Esperanto.</p>
+          <p class="info-text" style="margin-top: 0.5rem;">
+            <strong>Precizeco:</strong> GPS-alteco baziĝas sur satelitoj (WGS84). MSL uzas Geoid-modelon. Barometro mezuras aerpremon (plej preciza por mallongaj ŝanĝoj).
+          </p>
+          <a href="https://github.com/komapc/gova" target="_blank" class="about-link">GitHub Projekto ↗</a>
+        </div>
+      </div>
+
       <!-- Instalo -->
       <div id="install-section" class="settings-section hidden">
         <label class="settings-label">Instali Aplikaĵon</label>
@@ -145,18 +177,11 @@
         <p class="info-text">Instalu por pli rapida aliro kaj offline-uzo</p>
       </div>
 
-      <!-- Disclaimer -->
-      <div class="settings-section">
-        <p id="disclaimer" class="info-text" style="font-size: 0.75rem; opacity: 0.7; text-align: center; margin-top: 1rem;">
-          Atento: Alteco-datumoj baziĝas sur GPS kaj eble ne estas tute precizaj pro fizikaj limoj de la satelita signalo.
-        </p>
-      </div>
-
       <!-- Ferma Butono -->
       <button id="btn-close-settings" class="btn-primary">Fermi</button>
 
       <!-- Versio -->
-      <div class="version-info">v3.1.0</div>
+      <div class="version-info">v3.2.0</div>
 
     </div>
   </div>

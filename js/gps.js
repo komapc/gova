@@ -22,6 +22,39 @@ const GPS = (() => {
     maximumAge: 30000,
   };
 
+  let _pressureSensor = null;
+  let _lastPressure = null;
+
+  /**
+   * Kalkulas altecon el aerpremo (P0 = 1013.25 hPa)
+   * @param {number} pressure - hPa
+   * @returns {number}
+   */
+  function calculateBaroAltitude(pressure) {
+    // Standard formula: 44330 * (1 - (P/P0)^(1/5.255))
+    return 44330 * (1 - Math.pow(pressure / 1013.25, 1 / 5.255));
+  }
+
+  /**
+   * Komencas aŭskulti la barometron se disponebla.
+   * @param {function} onUpdate - Callback(altitude)
+   */
+  function startBarometer(onUpdate) {
+    if ('PressureSensor' in window) {
+      try {
+        _pressureSensor = new PressureSensor({ frequency: 1 });
+        _pressureSensor.addEventListener('reading', () => {
+          _lastPressure = _pressureSensor.pressure;
+          const alt = calculateBaroAltitude(_lastPressure);
+          onUpdate(alt);
+        });
+        _pressureSensor.start();
+      } catch (e) {
+        console.warn('Barometro ne atingebla:', e);
+      }
+    }
+  }
+
   /**
    * Kontrolas ĉu Geolocation API estas disponebla.
    * @returns {boolean}
@@ -110,7 +143,7 @@ const GPS = (() => {
 
   /**
    * Komencas aŭtomatan ĝisdatigon ĉiuj `intervalMs` milisekundoj.
-   * @param {function} onSuccess - Callback(position, mslAltitude|null)
+   * @param {function} onSuccess - Callback(position, mslAltitude|null, baroAltitude|null)
    * @param {function} onError - Callback(error)
    * @param {number} intervalMs - Defaŭlto: 5000
    */
@@ -124,7 +157,11 @@ const GPS = (() => {
         const lon = pos.coords.longitude;
 
         const mslAlt = await getMSLAltitude(lat, lon);
-        onSuccess(pos, mslAlt);
+        
+        // Se ni havas lastan premon, ni povas doni ankaŭ barometran altecon
+        const baroAlt = _lastPressure ? calculateBaroAltitude(_lastPressure) : null;
+        
+        onSuccess(pos, mslAlt, baroAlt);
       } catch (err) {
         onError(err);
       }
@@ -146,6 +183,10 @@ const GPS = (() => {
     if (_autoInterval !== null) {
       clearInterval(_autoInterval);
       _autoInterval = null;
+    }
+    if (_pressureSensor) {
+      _pressureSensor.stop();
+      _pressureSensor = null;
     }
   }
 
@@ -176,5 +217,6 @@ const GPS = (() => {
     startAutoRefresh,
     stopAutoRefresh,
     getErrorMessage,
+    startBarometer,
   };
 })();

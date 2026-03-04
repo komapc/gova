@@ -70,20 +70,44 @@ body {
   overflow: hidden;
 }
 
-/* --- Tutekrana Tuŝ-Areo --- */
+/* --- Tutekrana Tuŝ-Areo & Glit-Ujo --- */
 .fullscreen-tap-area {
   width: 100vw;
   height: 100dvh;
   height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
   position: relative;
-  touch-action: manipulation;
+  touch-action: pan-y;
+}
+
+.screens-container {
+  display: flex;
+  width: 200vw;
+  height: 100%;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.screens-container[data-current-screen="0"] {
+  transform: translateX(0);
+}
+
+.screens-container[data-current-screen="1"] {
+  transform: translateX(-100vw);
+}
+
+.screen {
+  width: 100vw;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  flex-shrink: 0;
 }
 
 /* --- Alteca Montrado --- */
@@ -91,15 +115,11 @@ body {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
-  transition: transform var(--transition-fast), margin var(--transition-normal);
+  transition: transform var(--transition-fast);
 }
 
-[data-view-mode="minimal"] .altitude-display {
-  margin-bottom: 0;
-}
-
-[data-view-mode="informative"] .altitude-display {
-  margin-bottom: 2rem;
+.informative-screen .altitude-display {
+  margin-bottom: 3rem;
 }
 
 .altitude-value {
@@ -122,95 +142,13 @@ body {
   transition: opacity var(--transition-fast);
 }
 
-/* Tuŝ-Reago */
-.fullscreen-tap-area:active .altitude-display {
-  transform: scale(0.98);
-}
-
-.fullscreen-tap-area:active .altitude-value {
-  color: var(--color-accent);
-}
-
-.fullscreen-tap-area.refreshing .altitude-value {
-  color: var(--color-accent);
-  animation: pulse-color 1s ease-in-out infinite;
-}
-
-@keyframes pulse-color {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
-}
-
-/* --- Stato-Indikilo (supre-dekstre) --- */
-.status-indicator {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-success);
-  opacity: 0.4;
-  transition: opacity var(--transition-normal), background var(--transition-normal);
-  pointer-events: none;
-}
-
-.status-indicator[data-state="searching"] {
-  background: var(--color-warning);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-.status-indicator[data-state="locked"] {
-  background: var(--color-success);
-}
-
-.status-indicator[data-state="error"] {
-  background: var(--color-error);
-  opacity: 0.6;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.2); }
-}
-
-/* --- Baza Alteco Indikilo (malsupre-maldekstre) --- */
-.base-indicator {
-  position: fixed;
-  bottom: 1rem;
-  left: 1rem;
-  font-size: 1.5rem;
-  color: var(--color-text-secondary);
-  opacity: 0.3;
-  pointer-events: none;
-  transition: opacity var(--transition-normal);
-}
-
-.base-indicator.hidden {
-  display: none;
-}
-
-/* --- Info Grid (Informative Mode) --- */
+/* --- Info Grid (Informativa Ekrano) --- */
 .info-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
   width: 100%;
   max-width: 600px;
-  padding: 0 1.5rem;
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity var(--transition-normal), transform var(--transition-normal);
-  position: absolute;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-[data-view-mode="minimal"] .info-grid {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateX(-50%) translateY(20px);
 }
 
 .info-item {
@@ -245,39 +183,155 @@ body {
   display: none;
 }
 
+/* --- Pagination Dots --- */
+.pagination-dots {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.75rem;
+  z-index: 5;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-text-secondary);
+  opacity: 0.3;
+  transition: all 0.3s ease;
+}
+
+.dot.active {
+  opacity: 1;
+  background: var(--color-accent);
+  transform: scale(1.3);
+}
+
+/* Tuŝ-Reago */
+.screen:active .altitude-display {
+  transform: scale(0.98);
+}
+
+.screen:active .altitude-value {
+  color: var(--color-accent);
+}
+
+.fullscreen-tap-area.refreshing .altitude-value {
+  color: var(--color-accent);
+  animation: pulse-color 1s ease-in-out infinite;
+}
+
+@keyframes pulse-color {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* --- Stato-Indikilo (supre-dekstre) --- */
+.status-indicator {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+  opacity: 0.4;
+  transition: opacity var(--transition-normal), background var(--transition-normal);
+  pointer-events: none;
+  z-index: 20;
+}
+
+.status-indicator[data-state="searching"] {
+  background: var(--color-warning);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.status-indicator[data-state="locked"] {
+  background: var(--color-success);
+}
+
+.status-indicator[data-state="error"] {
+  background: var(--color-error);
+  opacity: 0.6;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.2); }
+}
+
+/* --- Baza Alteco Indikilo (malsupre-maldekstre) --- */
+.base-indicator {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  font-size: 1.5rem;
+  color: var(--color-text-secondary);
+  opacity: 0.3;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+  z-index: 20;
+}
+
+.base-indicator.hidden {
+  display: none;
+}
+
 /* --- Respondeca Aranĝo & Landscape --- */
 @media (orientation: landscape) {
-  .fullscreen-tap-area {
+  .screens-container {
+    width: 100vw;
+    transform: none !important;
+  }
+  
+  .screen {
     flex-direction: row !important;
-    padding: 2rem !important;
-    gap: 2rem !important;
     justify-content: space-evenly !important;
+    gap: 3rem;
   }
 
-  .altitude-display {
+  .minimal-screen {
+    display: none;
+  }
+
+  .informative-screen {
+    width: 100vw;
+  }
+
+  .informative-screen .altitude-display {
     margin-bottom: 0 !important;
   }
 
   .info-grid {
-    position: static !important;
-    transform: none !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    grid-template-columns: 1fr !important;
-    width: auto !important;
-    max-width: none !important;
-    padding: 0 !important;
-    gap: 1rem !important;
+    grid-template-columns: 1fr;
+    width: auto;
+    gap: 1.5rem;
     border-left: 1px solid var(--color-border);
-    padding-left: 2rem !important;
+    padding-left: 3rem;
   }
 
   .info-item {
-    align-items: flex-start !important;
+    align-items: flex-start;
   }
 
   .altitude-value {
-    font-size: clamp(6rem, 20vh, 14rem) !important;
+    font-size: clamp(6rem, 20vh, 14rem);
+  }
+
+  .pagination-dots {
+    display: none;
+  }
+}
+
+@media (min-width: 600px) and (orientation: portrait) {
+  .altitude-value {
+    font-size: clamp(8rem, 20vw, 18rem);
+  }
+  
+  .altitude-unit {
+    font-size: clamp(2.5rem, 7vw, 5rem);
   }
 }
 
@@ -518,6 +572,27 @@ body {
   margin: 0;
 }
 
+/* === Pri Gova (About) Card === */
+.about-card {
+  background: var(--color-surface);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.about-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--color-accent);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.about-link:hover {
+  text-decoration: underline;
+}
+
 /* --- Toasto --- */
 .toast {
   position: fixed;
@@ -732,4 +807,29 @@ body {
   color: var(--color-text-primary);
   font-weight: 600;
   font-family: var(--font-mono);
+}
+
+/* --- Respondeca Aranĝo por Agordoj (Desktop) --- */
+@media (min-width: 768px) {
+  .settings-overlay {
+    align-items: center;
+    padding: 2rem;
+  }
+
+  .settings-sheet {
+    border-radius: var(--radius-lg);
+    max-width: 600px;
+    max-height: 90vh;
+    padding: 2rem;
+    transition: transform var(--transition-normal), opacity var(--transition-normal);
+  }
+
+  .settings-overlay.hidden .settings-sheet {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+  
+  .settings-handle {
+    display: none; /* Ne necesas tenilo sur labortablo */
+  }
 }
