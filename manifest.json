@@ -1,43 +1,69 @@
 {
-  "name": "Gova — Alteco",
+  "name": "Gova Alteco-Monitorilo",
   "short_name": "Gova",
-  "version": "3.1.0",
-  "description": "Montras vian altecon super marnivelo per GPS",
-  "start_url": "./",
+  "description": "Minimalisma kaj preciza altimetro kun subteno por GPS, MSL-korekto kaj Barometro.",
+  "start_url": "/",
   "display": "standalone",
-  "orientation": "portrait-primary",
   "background_color": "#0A0A0A",
   "theme_color": "#2563EB",
-  "lang": "eo",
-  "dir": "ltr",
-  "categories": ["utilities", "navigation"],
+  "orientation": "any",
   "icons": [
-    { "src": "icons/icon-72.png",            "sizes": "72x72",   "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-96.png",            "sizes": "96x96",   "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-128.png",           "sizes": "128x128", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-144.png",           "sizes": "144x144", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-152.png",           "sizes": "152x152", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-192.png",           "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-384.png",           "sizes": "384x384", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-512.png",           "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-maskable-192.png",  "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "icons/icon-maskable-512.png",  "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
-  ],
-  "screenshots": [
     {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
+      "src": "icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Gova alteco-monitorilo"
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png"
     },
     {
       "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "form_factor": "wide",
-      "label": "Gova alteco-monitorilo"
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "prefer_related_applications": false
+  "screenshots": [],
+  "categories": ["utilities", "sports", "travel"],
+  "lang": "eo"
 }

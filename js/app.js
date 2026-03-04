@@ -1,5 +1,5 @@
 /**
- * app.js — Ĉefa koordinado por Gova (Minimuma UI)
+ * app.js — Ĉefa koordinado por Gova (Minimuma UI kun Swipe)
  */
 
 (() => {
@@ -7,14 +7,19 @@
 
   // --- DOM-Elementoj ---
   const elMain = document.getElementById('main');
-  const elAltitude = document.getElementById('altitude-value');
-  const elUnit = document.getElementById('altitude-unit');
+  const elScreensContainer = document.getElementById('screens-container');
+  const elDots = document.querySelectorAll('.dot');
+  
+  // Ĉefaj altecoj sur ambaŭ ekranoj
+  const elAltMin = document.getElementById('alt-val-min');
+  const elAltInf = document.getElementById('alt-val-inf');
+  const elAltUnits = document.querySelectorAll('.altitude-unit');
+  
   const elStatusIndicator = document.getElementById('status-indicator');
   const elBaseIndicator = document.getElementById('base-indicator');
   const elPullIndicator = document.getElementById('pull-indicator');
   
   const elSettingsOverlay = document.getElementById('settings-overlay');
-  const elSettingsSheet = document.getElementById('settings-sheet');
   const elStatusDot = document.getElementById('status-dot');
   const elStatusText = document.getElementById('status-text');
   const elAccuracyText = document.getElementById('accuracy-text');
@@ -26,9 +31,6 @@
   const elBaseHeightInfo = document.getElementById('base-height-info');
   const elBtnCloseSettings = document.getElementById('btn-close-settings');
   
-  const elThemeAuto = document.getElementById('theme-auto');
-  const elThemeLight = document.getElementById('theme-light');
-  const elThemeDark = document.getElementById('theme-dark');
   const elBtnViewHistory = document.getElementById('btn-view-history');
   const elBtnSavePoint = document.getElementById('btn-save-point');
   const elBtnViewPoints = document.getElementById('btn-view-points');
@@ -39,32 +41,49 @@
   const elBtnInstall = document.getElementById('btn-install');
   
   const elToast = document.getElementById('toast');
+  
+  // Detala krado
+  const elValGps = document.querySelector('.val-gps');
+  const elValAcc = document.querySelector('.val-acc');
+  const elValMsl = document.querySelector('.val-msl');
+  const elValBaro = document.querySelector('.val-baro');
+  const elItemBaro = document.querySelector('.item-baro');
 
   // --- Stato ---
   let currentUnit = Storage.getUnit();
+  let currentScreen = 0; 
   let isRefreshing = false;
-  let touchStartTime = 0;
+  
+  let touchStartX = 0;
   let touchStartY = 0;
+  let touchStartTime = 0;
   let isPulling = false;
-  let longPressTimer = null;
-  const LONG_PRESS_DURATION = 500; // ms
-  const DEBOUNCE_REFRESH = 2000; // ms
-  const PULL_THRESHOLD = 80; // px
-  let lastRefreshTime = 0;
+  let isSwiping = false;
+  let isMouseDown = false;
 
-  // --- BroadcastChannel por unuo-sinkronigo inter paĝoj ---
-  let _channel = null;
+  let longPressTimer = null;
+  const LONG_PRESS_DURATION = 500;
+  const DEBOUNCE_REFRESH = 2000;
+  const PULL_THRESHOLD = 80;
+  const SWIPE_THRESHOLD = 50;
+  let lastRefreshTime = 0;
+  let lastGpsAlt = null;
+  let lastMslAlt = null;
+  let lastBaroAlt = null;
+  let lastAccuracy = null;
+
+  // --- Sinkronigo inter paĝoj ---
   if ('BroadcastChannel' in window) {
-    _channel = new BroadcastChannel('gova_settings');
-    _channel.addEventListener('message', (ev) => {
+    const channel = new BroadcastChannel('gova_settings');
+    channel.onmessage = (ev) => {
       if (ev.data?.type === 'unit_change') {
         currentUnit = ev.data.unit;
         _refreshDisplayedValues();
       }
-    });
+    };
   }
 
-  // --- Ŝarĝi kaŝmemorajn valorojn tuj ---
+  // --- Ŝarĝi kaŝmemoron ---
   function _loadCachedValues() {
     const lastAlt = Storage.getLastAlt();
     if (lastAlt !== null) {
@@ -73,476 +92,353 @@
     _setStatus('searching');
   }
 
-  // --- Ĝisdatigi montrata valorojn sen novaj GPS-datumoj ---
   function _refreshDisplayedValues() {
-    const lastAlt = Storage.getLastAlt();
+    const lastAlt = Storage.getLastAlt() || lastGpsAlt;
     if (lastAlt !== null) {
-      _updateAltitudeDisplay(lastAlt, Storage.getLastAccuracy(), false);
+      _updateAltitudeDisplay(lastAlt, lastAccuracy || Storage.getLastAccuracy(), false);
     }
   }
 
   // --- Montri altecon ---
   function _updateAltitudeDisplay(meters, accuracyMeters, animate = true) {
     const baseHeight = Storage.getBaseHeight();
-    const displayAlt = Units.getDisplayAltitude(meters, baseHeight);
-    const isRelative = baseHeight !== null;
+    const currentAlt = lastBaroAlt ?? lastMslAlt ?? meters;
     
+    if (currentAlt === null) return;
+
+    const displayAlt = Units.getDisplayAltitude(currentAlt, baseHeight);
+    const isRelative = baseHeight !== null;
     const formatted = Units.formatAltitude(displayAlt, currentUnit, isRelative);
 
-    if (animate) {
-      elAltitude.classList.add('updating');
-      setTimeout(() => elAltitude.classList.remove('updating'), 300);
+    // Ĝisdatigi ĉefajn numerojn
+    [elAltMin, elAltInf].forEach(el => {
+      if (!el) return;
+      if (animate) {
+        el.classList.add('updating');
+        setTimeout(() => el.classList.remove('updating'), 300);
+      }
+      el.textContent = formatted.prefix + formatted.value;
+    });
+
+    elAltUnits.forEach(el => {
+      if (el) el.textContent = formatted.unit;
+    });
+    
+    // Ĝisdatigi detalan kradon
+    if (elValGps && meters !== null) {
+      const gpsFmt = Units.formatAltitude(meters, currentUnit, false);
+      elValGps.textContent = `${gpsFmt.value} ${gpsFmt.unit}`;
     }
 
-    elAltitude.textContent = formatted.prefix + formatted.value;
-    elUnit.textContent = formatted.unit;
-    
-    // Montri/kaŝi bazan indikilón
-    elBaseIndicator.classList.toggle('hidden', !isRelative);
-    
-    // Ĝisdatigi precizecon en agordoj
-    if (accuracyMeters !== null) {
-      const accStr = Units.formatAccuracy(accuracyMeters, currentUnit);
-      elAccuracyText.textContent = `Precizeco: ${accStr}`;
-    } else {
-      elAccuracyText.textContent = '';
+    if (elValMsl && lastMslAlt !== null) {
+      const mslFmt = Units.formatAltitude(lastMslAlt, currentUnit, false);
+      elValMsl.textContent = `${mslFmt.value} ${mslFmt.unit}`;
+    }
+
+    if (elValBaro && lastBaroAlt !== null) {
+      const baroFmt = Units.formatAltitude(lastBaroAlt, currentUnit, false);
+      elValBaro.textContent = `${baroFmt.value} ${baroFmt.unit}`;
+      if (elItemBaro) elItemBaro.classList.remove('hidden');
     }
     
-    // Konservi en localStorage
+    if (elBaseIndicator) elBaseIndicator.classList.toggle('hidden', !isRelative);
+    
+    if (accuracyMeters !== null) {
+      const accStr = Units.formatAccuracy(accuracyMeters, currentUnit);
+      if (elAccuracyText) elAccuracyText.textContent = `Precizeco: ${accStr}`;
+      if (elValAcc) elValAcc.textContent = accStr;
+    }
+    
     Storage.setLastAlt(meters);
     if (accuracyMeters !== null) Storage.setLastAccuracy(accuracyMeters);
   }
 
-  // --- Agordi GPS-staton ---
   function _setStatus(state, text = '') {
-    elStatusIndicator.dataset.state = state;
-    elStatusDot.dataset.state = state;
+    if (elStatusIndicator) elStatusIndicator.dataset.state = state;
+    if (elStatusDot) elStatusDot.dataset.state = state;
     
-    const statusTexts = {
-      searching: 'Serĉas GPS...',
-      locked: 'GPS ŝlosita',
-      error: 'GPS-eraro',
-    };
-    
-    elStatusText.textContent = text || statusTexts[state] || 'Nekonata stato';
+    const statusTexts = { searching: 'Serĉas GPS...', locked: 'GPS ŝlosita', error: 'GPS-eraro' };
+    if (elStatusText) elStatusText.textContent = text || statusTexts[state] || 'Nekonata stato';
   }
 
-  // --- Montri toaston ---
-  function _showToast(message, duration = 3000) {
+  function _showToast(message) {
+    if (!elToast) return;
     elToast.textContent = message;
     elToast.classList.remove('hidden');
-    
-    setTimeout(() => {
-      elToast.classList.add('hidden');
-    }, duration);
+    setTimeout(() => elToast.classList.add('hidden'), 3000);
   }
 
-  // --- GPS-Sukseso-Callback ---
-  async function _onGpsSuccess(position, mslAlt) {
+  // --- GPS-Sukceso ---
+  async function _onGpsSuccess(position, mslAlt, baroAlt) {
     const coords = position.coords;
+    lastGpsAlt = coords.altitude;
+    lastMslAlt = mslAlt;
+    lastBaroAlt = baroAlt || lastBaroAlt;
+    lastAccuracy = coords.altitudeAccuracy;
 
-    // Uzu MSL-altecon se disponebla, alie WGS84-elipsoido
-    const altMeters = mslAlt !== null ? mslAlt : coords.altitude;
-    const accuracy = coords.altitudeAccuracy;
+    if (lastGpsAlt === null && lastMslAlt === null && lastBaroAlt === null) return;
 
-    if (altMeters === null || altMeters === undefined) {
-      _setStatus('searching', 'Atendas altec-datumon...');
-      return;
-    }
+    _updateAltitudeDisplay(lastGpsAlt, lastAccuracy, true);
+    _setStatus('locked', lastMslAlt !== null ? 'GPS + MSL-korekcio' : 'GPS ŝlosita');
 
-    // Ĝisdatigi montrado
-    _updateAltitudeDisplay(altMeters, accuracy, true);
-    _setStatus('locked', mslAlt !== null ? 'GPS + MSL-korekcio' : 'GPS ŝlosita');
-
-    // Aldoni al historio
-    History.add(altMeters, accuracy || 0, coords.latitude, coords.longitude);
-    
-    // Ĝisdatigi hodiaŭajn punktojn
-    SavedPoints.updateTodayPoints(altMeters, coords.latitude, coords.longitude);
+    const finalAlt = lastBaroAlt ?? lastMslAlt ?? lastGpsAlt;
+    History.add(finalAlt, lastAccuracy || 0, coords.latitude, coords.longitude);
+    SavedPoints.updateTodayPoints(finalAlt, coords.latitude, coords.longitude);
   }
 
-  // --- GPS-Eraro-Callback ---
+  function _onBaroUpdate(alt) {
+    lastBaroAlt = alt;
+    _updateAltitudeDisplay(lastGpsAlt, lastAccuracy, false);
+  }
+
   function _onGpsError(err) {
     const msg = GPS.getErrorMessage(err);
     _setStatus('error', 'GPS-eraro');
-    _showToast(msg, 4000);
-
-    // Se ni havas kaŝmemoritajn datumojn, daŭrigu montri ilin
-    const lastAlt = Storage.getLastAlt();
-    if (lastAlt !== null) {
-      _setStatus('searching', 'Uzas lastan konatan altecon');
-    }
+    _showToast(msg);
   }
 
-  // --- Mana Refreŝo ---
   async function _manualRefresh() {
-    // Debounce: ne permesi tro oftajn refreŝojn
     const now = Date.now();
-    if (now - lastRefreshTime < DEBOUNCE_REFRESH) {
-      return;
-    }
+    if (now - lastRefreshTime < DEBOUNCE_REFRESH || isRefreshing) return;
     lastRefreshTime = now;
-    
-    if (isRefreshing) return;
     isRefreshing = true;
 
-    elMain.classList.add('refreshing');
+    if (elMain) elMain.classList.add('refreshing');
     _setStatus('searching', 'Serĉas...');
 
     try {
       GPS.stopAutoRefresh();
       const pos = await GPS.getOnce();
-      const coords = pos.coords;
-      const mslAlt = await GPS.getMSLAltitude(coords.latitude, coords.longitude);
-      await _onGpsSuccess(pos, mslAlt);
+      const mslAlt = await GPS.getMSLAltitude(pos.coords.latitude, pos.coords.longitude);
+      await _onGpsSuccess(pos, mslAlt, null);
     } catch (err) {
       _onGpsError(err);
     } finally {
       isRefreshing = false;
-      elMain.classList.remove('refreshing');
-      // Restarigi aŭtomatan ĝisdatigon
+      if (elMain) elMain.classList.remove('refreshing');
       GPS.startAutoRefresh(_onGpsSuccess, _onGpsError, 5000);
     }
   }
 
-  // --- Tuŝ/Muso-Eventoj por Tap/Long-Press/Pull-to-Refresh ---
+  // --- Gesta Administrado ---
   function _handleTouchStart(e) {
-    touchStartTime = Date.now();
+    if (!e.touches) {
+      isMouseDown = true;
+    }
+    touchStartX = e.touches ? e.touches[0].clientX : e.clientX;
     touchStartY = e.touches ? e.touches[0].clientY : e.clientY;
+    touchStartTime = Date.now();
     isPulling = false;
+    isSwiping = false;
     
     longPressTimer = setTimeout(() => {
-      // Long press detektita - malfermi agordojn
-      _openSettings();
-      // Haptika reago se disponebla
-      if (navigator.vibrate) {
-        navigator.vibrate(50);
+      if (!isSwiping && !isPulling) {
+        _openSettings();
+        if (navigator.vibrate) navigator.vibrate(50);
       }
     }, LONG_PRESS_DURATION);
   }
 
   function _handleTouchMove(e) {
-    // Nuligi long press se fingro moviĝas
-    clearTimeout(longPressTimer);
+    if (!e.touches && !isMouseDown) return;
     
-    // Pull-to-refresh logiko
-    if (elSettingsOverlay.classList.contains('hidden') && !isRefreshing) {
-      const currentY = e.touches ? e.touches[0].clientY : e.clientY;
-      const deltaY = currentY - touchStartY;
-      
-      // Nur se swipe down kaj proksime al supro
+    const currentX = e.touches ? e.touches[0].clientX : e.clientX;
+    const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+    const deltaX = currentX - touchStartX;
+    const deltaY = currentY - touchStartY;
+
+    if (!isPulling && Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 15) {
+      isSwiping = true;
+      clearTimeout(longPressTimer);
+    }
+
+    if (!isSwiping && elSettingsOverlay && elSettingsOverlay.classList.contains('hidden') && !isRefreshing) {
       if (deltaY > 10 && touchStartY < 100) {
         isPulling = true;
-        const pullDistance = Math.min(deltaY, 150);
-        
-        elPullIndicator.classList.remove('hidden');
-        elPullIndicator.classList.add('visible');
-        
-        if (pullDistance >= PULL_THRESHOLD) {
-          elPullIndicator.classList.add('pulling');
-        } else {
-          elPullIndicator.classList.remove('pulling');
+        clearTimeout(longPressTimer);
+        if (elPullIndicator) {
+          elPullIndicator.classList.remove('hidden');
+          elPullIndicator.classList.add('visible');
+          elPullIndicator.classList.toggle('pulling', deltaY >= PULL_THRESHOLD);
         }
       }
     }
   }
 
   function _handleTouchEnd(e) {
+    if (!e.changedTouches) isMouseDown = false;
     const touchDuration = Date.now() - touchStartTime;
+    const currentX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+    const deltaX = currentX - touchStartX;
     
     clearTimeout(longPressTimer);
     
-    // Pull-to-refresh
     if (isPulling) {
       const currentY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
-      const deltaY = currentY - touchStartY;
-      
-      if (deltaY >= PULL_THRESHOLD) {
-        _triggerPullRefresh();
-      } else {
-        _hidePullIndicator();
-      }
+      if (currentY - touchStartY >= PULL_THRESHOLD) _triggerPullRefresh();
+      else _hidePullIndicator();
       isPulling = false;
       return;
     }
-    
-    if (touchDuration < LONG_PRESS_DURATION) {
-      // Mallonga tuŝo - refreŝi
-      _manualRefresh();
+
+    if (isSwiping) {
+      if (Math.abs(deltaX) >= SWIPE_THRESHOLD) {
+        _setScreen(deltaX > 0 ? 0 : 1);
+      }
+      isSwiping = false;
+      return;
     }
+    
+    if (touchDuration < LONG_PRESS_DURATION) _manualRefresh();
+  }
+
+  function _setScreen(index) {
+    currentScreen = index;
+    if (elScreensContainer) elScreensContainer.dataset.currentScreen = currentScreen;
+    elDots.forEach((dot, i) => dot.classList.toggle('active', i === currentScreen));
   }
 
   function _triggerPullRefresh() {
-    elPullIndicator.classList.add('refreshing');
-    elPullIndicator.classList.remove('pulling');
-    _manualRefresh().finally(() => {
-      setTimeout(_hidePullIndicator, 500);
-    });
+    if (elPullIndicator) {
+      elPullIndicator.classList.add('refreshing');
+      elPullIndicator.classList.remove('pulling');
+    }
+    _manualRefresh().finally(() => setTimeout(_hidePullIndicator, 500));
   }
 
   function _hidePullIndicator() {
-    elPullIndicator.classList.remove('visible', 'pulling', 'refreshing');
-    setTimeout(() => {
-      elPullIndicator.classList.add('hidden');
-    }, 300);
+    if (elPullIndicator) {
+      elPullIndicator.classList.remove('visible', 'pulling', 'refreshing');
+      setTimeout(() => elPullIndicator.classList.add('hidden'), 300);
+    }
   }
 
-  // --- Agordoj-Administrado ---
+  // --- Agordoj ---
   function _openSettings() {
-    elSettingsOverlay.classList.remove('hidden');
+    if (elSettingsOverlay) elSettingsOverlay.classList.remove('hidden');
     _updateSettingsUI();
-    
-    // Fokuso-kapto
-    elBtnCloseSettings.focus();
+    if (elBtnCloseSettings) elBtnCloseSettings.focus();
   }
 
   function _closeSettings() {
-    elSettingsOverlay.classList.add('hidden');
+    if (elSettingsOverlay) elSettingsOverlay.classList.add('hidden');
   }
 
   function _updateSettingsUI() {
-    // Ĝisdatigi unuo-butonojn
-    const isMeters = currentUnit === 'm';
-    elUnitM.classList.toggle('active', isMeters);
-    elUnitFt.classList.toggle('active', !isMeters);
-    elUnitM.setAttribute('aria-pressed', isMeters);
-    elUnitFt.setAttribute('aria-pressed', !isMeters);
+    if (elUnitM) elUnitM.classList.toggle('active', currentUnit === 'm');
+    if (elUnitFt) elUnitFt.classList.toggle('active', currentUnit === 'ft');
     
-    // Ĝisdatigi baza-alteco-informojn
     const baseHeight = Storage.getBaseHeight();
-    const hasBase = baseHeight !== null;
-    
-    elBtnClearBase.disabled = !hasBase;
-    
-    if (hasBase) {
-      const formatted = Units.formatAltitude(baseHeight, currentUnit, false);
-      elBaseHeightInfo.textContent = `Bazo: ${formatted.value} ${formatted.unit}`;
-    } else {
-      elBaseHeightInfo.textContent = 'Neniu baza alteco agordita';
+    if (elBtnClearBase) elBtnClearBase.disabled = baseHeight === null;
+    if (elBaseHeightInfo) {
+      if (baseHeight !== null) {
+        const fmt = Units.formatAltitude(baseHeight, currentUnit, false);
+        elBaseHeightInfo.textContent = `Bazo: ${fmt.value} ${fmt.unit}`;
+      } else {
+        elBaseHeightInfo.textContent = 'Neniu baza alteco agordita';
+      }
     }
-
-    // Ĝisdatigi temo-butonojn
-    const currentTheme = Theme.get();
-    elThemeAuto.classList.toggle('active', currentTheme === 'auto');
-    elThemeDark.classList.toggle('active', currentTheme === 'dark');
-    elThemeLight.classList.toggle('active', currentTheme === 'light');
-    elThemeAuto.setAttribute('aria-pressed', currentTheme === 'auto');
-    elThemeDark.setAttribute('aria-pressed', currentTheme === 'dark');
-    elThemeLight.setAttribute('aria-pressed', currentTheme === 'light');
-    
-    // Ĝisdatigi konservitajn punktojn
     _updateSavedPointsUI();
   }
   
-  // --- Ĝisdatigi Konservitajn Punktojn UI ---
   function _updateSavedPointsUI() {
     const summary = SavedPoints.getSummary();
+    if (elPointsCount) elPointsCount.textContent = summary.count;
     
-    // Ĝisdatigi nombron
-    elPointsCount.textContent = summary.count;
-    
-    // Ĝisdatigi hodiaŭan plej altan
-    if (summary.todayHigh) {
-      const formatted = Units.formatAltitude(summary.todayHigh.altitude, currentUnit, false);
-      const time = new Date(summary.todayHigh.timestamp).toLocaleTimeString('eo', { hour: '2-digit', minute: '2-digit' });
-      elTodayHighPoint.querySelector('.point-value').textContent = `${formatted.value} ${formatted.unit} (${time})`;
-    } else {
-      elTodayHighPoint.querySelector('.point-value').textContent = '—';
-    }
-    
-    // Ĝisdatigi hodiaŭan plej malalta
-    if (summary.todayLow) {
-      const formatted = Units.formatAltitude(summary.todayLow.altitude, currentUnit, false);
-      const time = new Date(summary.todayLow.timestamp).toLocaleTimeString('eo', { hour: '2-digit', minute: '2-digit' });
-      elTodayLowPoint.querySelector('.point-value').textContent = `${formatted.value} ${formatted.unit} (${time})`;
-    } else {
-      elTodayLowPoint.querySelector('.point-value').textContent = '—';
+    [ {el: elTodayHighPoint, p: summary.todayHigh}, {el: elTodayLowPoint, p: summary.todayLow} ].forEach(item => {
+      if (!item.el) return;
+      const valEl = item.el.querySelector('.point-value');
+      if (!valEl) return;
+      if (item.p) {
+        const fmt = Units.formatAltitude(item.p.altitude, currentUnit, false);
+        const time = new Date(item.p.timestamp).toLocaleTimeString('eo', { hour: '2-digit', minute: '2-digit' });
+        valEl.textContent = `${fmt.value} ${fmt.unit} (${time})`;
+      } else {
+        valEl.textContent = '—';
+      }
+    });
+  }
+
+  function _initApp() {
+    try {
+      _loadCachedValues();
+      Theme.init();
+      Install.init(() => {}, () => {});
+      if (GPS.isAvailable()) {
+        GPS.startBarometer(_onBaroUpdate);
+        GPS.startAutoRefresh(_onGpsSuccess, _onGpsError, 5000);
+      }
+    } catch (e) {
+      console.error('Eraro dum inicializado:', e);
     }
   }
+
+  // --- Eventoj ---
+  if (elMain) {
+    elMain.addEventListener('touchstart', _handleTouchStart, { passive: true });
+    elMain.addEventListener('touchend', _handleTouchEnd, { passive: true });
+    elMain.addEventListener('touchmove', _handleTouchMove, { passive: true });
+    elMain.addEventListener('mousedown', _handleTouchStart);
+    elMain.addEventListener('mousemove', _handleTouchMove);
+    elMain.addEventListener('mouseup', _handleTouchEnd);
+    elMain.addEventListener('mouseleave', _handleTouchEnd);
+    elMain.addEventListener('contextmenu', (e) => e.preventDefault());
+  }
   
-  // --- Konservi Nunan Punkton ---
-  function _saveCurrentPoint() {
-    const currentAlt = Storage.getLastAlt();
-    if (currentAlt === null) {
-      _showToast('Neniu GPS-datumo disponebla');
-      return;
-    }
-    
-    // Bezonas koordinatojn - uzu lastajn el historio
-    const history = History.getAll();
-    if (history.length === 0) {
-      _showToast('Neniu loko-datumo disponebla');
-      return;
-    }
-    
+  if (elUnitM) elUnitM.onclick = () => { currentUnit = 'm'; Storage.setUnit('m'); _refreshDisplayedValues(); _updateSettingsUI(); if (window.BroadcastChannel) new BroadcastChannel('gova_settings').postMessage({type: 'unit_change', unit: 'm'}); };
+  if (elUnitFt) elUnitFt.onclick = () => { currentUnit = 'ft'; Storage.setUnit('ft'); _refreshDisplayedValues(); _updateSettingsUI(); if (window.BroadcastChannel) new BroadcastChannel('gova_settings').postMessage({type: 'unit_change', unit: 'ft'}); };
+  if (elBtnSetBase) elBtnSetBase.onclick = () => {
+    const alt = lastBaroAlt ?? lastMslAlt ?? lastGpsAlt ?? Storage.getLastAlt();
+    if (alt) { Storage.setBaseHeight(alt); _updateSettingsUI(); _refreshDisplayedValues(); _showToast('Bazo agordita'); }
+  };
+  if (elBtnClearBase) elBtnClearBase.onclick = () => { Storage.clearBaseHeight(); _updateSettingsUI(); _refreshDisplayedValues(); _showToast('Bazo forigita'); };
+  
+  const elThemeAuto = document.getElementById('theme-auto');
+  const elThemeLight = document.getElementById('theme-light');
+  const elThemeDark = document.getElementById('theme-dark');
+  if (elThemeAuto) elThemeAuto.onclick = () => { Theme.set('auto'); _updateThemeUI(); };
+  if (elThemeLight) elThemeLight.onclick = () => { Theme.set('light'); _updateThemeUI(); };
+  if (elThemeDark) elThemeDark.onclick = () => { Theme.set('dark'); _updateThemeUI(); };
+
+  function _updateThemeUI() {
+    const theme = Theme.get();
+    if (elThemeAuto) elThemeAuto.classList.toggle('active', theme === 'auto');
+    if (elThemeLight) elThemeLight.classList.toggle('active', theme === 'light');
+    if (elThemeDark) elThemeDark.classList.toggle('active', theme === 'dark');
+  }
+
+  if (elBtnViewHistory) elBtnViewHistory.onclick = () => { window.location.href = 'history.html'; };
+  if (elBtnViewPoints) elBtnViewPoints.onclick = () => { window.location.href = 'points.html'; };
+  
+  if (elBtnSavePoint) elBtnSavePoint.onclick = () => {
+    const currentAlt = lastBaroAlt ?? lastMslAlt ?? lastGpsAlt ?? Storage.getLastAlt();
+    if (currentAlt === null) return _showToast('Neniu GPS-datumo disponebla');
+    const history = window.History ? window.History.getAll() : [];
+    if (!history || history.length === 0) return _showToast('Neniu loko-datumo disponebla');
     const lastEntry = history[history.length - 1];
     const point = SavedPoints.save(currentAlt, lastEntry.latitude, lastEntry.longitude);
-    
     if (point) {
-      _showToast(`Punkto konservita: ${point.name}`);
+      _showToast(`Punkto konservita!`);
       _updateSavedPointsUI();
-    } else {
-      _showToast('Eraro konservante punkton');
     }
-  }
+  };
 
-  // --- Unuo-Ŝanĝo ---
-  function _changeUnit(newUnit) {
-    if (newUnit === currentUnit) return;
-    
-    currentUnit = newUnit;
-    Storage.setUnit(newUnit);
-    _refreshDisplayedValues();
-    _updateSettingsUI();
-    
-    // Dissendi ŝanĝon al aliaj paĝoj
-    if (_channel) {
-      _channel.postMessage({ type: 'unit_change', unit: newUnit });
-    }
-  }
-
-  // --- Baza Alteco Kontroloj ---
-  function _setBaseHeight() {
-    const currentAlt = Storage.getLastAlt();
-    if (currentAlt === null) {
-      _showToast('Neniu GPS-datumo disponebla');
-      return;
-    }
-    
-    Storage.setBaseHeight(currentAlt);
-    _updateSettingsUI();
-    _refreshDisplayedValues();
-    _showToast('Baza alteco agordita');
-  }
-
-  function _clearBaseHeight() {
-    Storage.clearBaseHeight();
-    _updateSettingsUI();
-    _refreshDisplayedValues();
-    _showToast('Baza alteco forigita');
-  }
-
-  // --- Paŭzi kiam kaŝita ---
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      GPS.stopAutoRefresh();
-    } else {
-      GPS.startAutoRefresh(_onGpsSuccess, _onGpsError, 5000);
-    }
-  });
-
-  // --- Inicializado ---
-  function init() {
-    _loadCachedValues();
-
-    // Inicializi temon
-    Theme.init();
-
-    // Inicializi instalo-administradon
-    Install.init(
-      () => {
-        // Kiam instalo eblas (beforeinstallprompt)
-        if (!Install.isInstalled()) {
-          elInstallSection.classList.remove('hidden');
-        }
-      },
-      () => {
-        // Kiam instalita (appinstalled aŭ jam instalita)
-        elInstallSection.classList.add('hidden');
-      }
-    );
-    
-    // Tuja kontrolo - kaŝi se jam instalita
-    if (Install.isInstalled()) {
-      elInstallSection.classList.add('hidden');
-    }
-
-    if (!GPS.isAvailable()) {
-      _setStatus('error', 'GPS ne disponebla');
-      _showToast('Via aparato aŭ retumilo ne subtenas GPS', 6000);
-      return;
-    }
-
-    GPS.startAutoRefresh(_onGpsSuccess, _onGpsError, 5000);
-  }
-
-  // --- Okazaĵ-Aŭskultiloj ---
-  
-  // Tuŝ-eventoj por ĉefa ekrano
-  elMain.addEventListener('touchstart', _handleTouchStart, { passive: true });
-  elMain.addEventListener('touchend', _handleTouchEnd, { passive: true });
-  elMain.addEventListener('touchmove', _handleTouchMove, { passive: true });
-  
-  // Muso-eventoj por labortablo
-  elMain.addEventListener('mousedown', _handleTouchStart);
-  elMain.addEventListener('mouseup', _handleTouchEnd);
-  
-  // Preventi kuntekstan menuon
-  elMain.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-  });
-  
-  // Unuo-butonoj
-  elUnitM.addEventListener('click', () => _changeUnit('m'));
-  elUnitFt.addEventListener('click', () => _changeUnit('ft'));
-  
-  // Baza-alteco-butonoj
-  elBtnSetBase.addEventListener('click', _setBaseHeight);
-  elBtnClearBase.addEventListener('click', _clearBaseHeight);
-  
-  // Temo-butonoj
-  elThemeAuto.addEventListener('click', () => Theme.set('auto'));
-  elThemeLight.addEventListener('click', () => Theme.set('light'));
-  elThemeDark.addEventListener('click', () => Theme.set('dark'));
-  
-  // Historio-butono
-  elBtnViewHistory.addEventListener('click', () => {
-    window.location.href = 'history.html';
-  });
-  
-  // Saved Points butonoj
-  elBtnSavePoint.addEventListener('click', _saveCurrentPoint);
-  
-  elBtnViewPoints.addEventListener('click', () => {
-    window.location.href = 'points.html';
-  });
-  
-  // Instalo-butono
-  elBtnInstall.addEventListener('click', async () => {
+  if (elBtnInstall) elBtnInstall.onclick = async () => {
     const success = await Install.prompt();
-    if (success) {
-      _showToast('Aplikaĵo instalita!', 3000);
-    }
-  });
+    if (success) _showToast('Aplikaĵo instalita!', 3000);
+  };
   
-  // Fermi agordojn
-  elBtnCloseSettings.addEventListener('click', _closeSettings);
+  if (elBtnCloseSettings) elBtnCloseSettings.onclick = _closeSettings;
+  if (elSettingsOverlay) elSettingsOverlay.onclick = (e) => { if (e.target === elSettingsOverlay) _closeSettings(); };
   
-  // Fermi agordojn per klako ekster la folio
-  elSettingsOverlay.addEventListener('click', (e) => {
-    if (e.target === elSettingsOverlay) {
-      _closeSettings();
-    }
-  });
-  
-  // Klavaro-alirebleco
-  document.addEventListener('keydown', (e) => {
-    // Escape fermas agordojn
-    if (e.key === 'Escape' && !elSettingsOverlay.classList.contains('hidden')) {
-      _closeSettings();
-    }
-    
-    // 's' malfermas agordojn
-    if (e.key === 's' && elSettingsOverlay.classList.contains('hidden')) {
-      _openSettings();
-    }
-    
-    // Space refreŝas
-    if (e.key === ' ' && elSettingsOverlay.classList.contains('hidden')) {
-      e.preventDefault();
-      _manualRefresh();
-    }
-  });
+  document.onkeydown = (e) => {
+    if (e.key === 'Escape') _closeSettings();
+    if (e.key === 'ArrowRight') _setScreen(1);
+    if (e.key === 'ArrowLeft') _setScreen(0);
+    if (e.key === 's' && elSettingsOverlay && elSettingsOverlay.classList.contains('hidden')) _openSettings();
+    if (e.key === ' ' && elSettingsOverlay && elSettingsOverlay.classList.contains('hidden')) { e.preventDefault(); _manualRefresh(); }
+  };
 
-  init();
+  _initApp();
+  setTimeout(_updateThemeUI, 100);
 })();

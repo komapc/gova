@@ -1,0 +1,20 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    <!-- Main Mountain -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M256 120L400 360H112L256 120Z" />
+    <!-- Blue detail -->
+    <path
+        android:fillAlpha="0.8"
+        android:fillColor="#2563EB"
+        android:pathData="M256 190L330 310H182L256 190Z" />
+    <!-- White small detail -->
+    <path
+        android:fillAlpha="0.6"
+        android:fillColor="#FFFFFF"
+        android:pathData="M256 260L290 310H222L256 260Z" />
+</vector>
