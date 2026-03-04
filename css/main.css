@@ -316,6 +316,14 @@ body {
     align-items: flex-start;
   }
 
+  .info-value {
+    font-size: 1.5rem;
+  }
+
+  .info-label {
+    font-size: 0.75rem;
+  }
+
   .altitude-value {
     font-size: clamp(6rem, 20vh, 14rem);
   }
