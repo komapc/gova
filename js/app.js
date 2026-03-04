@@ -46,6 +46,7 @@
   const elValGps = document.querySelector('.val-gps');
   const elValAcc = document.querySelector('.val-acc');
   const elValMsl = document.querySelector('.val-msl');
+  const elValAgl = document.querySelector('.val-agl');
   const elValBaro = document.querySelector('.val-baro');
   const elItemBaro = document.querySelector('.item-baro');
 
@@ -133,6 +134,12 @@
     if (elValMsl && lastMslAlt !== null) {
       const mslFmt = Units.formatAltitude(lastMslAlt, currentUnit, false);
       elValMsl.textContent = `${mslFmt.value} ${mslFmt.unit}`;
+    }
+
+    if (elValAgl && lastGpsAlt !== null && lastMslAlt !== null) {
+      const aglAlt = Math.max(0, lastGpsAlt - lastMslAlt);
+      const aglFmt = Units.formatAltitude(aglAlt, currentUnit, false);
+      elValAgl.textContent = `${aglFmt.value} ${aglFmt.unit}`;
     }
 
     if (elValBaro && lastBaroAlt !== null) {
