@@ -162,9 +162,6 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                             }
                             if (result != null) {
                                 teroAltitude = result
-                                if (mslAltitude == null) {
-                                    mslAltitude = result
-                                }
                             }
                         } catch (e: Exception) {
                             // Ignored, fallback to GPS altitude will remain

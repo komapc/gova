@@ -103,7 +103,7 @@
   // --- Montri altecon ---
   function _updateAltitudeDisplay(meters, accuracyMeters, animate = true) {
     const baseHeight = Storage.getBaseHeight();
-    const currentAlt = lastBaroAlt ?? lastMslAlt ?? meters;
+    const currentAlt = lastBaroAlt ?? meters; // meters estas lastGpsAlt, ni ne uzas lastMslAlt (TERO) kiel cxefan numeron
     
     if (currentAlt === null) return;
 
