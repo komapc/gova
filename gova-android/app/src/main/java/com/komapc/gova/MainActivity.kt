@@ -209,7 +209,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        AltitudeDisplay(gpsAltitude, mslAltitude, baroAltitude.value, baseHeight, isRefreshing, useFeet)
+                        AltitudeDisplay(gpsAltitude, mslAltitude, baroAltitude.value, baseHeight, isRefreshing, useFeet, alwaysShowMsl = (currentViewMode == ViewMode.MINIMAL))
                     }
 
                     // Right Side: Info Grid (Always visible in Landscape for better space usage, or could be hidden if preferred)
@@ -227,7 +227,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                         modifier = Modifier.align(Alignment.Center),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        AltitudeDisplay(gpsAltitude, mslAltitude, baroAltitude.value, baseHeight, isRefreshing, useFeet)
+                        AltitudeDisplay(gpsAltitude, mslAltitude, baroAltitude.value, baseHeight, isRefreshing, useFeet, alwaysShowMsl = (currentViewMode == ViewMode.MINIMAL))
                     }
 
                     if (currentViewMode == ViewMode.INFORMATIVE) {
@@ -283,10 +283,10 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
 }
 
 @Composable
-fun AltitudeDisplay(gps: Double?, msl: Double?, baro: Double?, base: Double?, isRefreshing: Boolean, useFeet: Boolean) {
+fun AltitudeDisplay(gps: Double?, msl: Double?, baro: Double?, base: Double?, isRefreshing: Boolean, useFeet: Boolean, alwaysShowMsl: Boolean = false) {
     val currentAlt = gps ?: msl ?: baro ?: 0.0
     val rawValue = if (gps != null || msl != null || baro != null) {
-        if (base != null) currentAlt - base else currentAlt
+        if (base != null && !alwaysShowMsl) currentAlt - base else currentAlt
     } else null
     
     val displayValue = if (rawValue != null) {
@@ -310,7 +310,7 @@ fun AltitudeDisplay(gps: Double?, msl: Double?, baro: Double?, base: Double?, is
         )
     }
     
-    if (base != null) {
+    if (base != null && !alwaysShowMsl) {
         Text("Δ RELATIVA", color = Color(0xFF3B82F6), fontSize = 12.sp, fontWeight = FontWeight.Bold)
     }
 }

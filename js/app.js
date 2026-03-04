@@ -110,16 +110,24 @@
     const displayAlt = Units.getDisplayAltitude(currentAlt, baseHeight);
     const isRelative = baseHeight !== null;
     const formatted = Units.formatAltitude(displayAlt, currentUnit, isRelative);
+    const mslFormatted = Units.formatAltitude(currentAlt, currentUnit, false);
 
     // Ĝisdatigi ĉefajn numerojn
-    [elAltMin, elAltInf].forEach(el => {
-      if (!el) return;
+    if (elAltMin) {
       if (animate) {
-        el.classList.add('updating');
-        setTimeout(() => el.classList.remove('updating'), 300);
+        elAltMin.classList.add('updating');
+        setTimeout(() => elAltMin.classList.remove('updating'), 300);
       }
-      el.textContent = formatted.prefix + formatted.value;
-    });
+      elAltMin.textContent = mslFormatted.value;
+    }
+
+    if (elAltInf) {
+      if (animate) {
+        elAltInf.classList.add('updating');
+        setTimeout(() => elAltInf.classList.remove('updating'), 300);
+      }
+      elAltInf.textContent = formatted.prefix + formatted.value;
+    }
 
     elAltUnits.forEach(el => {
       if (el) el.textContent = formatted.unit;
