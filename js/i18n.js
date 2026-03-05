@@ -7,10 +7,66 @@ const I18n = (() => {
     eo: 'Esperanto',
     lv: 'Latviešu',
     be: 'Беларуская',
-    tp: 'Toki Pona'
+    tp: 'Toki Pona',
+    arc: 'ܐܪܡܝܐ'
   };
 
   const STRINGS = {
+    arc: {
+      subtitle: 'ܡܫܘܚܐ ܕܪܘܡܐ',
+      searching: 'ܒܨܝܐ ܥܠ GPS...',
+      locked: 'GPS ܐܫܟܚ',
+      error: 'ܦܘܕܐ ܒ GPS',
+      unit: 'ܟܝܘܠ̈ܐ',
+      meters: 'ܡܬܪ̈ܐ',
+      feet: 'ܦܘܛ̈ܐ',
+      baseHeight: 'ܪܘܡܐ ܫܪܫܝܐ',
+      setBase: 'ܣܝܡ ܪܘܡܐ ܗܫܝܐ ܐܝܟ ܫܪܫܐ',
+      clearBase: 'ܫܩܘܠ ܫܪܫܐ',
+      noBase: 'ܠܝܬ ܪܘܡܐ ܫܪܫܝܐ',
+      hasBase: 'ܫܪܫܐ: ',
+      theme: 'ܨܘܪܬܐ',
+      auto: 'ܝܬܝܐ',
+      light: 'ܒܗܝܪܐ',
+      dark: 'ܚܫܘܟܐ',
+      history: 'ܬܫܥܝܬܐ',
+      viewHistory: 'ܚܙܝ ܬܫܥܝܬܐ',
+      points: 'ܢܘܩܙ̈ܐ ܢܛܝܪ̈ܐ',
+      savePoint: '💾 ܢܛܘܪ ܢܘܩܙܐ ܗܫܝܐ',
+      todayHigh: 'ܪܘܡܐ ܥܠܝܐ ܕܝܘܡܐ:',
+      todayLow: 'ܪܘܡܐ ܬܚܬܝܐ ܕܝܘܡܐ:',
+      viewPoints: '📍 ܚܙܝ ܟܠ ܢܘܩܙ̈ܐ',
+      about: 'ܡܢ ܓܘܒܐ',
+      aboutDesc: 'ܓܘܒܐ ܗܘ ܡܐܢܐ ܕܡܫܘܚܐ ܕܪܘܡܐ ܒܠܫܢܐ ܐܣܦܪܢܛܘ.',
+      precisionDesc: 'ܚܬܝܬܘܬܐ: GPS ܥܠ WGS84. MSL ܥܠ Geoid. TERO ܗܘ ܐܪܥܐ. BARO ܗܘ ܚܝܠܐ ܕܐܐܪ.',
+      github: 'ܦܪܘܓܪܡܐ ܒ GitHub ↗',
+      install: 'ܐܬܩܢ ܐܦܠܝܩܣܝܘܢ',
+      installBtn: 'ܐܬܩܢ ܓܘܒܐ',
+      installDesc: 'ܐܬܩܢ ܠܡܛܝܬܐ ܩܠܝܠܬܐ',
+      close: 'ܣܟܘܪ',
+      versionDate: 'ܐܕܪ 2026',
+      toastNoGps: 'ܠܝܬ ܝܕܥܬܐ ܕ GPS',
+      toastNoLoc: 'ܠܝܬ ܝܕܥܬܐ ܕܕܘܟܬܐ',
+      toastSaved: 'ܢܘܩܙܐ ܐܬܢܛܪ!',
+      toastBaseSet: 'ܫܪܫܐ ܐܬܣܝܡ',
+      toastBaseCleared: 'ܫܪܫܐ ܐܬܫܩܠ',
+      historyTitle: 'ܬܫܥܝܬܐ ܕܪܘܡܐ',
+      min: 'ܬܚܬܝܐ',
+      max: 'ܥܠܝܐ',
+      avg: 'ܡܨܥܝܐ',
+      range: 'ܦܪܝܫܘܬܐ',
+      noHistory: 'ܠܝܬ ܬܫܥܝܬܐ ܥܕܟܝܠ',
+      historyDesc: 'ܝܕܥܬ̈ܐ ܡܬܟܢܫܝܢ ܟܕ ܡܦܠܚ ܐܢܬ ܠܐܦܠܝܩܣܝܘܢ',
+      exportJson: 'ܦܠܘܛ JSON',
+      exportCsv: 'ܦܠܘܛ CSV',
+      clearHistory: 'ܫܩܘܠ ܬܫܥܝܬܐ',
+      cancel: 'ܒܛܘܠ',
+      back: 'ܠܒܬܪܐ',
+      pointsTitle: 'ܢܘܩܙ̈ܐ ܢܛܝܪ̈ܐ',
+      noPoints: 'ܠܝܬ ܢܘܩܙ̈ܐ ܢܛܝܪ̈ܐ ܥܕܟܝܠ',
+      deletePoint: 'ܫܩܘܠ',
+      deleteAllPoints: 'ܫܩܘܠ ܟܠ'
+    },
     eo: {
       subtitle: 'Alteco-Monitorilo',
       searching: 'Serĉas GPS...',
@@ -287,6 +343,15 @@ const I18n = (() => {
     document.querySelectorAll('.lang-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.lang === currentLang);
     });
+
+    // Handle RTL (Right-to-Left)
+    if (currentLang === 'arc') {
+      document.body.dir = 'rtl';
+      document.body.classList.add('rtl');
+    } else {
+      document.body.dir = 'ltr';
+      document.body.classList.remove('rtl');
+    }
   }
 
   return {
