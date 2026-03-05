@@ -105,6 +105,8 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
     var isSettingsOpen by remember { mutableStateOf(false) }
     var useFeet by remember { mutableStateOf(false) }
     var currentViewMode by remember { mutableStateOf(ViewMode.INFORMATIVE) }
+    var smoothedAltitude by remember { mutableStateOf<Double?>(null) }
+    val smoothingFactor = 0.3
 
     var hasPermission by remember {
         mutableStateOf(
@@ -132,7 +134,10 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
             }
 
             startLocationUpdates(fusedLocationClient) { location ->
-                gpsAltitude = location.altitude
+                val raw = location.altitude
+                smoothedAltitude = if (smoothedAltitude == null) raw else smoothedAltitude!! + smoothingFactor * (raw - smoothedAltitude!!)
+                
+                gpsAltitude = smoothedAltitude
                 hAccuracy = location.accuracy
                 
                 // Get Vertical Accuracy if available (Android 8.0+)

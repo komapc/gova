@@ -72,6 +72,23 @@
   let lastMslAlt = null;
   let lastBaroAlt = null;
   let lastAccuracy = null;
+  let wakeLock = null;
+
+  async function _requestWakeLock() {
+    if ('wakeLock' in navigator) {
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+      } catch (err) {
+        console.warn('Wake Lock error:', err);
+      }
+    }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (wakeLock !== null && document.visibilityState === 'visible') {
+      _requestWakeLock();
+    }
+  });
 
   // --- Sinkronigo inter paĝoj ---
   if ('BroadcastChannel' in window) {
@@ -97,17 +114,27 @@
     const lastAlt = Storage.getLastAlt() || lastGpsAlt;
     if (lastAlt !== null) {
       _updateAltitudeDisplay(lastAlt, lastAccuracy || Storage.getLastAccuracy(), false);
-    }
-  }
+    let lastAccuracy = null;
+    let smoothedAlt = null;
+    const SMOOTHING_FACTOR = 0.3; // Ju pli malgranda, des pli glata
+    let wakeLock = null;
 
-  // --- Montri altecon ---
-  function _updateAltitudeDisplay(meters, accuracyMeters, animate = true) {
-    const baseHeight = Storage.getBaseHeight();
-    const currentAlt = lastBaroAlt ?? meters; // meters estas lastGpsAlt, ni ne uzas lastMslAlt (TERO) kiel cxefan numeron
-    
-    if (currentAlt === null) return;
+    // --- Montri altecon ---
+    function _updateAltitudeDisplay(meters, accuracyMeters, animate = true) {
+      const baseHeight = Storage.getBaseHeight();
+      const rawAlt = lastBaroAlt ?? meters;
 
-    const displayAlt = Units.getDisplayAltitude(currentAlt, baseHeight);
+      if (rawAlt === null) return;
+
+      // Glatigo (Smoothing)
+      if (smoothedAlt === null || !animate) {
+        smoothedAlt = rawAlt;
+      } else {
+        smoothedAlt = smoothedAlt + SMOOTHING_FACTOR * (rawAlt - smoothedAlt);
+      }
+
+      const currentAlt = smoothedAlt;
+      const displayAlt = Units.getDisplayAltitude(currentAlt, baseHeight);
     const isRelative = baseHeight !== null;
     const formatted = Units.formatAltitude(displayAlt, currentUnit, isRelative);
     const mslFormatted = Units.formatAltitude(currentAlt, currentUnit, false);
@@ -394,6 +421,7 @@
         GPS.startBarometer(_onBaroUpdate);
         GPS.startAutoRefresh(_onGpsSuccess, _onGpsError, 5000);
       }
+      _requestWakeLock();
     } catch (e) {
       console.error('Eraro dum inicializado:', e);
     }
