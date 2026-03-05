@@ -31,7 +31,9 @@ class LocationService : Service() {
             override fun onLocationResult(result: LocationResult) {
                 val location = result.lastLocation ?: return
                 // Ĉi tie ni povus ĝisdatigi sciigon kun nuna alteco
-                updateNotification("Alteco: ${String.format("%.1f", location.altitude)}m")
+                val altitudeStr = "${String.format("%.1f", location.altitude)}m"
+                updateNotification("Alteco: $altitudeStr")
+                AltitudeWidget.updateAllWidgets(this@LocationService, altitudeStr)
             }
         }
         try {

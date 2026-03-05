@@ -224,9 +224,12 @@ id view_tree_on_back_pressed_dispatcher_owner
 id view_tree_saved_state_registry_owner
 id view_tree_view_model_store_owner
 id wide
+id widget_altitude
+id widget_label
 id wrapped_composition_tag
 integer google_play_services_version
 integer status_bar_notification_info_maxnum
+layout altitude_widget
 layout custom_dialog
 layout ime_base_split_test_activity
 layout ime_secondary_split_test_activity
@@ -379,3 +382,4 @@ styleable GradientColor android_startColor android_endColor android_type android
 styleable GradientColorItem android_color android_offset
 styleable LoadingImageView circleCrop imageAspectRatio imageAspectRatioAdjust
 styleable SignInButton buttonSize colorScheme scopeUris
+xml altitude_widget_info

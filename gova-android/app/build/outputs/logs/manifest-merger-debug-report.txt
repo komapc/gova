@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:2:1-35:12
-INJECTED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:2:1-35:12
-INJECTED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:2:1-35:12
-INJECTED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:2:1-35:12
+ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:2:1-44:12
+INJECTED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:2:1-44:12
+INJECTED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:2:1-44:12
+INJECTED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:2:1-44:12
 MERGED from [androidx.compose.material3:material3:1.1.1] /home/mark/.gradle/caches/transforms-3/231b281316482961d1f1ff9690756bf0/transformed/jetified-material3-1.1.1/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.activity:activity:1.8.2] /home/mark/.gradle/caches/transforms-3/2718282277e5ec788e3b008cbdbd9a23/transformed/jetified-activity-1.8.2/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.activity:activity-compose:1.8.2] /home/mark/.gradle/caches/transforms-3/21c4b756be82e400836d30fe329c84df/transformed/jetified-activity-compose-1.8.2/AndroidManifest.xml:2:1-7:12
@@ -102,8 +102,8 @@ ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xm
 	android:name
 		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:10:22-74
 application
-ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:12:5-34:19
-INJECTED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:12:5-34:19
+ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:12:5-43:19
+INJECTED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:12:5-43:19
 MERGED from [com.google.android.gms:play-services-location:21.0.1] /home/mark/.gradle/caches/transforms-3/264839eff785aa49f0f15ecb04593138/transformed/jetified-play-services-location-21.0.1/AndroidManifest.xml:7:5-20
 MERGED from [com.google.android.gms:play-services-location:21.0.1] /home/mark/.gradle/caches/transforms-3/264839eff785aa49f0f15ecb04593138/transformed/jetified-play-services-location-21.0.1/AndroidManifest.xml:7:5-20
 MERGED from [com.google.android.gms:play-services-base:18.1.0] /home/mark/.gradle/caches/transforms-3/95707d2aebe1dafbdd105fac789f9a03/transformed/jetified-play-services-base-18.1.0/AndroidManifest.xml:19:5-23:19
@@ -148,24 +148,42 @@ ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xm
 		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:22:13-53
 	android:name
 		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:21:13-44
-activity#com.komapc.gova.MainActivity
-ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:25:9-33:20
+receiver#com.komapc.gova.AltitudeWidget
+ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:25:9-32:20
 	android:exported
-		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:27:13-36
+		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:26:13-37
+	android:name
+		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:25:19-49
+intent-filter#action:name:android.appwidget.action.APPWIDGET_UPDATE
+ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:27:13-29:29
+action#android.appwidget.action.APPWIDGET_UPDATE
+ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:28:17-84
+	android:name
+		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:28:25-81
+meta-data#android.appwidget.provider
+ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:30:13-31:64
+	android:resource
+		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:31:17-61
+	android:name
+		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:30:24-65
+activity#com.komapc.gova.MainActivity
+ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:34:9-42:20
+	android:exported
+		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:36:13-36
 	android:theme
-		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:28:13-76
+		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:37:13-76
 	android:name
-		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:26:13-41
+		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:35:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:29:13-32:29
+ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:38:13-41:29
 action#android.intent.action.MAIN
-ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:30:17-69
+ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:39:17-69
 	android:name
-		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:30:25-66
+		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:39:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:31:17-77
+ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:40:17-77
 	android:name
-		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:31:27-74
+		ADDED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml:40:27-74
 uses-sdk
 INJECTED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/mark/projects/gova/gova-android/app/src/main/AndroidManifest.xml

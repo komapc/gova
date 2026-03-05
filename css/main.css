@@ -159,7 +159,7 @@ body {
 }
 
 .info-label {
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   font-weight: 800;
   color: var(--color-text-secondary);
   text-transform: uppercase;
@@ -168,13 +168,13 @@ body {
 
 .info-value {
   font-family: var(--font-mono);
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .info-accuracy {
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   color: var(--color-text-secondary);
   opacity: 0.8;
 }
@@ -317,11 +317,11 @@ body {
   }
 
   .info-value {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
   }
 
   .info-label {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
   }
 
   .altitude-value {

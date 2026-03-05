@@ -2,6 +2,9 @@ R_DEF: Internal format may change without notice
 local
 color ic_launcher_background
 drawable ic_launcher_foreground
+id widget_altitude
+id widget_label
+layout altitude_widget
 mipmap ic_launcher
 mipmap ic_launcher_foreground
 mipmap ic_launcher_foreground_round
@@ -24,3 +27,4 @@ string unit_feet
 string unit_meters
 string units_label
 string version_info
+xml altitude_widget_info
