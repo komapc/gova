@@ -172,8 +172,12 @@
     if (elStatusIndicator) elStatusIndicator.dataset.state = state;
     if (elStatusDot) elStatusDot.dataset.state = state;
     
-    const statusTexts = { searching: 'Serĉas GPS...', locked: 'GPS ŝlosita', error: 'GPS-eraro' };
-    if (elStatusText) elStatusText.textContent = text || statusTexts[state] || 'Nekonata stato';
+    const statusTexts = { 
+      searching: I18n.get('searching'), 
+      locked: I18n.get('locked'), 
+      error: I18n.get('error') 
+    };
+    if (elStatusText) elStatusText.textContent = text || statusTexts[state] || '???';
   }
 
   function _showToast(message) {
@@ -194,7 +198,7 @@
     if (lastGpsAlt === null && lastMslAlt === null && lastBaroAlt === null) return;
 
     _updateAltitudeDisplay(lastGpsAlt, lastAccuracy, true);
-    _setStatus('locked', lastMslAlt !== null ? 'GPS + MSL-korekcio' : 'GPS ŝlosita');
+    _setStatus('locked', lastMslAlt !== null ? `${I18n.get('locked')} + MSL` : I18n.get('locked'));
 
     const finalAlt = lastBaroAlt ?? lastMslAlt ?? lastGpsAlt;
     History.add(finalAlt, lastAccuracy || 0, coords.latitude, coords.longitude);
@@ -208,7 +212,7 @@
 
   function _onGpsError(err) {
     const msg = GPS.getErrorMessage(err);
-    _setStatus('error', 'GPS-eraro');
+    _setStatus('error', I18n.get('error'));
     _showToast(msg);
   }
 
@@ -219,7 +223,7 @@
     isRefreshing = true;
 
     if (elMain) elMain.classList.add('refreshing');
-    _setStatus('searching', 'Serĉas...');
+    _setStatus('searching', I18n.get('searching'));
 
     try {
       GPS.stopAutoRefresh();
@@ -348,9 +352,9 @@
     if (elBaseHeightInfo) {
       if (baseHeight !== null) {
         const fmt = Units.formatAltitude(baseHeight, currentUnit, false);
-        elBaseHeightInfo.textContent = `Bazo: ${fmt.value} ${fmt.unit}`;
+        elBaseHeightInfo.textContent = `${I18n.get('hasBase')}${fmt.value} ${fmt.unit}`;
       } else {
-        elBaseHeightInfo.textContent = 'Neniu baza alteco agordita';
+        elBaseHeightInfo.textContent = I18n.get('noBase');
       }
     }
     _updateSavedPointsUI();
@@ -376,6 +380,7 @@
 
   function _initApp() {
     try {
+      I18n.init();
       _loadCachedValues();
       Theme.init();
       Install.init(() => {}, () => {});
@@ -400,13 +405,32 @@
     elMain.addEventListener('contextmenu', (e) => e.preventDefault());
   }
   
+  // Lingvo-butonoj
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.onclick = () => {
+      I18n.setLang(btn.dataset.lang);
+      _updateSettingsUI();
+      _refreshDisplayedValues();
+    };
+  });
+
   if (elUnitM) elUnitM.onclick = () => { currentUnit = 'm'; Storage.setUnit('m'); _refreshDisplayedValues(); _updateSettingsUI(); if (window.BroadcastChannel) new BroadcastChannel('gova_settings').postMessage({type: 'unit_change', unit: 'm'}); };
   if (elUnitFt) elUnitFt.onclick = () => { currentUnit = 'ft'; Storage.setUnit('ft'); _refreshDisplayedValues(); _updateSettingsUI(); if (window.BroadcastChannel) new BroadcastChannel('gova_settings').postMessage({type: 'unit_change', unit: 'ft'}); };
   if (elBtnSetBase) elBtnSetBase.onclick = () => {
-    const alt = lastBaroAlt ?? lastMslAlt ?? lastGpsAlt ?? Storage.getLastAlt();
-    if (alt) { Storage.setBaseHeight(alt); _updateSettingsUI(); _refreshDisplayedValues(); _showToast('Bazo agordita'); }
+    const alt = lastBaroAlt ?? lastGpsAlt ?? Storage.getLastAlt();
+    if (alt) { 
+      Storage.setBaseHeight(alt); 
+      _updateSettingsUI(); 
+      _refreshDisplayedValues(); 
+      _showToast(I18n.get('toastBaseSet')); 
+    }
   };
-  if (elBtnClearBase) elBtnClearBase.onclick = () => { Storage.clearBaseHeight(); _updateSettingsUI(); _refreshDisplayedValues(); _showToast('Bazo forigita'); };
+  if (elBtnClearBase) elBtnClearBase.onclick = () => { 
+    Storage.clearBaseHeight(); 
+    _updateSettingsUI(); 
+    _refreshDisplayedValues(); 
+    _showToast(I18n.get('toastBaseCleared')); 
+  };
   
   const elThemeAuto = document.getElementById('theme-auto');
   const elThemeLight = document.getElementById('theme-light');
@@ -426,14 +450,14 @@
   if (elBtnViewPoints) elBtnViewPoints.onclick = () => { window.location.href = 'points.html'; };
   
   if (elBtnSavePoint) elBtnSavePoint.onclick = () => {
-    const currentAlt = lastBaroAlt ?? lastMslAlt ?? lastGpsAlt ?? Storage.getLastAlt();
-    if (currentAlt === null) return _showToast('Neniu GPS-datumo disponebla');
+    const currentAlt = lastBaroAlt ?? lastGpsAlt ?? Storage.getLastAlt();
+    if (currentAlt === null) return _showToast(I18n.get('toastNoGps'));
     const history = window.History ? window.History.getAll() : [];
-    if (!history || history.length === 0) return _showToast('Neniu loko-datumo disponebla');
+    if (!history || history.length === 0) return _showToast(I18n.get('toastNoLoc'));
     const lastEntry = history[history.length - 1];
     const point = SavedPoints.save(currentAlt, lastEntry.latitude, lastEntry.longitude);
     if (point) {
-      _showToast(`Punkto konservita!`);
+      _showToast(I18n.get('toastSaved'));
       _updateSavedPointsUI();
     }
   };

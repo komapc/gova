@@ -22,8 +22,8 @@
 <body>
 
   <header class="history-header">
-    <button id="btn-back" class="btn-icon" aria-label="Reen">←</button>
-    <h1>Alteco-Historio</h1>
+    <button id="btn-back" class="btn-icon" data-i18n-aria="back">←</button>
+    <h1 data-i18n="historyTitle">Alteco-Historio</h1>
     <button id="btn-menu" class="btn-icon" aria-label="Menuo">⋮</button>
   </header>
 
@@ -34,25 +34,25 @@
       <button class="period-btn active" data-period="24">24h</button>
       <button class="period-btn" data-period="168">7d</button>
       <button class="period-btn" data-period="720">30d</button>
-      <button class="period-btn" data-period="all">Ĉio</button>
+      <button class="period-btn" data-period="all">all</button>
     </div>
 
     <!-- Statistikoj -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-label">Minimuma</div>
+        <div class="stat-label" data-i18n="min">Minimuma</div>
         <div id="stat-min" class="stat-value">—</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Maksimuma</div>
+        <div class="stat-label" data-i18n="max">Maksimuma</div>
         <div id="stat-max" class="stat-value">—</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Averaĝa</div>
+        <div class="stat-label" data-i18n="avg">Averaĝa</div>
         <div id="stat-avg" class="stat-value">—</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Amplekso</div>
+        <div class="stat-label" data-i18n="range">Amplekso</div>
         <div id="stat-range" class="stat-value">—</div>
       </div>
     </div>
@@ -64,8 +64,8 @@
 
     <!-- Neniu Datumoj -->
     <div id="no-data" class="no-data hidden">
-      <p>Neniu historio-datumoj ankoraŭ</p>
-      <p class="info-text">Datumoj kolektiĝos aŭtomate dum vi uzas la aplikaĵon</p>
+      <p data-i18n="noHistory">Neniu historio-datumoj ankoraŭ</p>
+      <p class="info-text" data-i18n="historyDesc">Datumoj kolektiĝos aŭtomate dum vi uzas la aplikaĵon</p>
     </div>
 
   </main>
@@ -74,21 +74,22 @@
   <div id="menu-overlay" class="menu-overlay hidden">
     <div class="menu-sheet">
       <button id="btn-export-json" class="menu-item">
-        <span>Eksporti JSON</span>
+        <span data-i18n="exportJson">Eksporti JSON</span>
       </button>
       <button id="btn-export-csv" class="menu-item">
-        <span>Eksporti CSV</span>
+        <span data-i18n="exportCsv">Eksporti CSV</span>
       </button>
       <button id="btn-clear-history" class="menu-item danger">
-        <span>Forigi Historion</span>
+        <span data-i18n="clearHistory">Forigi Historion</span>
       </button>
       <button id="btn-close-menu" class="menu-item">
-        <span>Nuligi</span>
+        <span data-i18n="cancel">Nuligi</span>
       </button>
     </div>
   </div>
 
   <script src="js/storage.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/units.js"></script>
   <script src="js/history.js"></script>
   <script src="js/chart.js"></script>

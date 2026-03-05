@@ -648,6 +648,35 @@ body {
 }
 
 
+/* === LINGVO-ELEKTILO === */
+.lang-selector {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--color-surface);
+  padding: 0.25rem;
+  border-radius: var(--radius-md);
+  margin-top: 0.5rem;
+}
+
+.lang-btn {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.lang-btn.active {
+  background: var(--color-bg);
+  color: var(--color-accent);
+  box-shadow: var(--shadow-sm);
+}
+
 /* === TEMO-ELEKTILO === */
 .theme-selector {
   display: flex;

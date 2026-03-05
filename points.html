@@ -77,8 +77,8 @@
 <body>
 
   <header class="history-header">
-    <button id="btn-back" class="btn-icon" aria-label="Reen">←</button>
-    <h1>Konservitaj Punktoj</h1>
+    <button id="btn-back" class="btn-icon" data-i18n-aria="back">←</button>
+    <h1 data-i18n="pointsTitle">Konservitaj Punktoj</h1>
     <div></div> <!-- Spacer -->
   </header>
 
@@ -90,13 +90,14 @@
 
     <!-- Neniu Datumoj -->
     <div id="no-data" class="no-data hidden">
-      <p>Neniu konservita punkto ankoraŭ</p>
-      <p class="info-text">Vi povas konservi punktojn el la ĉefa ekrano</p>
+      <p data-i18n="noPoints">Neniu konservita punkto ankoraŭ</p>
+      <p class="info-text" data-i18n="historyDesc">Vi povas konservi punktojn el la ĉefa ekrano</p>
     </div>
 
   </main>
 
   <script src="js/storage.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/units.js"></script>
   <script src="js/saved-points.js"></script>
   <script src="js/theme.js"></script>
@@ -109,8 +110,6 @@
       const elBtnBack = document.getElementById('btn-back');
 
       let currentUnit = Storage.getUnit();
-
-      Theme.init();
 
       function renderPoints() {
         const points = SavedPoints.getAll();
@@ -141,7 +140,7 @@
               <div class="point-altitude">${formatted.value} ${formatted.unit}</div>
               <div class="point-actions">
                 <button class="btn-small btn-rename" title="Renomi">✏️</button>
-                <button class="btn-small btn-delete" title="Forigi">🗑️</button>
+                <button class="btn-small btn-delete" title="${I18n.get('deletePoint')}">🗑️</button>
               </div>
             </div>
           `;
@@ -151,7 +150,7 @@
         document.querySelectorAll('.btn-delete').forEach(btn => {
           btn.addEventListener('click', (e) => {
             const id = parseInt(e.target.closest('.point-card').dataset.id);
-            if (confirm('Ĉu vi certas ke vi volas forigi ĉi tiun punkton?')) {
+            if (confirm(I18n.get('deletePoint') + '?')) {
               SavedPoints.remove(id);
               renderPoints();
             }
@@ -176,6 +175,8 @@
         window.location.href = 'index.html';
       });
 
+      I18n.init();
+      Theme.init();
       renderPoints();
     })();
   </script>

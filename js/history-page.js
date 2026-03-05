@@ -169,5 +169,6 @@
   });
 
   // Inicializi
+  I18n.init();
   loadData();
 })();

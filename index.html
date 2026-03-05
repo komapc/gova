@@ -27,7 +27,7 @@
 <body>
 
   <!-- Tutekrana tuŝ-areo kun glit-ujo -->
-  <main id="main" class="fullscreen-tap-area" aria-label="Alteco">
+  <main id="main" class="fullscreen-tap-area" data-i18n-aria="subtitle">
     <div id="screens-container" class="screens-container" data-current-screen="0">
       
       <!-- EKRANO 1: MINIMALA -->
@@ -81,11 +81,11 @@
     
     <!-- Subtilaj indikiloj -->
     <div id="status-indicator" class="status-indicator" data-state="searching" aria-hidden="true"></div>
-    <div id="base-indicator" class="base-indicator hidden" aria-label="Relativa reĝimo">Δ</div>
+    <div id="base-indicator" class="base-indicator hidden" data-i18n-aria="baseHeight">Δ</div>
   </main>
 
   <!-- Agorda Folio (glitas supren je longpremo) -->
-  <div id="settings-overlay" class="settings-overlay hidden" role="dialog" aria-modal="true" aria-label="Agordoj">
+  <div id="settings-overlay" class="settings-overlay hidden" role="dialog" aria-modal="true" data-i18n-aria="about">
     <div id="settings-sheet" class="settings-sheet">
       <div class="settings-handle" aria-hidden="true"></div>
 
@@ -93,7 +93,7 @@
         <img src="icons/logo.svg" alt="Gova" class="settings-logo">
         <div class="brand-text">
           <h1 class="settings-title">Gova</h1>
-          <p class="settings-subtitle">Alteco-Monitorilo</p>
+          <p class="settings-subtitle" data-i18n="subtitle">Alteco-Monitorilo</p>
         </div>
       </div>
 
@@ -101,91 +101,102 @@
       <div class="settings-section">
         <div class="status-row">
           <span id="status-dot" class="status-dot" data-state="searching" aria-hidden="true"></span>
-          <span id="status-text" class="status-text">Serĉas GPS...</span>
+          <span id="status-text" class="status-text" data-i18n="searching">Serĉas GPS...</span>
         </div>
         <p id="accuracy-text" class="accuracy-text"></p>
       </div>
 
+      <!-- Lingvo-Elektilo -->
+      <div class="settings-section">
+        <label class="settings-label">Lingvo / Language</label>
+        <div class="lang-selector" role="group">
+          <button class="lang-btn active" data-lang="eo">EO</button>
+          <button class="lang-btn" data-lang="lv">LV</button>
+          <button class="lang-btn" data-lang="be">BE</button>
+          <button class="lang-btn" data-lang="tp">TP</button>
+        </div>
+      </div>
+
       <!-- Unuo-Elektilo -->
       <div class="settings-section">
-        <label class="settings-label">Unuo</label>
-        <div class="unit-selector" role="group" aria-label="Mezuro-unuo">
-          <button id="unit-m" class="unit-btn active" data-unit="m" aria-pressed="true">Metroj</button>
-          <button id="unit-ft" class="unit-btn" data-unit="ft" aria-pressed="false">Futoj</button>
+        <label class="settings-label" data-i18n="unit">Unuo</label>
+        <div class="unit-selector" role="group">
+          <button id="unit-m" class="unit-btn active" data-unit="m" aria-pressed="true" data-i18n="meters">Metroj</button>
+          <button id="unit-ft" class="unit-btn" data-unit="ft" aria-pressed="false" data-i18n="feet">Futoj</button>
         </div>
       </div>
 
       <!-- Baza Alteco -->
       <div class="settings-section">
-        <label class="settings-label">Baza Alteco</label>
+        <label class="settings-label" data-i18n="baseHeight">Baza Alteco</label>
         <div class="base-height-controls">
-          <button id="btn-set-base" class="btn-secondary">Agordi Nunan kiel Bazon</button>
-          <button id="btn-clear-base" class="btn-secondary" disabled>Forigi Bazon</button>
-          <p id="base-height-info" class="info-text">Neniu baza alteco agordita</p>
+          <button id="btn-set-base" class="btn-secondary" data-i18n="setBase">Agordi Nunan kiel Bazon</button>
+          <button id="btn-clear-base" class="btn-secondary" disabled data-i18n="clearBase">Forigi Bazon</button>
+          <p id="base-height-info" class="info-text" data-i18n="noBase">Neniu baza alteco agordita</p>
         </div>
       </div>
 
       <!-- Temo -->
       <div class="settings-section">
-        <label class="settings-label">Temo</label>
-        <div class="theme-selector" role="group" aria-label="Temo">
-          <button id="theme-auto" class="theme-btn active" data-theme="auto" aria-pressed="true">Aŭtomata</button>
-          <button id="theme-light" class="theme-btn" data-theme="light" aria-pressed="false">Hela</button>
-          <button id="theme-dark" class="theme-btn" data-theme="dark" aria-pressed="false">Malhela</button>
+        <label class="settings-label" data-i18n="theme">Temo</label>
+        <div class="theme-selector" role="group">
+          <button id="theme-auto" class="theme-btn active" data-theme="auto" aria-pressed="true" data-i18n="auto">Aŭtomata</button>
+          <button id="theme-light" class="theme-btn" data-theme="light" aria-pressed="false" data-i18n="light">Hela</button>
+          <button id="theme-dark" class="theme-btn" data-theme="dark" aria-pressed="false" data-i18n="dark">Malhela</button>
         </div>
       </div>
 
       <!-- Historio kaj Statistikoj -->
       <div class="settings-section">
-        <label class="settings-label">Historio</label>
-        <button id="btn-view-history" class="btn-secondary">Vidi Historion</button>
+        <label class="settings-label" data-i18n="history">Historio</label>
+        <button id="btn-view-history" class="btn-secondary" data-i18n="viewHistory">Vidi Historion</button>
       </div>
 
       <!-- Konservitaj Punktoj -->
       <div class="settings-section">
-        <label class="settings-label">Konservitaj Punktoj</label>
-        <button id="btn-save-point" class="btn-secondary">💾 Konservi Nunan Punkton</button>
+        <label class="settings-label" data-i18n="points">Konservitaj Punktoj</label>
+        <button id="btn-save-point" class="btn-secondary" data-i18n="savePoint">💾 Konservi Nunan Punkton</button>
         
         <div id="today-points" class="today-points">
           <div class="point-item" id="today-high-point">
             <span class="point-icon">⬆️</span>
-            <span class="point-label">Hodiaŭa plej alta:</span>
+            <span class="point-label" data-i18n="todayHigh">Hodiaŭa plej alta:</span>
             <span class="point-value">—</span>
           </div>
           <div class="point-item" id="today-low-point">
             <span class="point-icon">⬇️</span>
-            <span class="point-label">Hodiaŭa plej malalta:</span>
+            <span class="point-label" data-i18n="todayLow">Hodiaŭa plej malalta:</span>
             <span class="point-value">—</span>
           </div>
         </div>
         
-        <button id="btn-view-points" class="btn-secondary">📍 Vidi Ĉiujn Punktojn (<span id="points-count">0</span>)</button>
+        <button id="btn-view-points" class="btn-secondary">📍 <span data-i18n="viewPoints">Vidi Ĉiujn Punktojn</span> (<span id="points-count">0</span>)</button>
       </div>
 
       <!-- Pri Gova (About) -->
       <div class="settings-section">
-        <label class="settings-label">Pri Gova</label>
+        <label class="settings-label" data-i18n="about">Pri Gova</label>
         <div class="about-card">
-          <p class="info-text">Gova estas malfermkoda ilo por monitori altecon en Esperanto.</p>
-          <p class="info-text" style="margin-top: 0.5rem;">
-            <strong>Precizeco:</strong> GPS-alteco baziĝas sur satelitoj (WGS84). MSL uzas Geoid-modelon. Barometro mezuras aerpremon (plej preciza por mallongaj ŝanĝoj).
+          <p class="info-text" data-i18n="aboutDesc">Gova estas malfermkoda ilo por monitori altecon en Esperanto.</p>
+          <p class="info-text" style="margin-top: 0.5rem;" data-i18n="precisionDesc">
+            Precizeco: GPS baziĝas sur WGS84. MSL uzas Geoid-modelon. TERO estas grundo. BARO uzas aerpremon.
           </p>
-          <a href="https://github.com/komapc/gova" target="_blank" class="about-link">GitHub Projekto ↗</a>
+          <a href="https://github.com/komapc/gova" target="_blank" class="about-link" data-i18n="github">GitHub Projekto ↗</a>
         </div>
       </div>
 
       <!-- Instalo -->
       <div id="install-section" class="settings-section hidden">
-        <label class="settings-label">Instali Aplikaĵon</label>
-        <button id="btn-install" class="btn-primary">Instali Gova</button>
-        <p class="info-text">Instalu por pli rapida aliro kaj offline-uzo</p>
+        <label class="settings-label" data-i18n="install">Instali Aplikaĵon</label>
+        <button id="btn-install" class="btn-primary" data-i18n="installBtn">Instali Gova</button>
+        <p class="info-text" data-i18n="installDesc">Instalu por pli rapida aliro kaj offline-uzo</p>
       </div>
 
       <!-- Ferma Butono -->
-      <button id="btn-close-settings" class="btn-primary">Fermi</button>
+      <button id="btn-close-settings" class="btn-primary" data-i18n="close">Fermi</button>
 
       <!-- Versio -->
-      <div class="version-info">v3.2.0 (Marto 2026)</div>
+      <div class="version-info">v3.2.0 (<span data-i18n="versionDate">Marto 2026</span>)</div>
 
     </div>
   </div>
@@ -194,6 +205,7 @@
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
   <script src="js/storage.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/units.js"></script>
   <script src="js/history.js"></script>
   <script src="js/saved-points.js"></script>
