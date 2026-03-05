@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about_desc">Gova ir atvērtā pirmkoda rīks augstuma uzraudzībai.</string>
+    <string name="about_label">PAR GOVA</string>
+    <string name="accuracy_format">Precizitāte: H ±%1$s%2$s | V ±%3$s%4$s</string>
+    <string name="app_name">Gova</string>
+    <string name="base_height_label">BĀZES AUGSTUMS</string>
+    <string name="clear_base_btn">DZĒST</string>
+    <string name="close_btn">AIZVĒRT</string>
+    <string name="disclaimer">Uzmanību: Augstuma dati ir balstīti uz GPS/Barometru un var nebūt pilnīgi precīzi.</string>
+    <string name="precision_desc">Precizitāte: GPS pamatā ir WGS84. MSL izmanto Geoīda modeli. TERO ir zemes augstums. BARO izmanto spiedienu.</string>
+    <string name="relative_label">Δ RELATĪVAIS</string>
+    <string name="set_base_btn">IESTATĪT BĀZI</string>
+    <string name="settings_title">IESTATĪJUMI</string>
+    <string name="status_searching">Meklē...</string>
+    <string name="subtitle">Augstuma mērītājs</string>
+    <string name="unit_feet">Pēdas (ft)</string>
+    <string name="unit_meters">Metri (m)</string>
+    <string name="units_label">VIENĪBAS</string>
+    <string name="version_info">v3.2.0 (2026. gada marts)</string>
+</resources>

@@ -3,6 +3,7 @@ package com.komapc.gova
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -27,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -114,13 +116,21 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
     }
 
     val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        hasPermission = isGranted
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        hasPermission = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
     }
 
     LaunchedEffect(hasPermission) {
         if (hasPermission) {
+            // Start background service
+            val intent = Intent(context, LocationService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+
             startLocationUpdates(fusedLocationClient) { location ->
                 gpsAltitude = location.altitude
                 hAccuracy = location.accuracy
@@ -170,7 +180,11 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                 }
             }
         } else {
-            launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            val permissionsToRequest = mutableListOf(Manifest.permission.ACCESS_FINE_LOCATION)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+            }
+            launcher.launch(permissionsToRequest.toTypedArray())
         }
     }
 
@@ -244,7 +258,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
             // Disclaimer (very bottom, only in Informative)
             if (currentViewMode == ViewMode.INFORMATIVE) {
                 Text(
-                    text = "Atento: Alteco-datumoj baziĝas sur GPS/Barometro kaj eble ne estas tute precizaj.",
+                    text = stringResource(R.string.disclaimer),
                     color = Color.Gray.copy(alpha = 0.4f),
                     fontSize = 10.sp,
                     modifier = Modifier
@@ -308,7 +322,7 @@ fun AltitudeDisplay(gps: Double?, msl: Double?, baro: Double?, base: Double?, is
     }
     
     if (base != null && !alwaysShowMsl) {
-        Text("Δ RELATIVA", color = Color(0xFF3B82F6), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.relative_label), color = Color(0xFF3B82F6), fontSize = 12.sp, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -343,7 +357,13 @@ fun InfoGrid(gps: Double?, msl: Double?, tero: Double?, baro: Double?, hAcc: Flo
     val unitStr = if (useFeet) "ft" else "m"
     
     Text(
-        text = "Precizeco: H ±${String.format("%.0f", hAccDisp)}${unitStr} | V ±${String.format("%.0f", vAccDisp)}${unitStr}",
+        text = stringResource(
+            R.string.accuracy_format,
+            String.format("%.0f", hAccDisp),
+            unitStr,
+            String.format("%.0f", vAccDisp),
+            unitStr
+        ),
         color = Color.Gray.copy(alpha = 0.6f),
         fontSize = 12.sp
     )
@@ -382,7 +402,7 @@ fun SettingsSheet(
                     .navigationBarsPadding()
             ) {
                 Text(
-                    "AGORDOJ",
+                    stringResource(R.string.settings_title),
                     color = Color.White,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
@@ -390,7 +410,7 @@ fun SettingsSheet(
                 )
 
                 // Units Section
-                Text("UNUOJ", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.units_label), color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -398,14 +418,14 @@ fun SettingsSheet(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(if (useFeet) "Futoj (ft)" else "Metroj (m)", color = Color.White)
+                    Text(stringResource(if (useFeet) R.string.unit_feet else R.string.unit_meters), color = Color.White)
                     Switch(checked = useFeet, onCheckedChange = { onToggleUnits() })
                 }
 
                 Divider(color = Color.Gray.copy(alpha = 0.2f), modifier = Modifier.padding(vertical = 12.dp))
 
                 // Base Height Section
-                Text("BAZA ALTECO", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.base_height_label), color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -417,7 +437,7 @@ fun SettingsSheet(
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
                     ) {
-                        Text("FIKSI BAZON")
+                        Text(stringResource(R.string.set_base_btn))
                     }
                     Button(
                         onClick = { onClearBase(); onClose() },
@@ -425,14 +445,14 @@ fun SettingsSheet(
                         enabled = baseHeight != null,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
                     ) {
-                        Text("FORIGI")
+                        Text(stringResource(R.string.clear_base_btn))
                     }
                 }
 
                 Divider(color = Color.Gray.copy(alpha = 0.2f), modifier = Modifier.padding(vertical = 12.dp))
 
                 // About Section
-                Text("PRI GOVA", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.about_label), color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -441,13 +461,13 @@ fun SettingsSheet(
                         .padding(16.dp)
                 ) {
                     Text(
-                        "Gova estas malfermkoda ilo por monitori altecon en Esperanto.",
+                        stringResource(R.string.about_desc),
                         color = Color.White.copy(alpha = 0.7f),
                         fontSize = 14.sp
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "Precizeco: GPS baziĝas sur WGS84. MSL uzas Geoid-modelon. TERO estas ground elevation. BARO uzas aerpremon.",
+                        stringResource(R.string.precision_desc),
                         color = Color.White.copy(alpha = 0.5f),
                         fontSize = 11.sp,
                         lineHeight = 16.sp
@@ -461,13 +481,13 @@ fun SettingsSheet(
                     onClick = { onClose() },
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
-                    Text("FERMI", color = Color.Gray)
+                    Text(stringResource(R.string.close_btn), color = Color.Gray)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "v3.2.0 (Marto 2026)",
+                    text = stringResource(R.string.version_info),
                     color = Color.Gray.copy(alpha = 0.5f),
                     fontSize = 12.sp,
                     modifier = Modifier.align(Alignment.CenterHorizontally)

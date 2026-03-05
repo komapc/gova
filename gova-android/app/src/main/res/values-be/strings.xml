@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Gova</string>
+    <string name="subtitle">Манітор вышыні</string>
+    <string name="settings_title">НАЛАДКІ</string>
+    <string name="units_label">АДЗІНКІ</string>
+    <string name="unit_meters">Метры (m)</string>
+    <string name="unit_feet">Футы (ft)</string>
+    <string name="base_height_label">БАЗАВАЯ ВЫШЫНЯ</string>
+    <string name="set_base_btn">УСТАЛЯВАЦЬ БАЗУ</string>
+    <string name="clear_base_btn">ВЫДАЛІЦЬ</string>
+    <string name="about_label">ПРА GOVA</string>
+    <string name="about_desc">Gova — гэта інструмент з адкрытым зыходным кодам для маніторынгу вышыні.</string>
+    <string name="precision_desc">Дакладнасць: GPS на аснове WGS84. MSL выкарыстоўвае мадэль геоіда. TERO — гэта вышыня зямлі. BARO выкарыстоўвае ціск.</string>
+    <string name="close_btn">ЗАКРЫЦЬ</string>
+    <string name="version_info">v3.2.0 (Сакавік 2026)</string>
+    <string name="disclaimer">Увага: Дадзеныя пра вышыню заснаваныя на GPS/барометры і могуць быць не зусім дакладнымі.</string>
+    <string name="relative_label">Δ АДНОСНАЯ</string>
+    <string name="accuracy_format">Дакладнасць: H ±%1$s%2$s | V ±%3$s%4$s</string>
+    <string name="status_searching">Пошук...</string>
+</resources>
