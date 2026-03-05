@@ -236,7 +236,18 @@ const I18n = (() => {
   let currentLang = 'eo';
 
   function init() {
-    currentLang = localStorage.getItem('gova_lang') || 'eo';
+    const savedLang = localStorage.getItem('gova_lang');
+    if (savedLang && STRINGS[savedLang]) {
+      currentLang = savedLang;
+    } else {
+      // Detekti lingvon de la retumilo
+      const browserLang = navigator.language.split('-')[0]; // ekz. 'lv-LV' -> 'lv'
+      if (STRINGS[browserLang]) {
+        currentLang = browserLang;
+      } else {
+        currentLang = 'eo'; // Defaŭlto
+      }
+    }
     updateUI();
   }
 

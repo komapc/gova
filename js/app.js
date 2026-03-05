@@ -380,10 +380,16 @@
 
   function _initApp() {
     try {
-      I18n.init();
+      I18n.init(); // Detekti lingvon kaj ĝisdatigi UI
       _loadCachedValues();
       Theme.init();
-      Install.init(() => {}, () => {});
+      
+      // Instalo-administrado
+      Install.init(
+        () => { if (elInstallSection) elInstallSection.classList.remove('hidden'); },
+        () => { if (elInstallSection) elInstallSection.classList.add('hidden'); }
+      );
+
       if (GPS.isAvailable()) {
         GPS.startBarometer(_onBaroUpdate);
         GPS.startAutoRefresh(_onGpsSuccess, _onGpsError, 5000);
