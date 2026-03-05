@@ -16,6 +16,7 @@
     <string name="version_info">v3.2.0 (2026. gada marts)</string>
     <string name="disclaimer">Uzmanību: Augstuma dati ir balstīti uz GPS/Barometru un var nebūt pilnīgi precīzi.</string>
     <string name="relative_label">Δ RELATĪVAIS</string>
+    <string name="sat_label">SAT</string>
     <string name="accuracy_format">Precizitāte: H ±%1$s%2$s | V ±%3$s%4$s</string>
     <string name="status_searching">Meklē...</string>
 </resources>

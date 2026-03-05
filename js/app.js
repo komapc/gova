@@ -48,6 +48,7 @@
   const elValMsl = document.querySelector('.val-msl');
   const elValAgl = document.querySelector('.val-agl');
   const elValBaro = document.querySelector('.val-baro');
+  const elValSign = document.querySelector('.val-sign');
   const elItemBaro = document.querySelector('.item-baro');
 
   // --- Stato ---
@@ -154,6 +155,16 @@
         setTimeout(() => elAltInf.classList.remove('updating'), 300);
       }
       elAltInf.textContent = formatted.prefix + formatted.value;
+    }
+
+    if (elValSign && accuracyMeters !== null) {
+      let quality = '—';
+      if (accuracyMeters < 5) quality = '⭐⭐⭐⭐⭐';
+      else if (accuracyMeters < 10) quality = '⭐⭐⭐⭐';
+      else if (accuracyMeters < 25) quality = '⭐⭐⭐';
+      else if (accuracyMeters < 50) quality = '⭐⭐';
+      else quality = '⭐';
+      elValSign.textContent = quality;
     }
 
     elAltUnits.forEach(el => {

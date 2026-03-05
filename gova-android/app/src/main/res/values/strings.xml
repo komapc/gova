@@ -16,6 +16,7 @@
     <string name="version_info">v3.2.0 (Marto 2026)</string>
     <string name="disclaimer">Atento: Alteco-datumoj baziĝas sur GPS/Barometro kaj eble ne estas tute precizaj.</string>
     <string name="relative_label">Δ RELATIVA</string>
+    <string name="sat_label">SAT</string>
     <string name="accuracy_format">Precizeco: H ±%1$s%2$s | V ±%3$s%4$s</string>
     <string name="status_searching">Serĉas...</string>
 </resources>

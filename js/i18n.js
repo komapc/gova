@@ -65,7 +65,10 @@ const I18n = (() => {
       pointsTitle: 'ܢܘܩܙ̈ܐ ܢܛܝܪ̈ܐ',
       noPoints: 'ܠܝܬ ܢܘܩܙ̈ܐ ܢܛܝܪ̈ܐ ܥܕܟܝܠ',
       deletePoint: 'ܫܩܘܠ',
-      deleteAllPoints: 'ܫܩܘܠ ܟܠ'
+      deleteAllPoints: 'ܫܩܘܠ ܟܠ',
+      signLabel: 'ܐܬܬܐ',
+      satLabel: 'ܠܘܚܝ̈ܐ',
+      baroLabel: 'ܒܐܪܘ'
     },
     eo: {
       subtitle: 'Alteco-Monitorilo',
@@ -120,7 +123,10 @@ const I18n = (() => {
       pointsTitle: 'Konservitaj Punktoj',
       noPoints: 'Neniu konservita punkto ankoraŭ',
       deletePoint: 'Forigi',
-      deleteAllPoints: 'Forigi Ĉion'
+      deleteAllPoints: 'Forigi Ĉion',
+      signLabel: 'SIGN',
+      satLabel: 'SAT',
+      baroLabel: 'BARO'
     },
     lv: {
       subtitle: 'Augstuma mērītājs',
@@ -175,7 +181,10 @@ const I18n = (() => {
       pointsTitle: 'Saglabātie punkti',
       noPoints: 'Vēl nav saglabātu punktu',
       deletePoint: 'Dzēst',
-      deleteAllPoints: 'Dzēst visu'
+      deleteAllPoints: 'Dzēst visu',
+      signLabel: 'SIGN',
+      satLabel: 'SAT',
+      baroLabel: 'BARO'
     },
     be: {
       subtitle: 'Манітор вышыні',
@@ -230,7 +239,10 @@ const I18n = (() => {
       pointsTitle: 'Захаваныя пункты',
       noPoints: 'Захаваных пунктаў пакуль няма',
       deletePoint: 'Выдаліць',
-      deleteAllPoints: 'Выдаліць усё'
+      deleteAllPoints: 'Выдаліць усё',
+      signLabel: 'СІГН',
+      satLabel: 'САТ',
+      baroLabel: 'БАРО'
     },
     tp: {
       subtitle: 'ilo pi suli sewi',
@@ -285,7 +297,10 @@ const I18n = (() => {
       pointsTitle: 'tomo suli',
       noPoints: 'suli li lon ala',
       deletePoint: 'o weka',
-      deleteAllPoints: 'o weka e ale'
+      deleteAllPoints: 'o weka e ale',
+      signLabel: 'KON',
+      satLabel: 'MUN',
+      baroLabel: 'KON'
     }
   };
 

@@ -9,7 +9,9 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.location.GnssStatus
 import android.location.Location
+import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Vibrator
@@ -98,6 +100,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
     var teroAltitude by remember { mutableStateOf<Double?>(null) }
     var hAccuracy by remember { mutableStateOf<Float?>(null) }
     var vAccuracy by remember { mutableStateOf<Float?>(null) }
+    var satelliteCount by remember { mutableStateOf(0) }
     
     var lastNetworkFetchTime by remember { mutableStateOf(0L) }
     var baseHeight by remember { mutableStateOf<Double?>(null) }
@@ -125,6 +128,23 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
 
     LaunchedEffect(hasPermission) {
         if (hasPermission) {
+            // Track satellites
+            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val gnssStatusCallback = object : GnssStatus.Callback() {
+                    override fun onSatelliteStatusChanged(status: GnssStatus) {
+                        var count = 0
+                        for (i in 0 until status.satelliteCount) {
+                            if (status.usedInFix(i)) count++
+                        }
+                        satelliteCount = count
+                    }
+                }
+                try {
+                    locationManager.registerGnssStatusCallback(gnssStatusCallback, null)
+                } catch (e: SecurityException) {}
+            }
+
             // Start background service
             val intent = Intent(context, LocationService::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -233,7 +253,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        InfoGrid(gpsAltitude, mslAltitude, teroAltitude, baroAltitude.value, hAccuracy, vAccuracy, useFeet)
+                        InfoGrid(gpsAltitude, mslAltitude, teroAltitude, baroAltitude.value, satelliteCount, hAccuracy, vAccuracy, useFeet)
                     }
                 }
             } else {
@@ -254,7 +274,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                                 .fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            InfoGrid(gpsAltitude, mslAltitude, teroAltitude, baroAltitude.value, hAccuracy, vAccuracy, useFeet)
+                            InfoGrid(gpsAltitude, mslAltitude, teroAltitude, baroAltitude.value, satelliteCount, hAccuracy, vAccuracy, useFeet)
                         }
                     }
                 }
@@ -332,7 +352,7 @@ fun AltitudeDisplay(gps: Double?, msl: Double?, baro: Double?, base: Double?, is
 }
 
 @Composable
-fun InfoGrid(gps: Double?, msl: Double?, tero: Double?, baro: Double?, hAcc: Float?, vAcc: Float?, useFeet: Boolean) {
+fun InfoGrid(gps: Double?, msl: Double?, tero: Double?, baro: Double?, sats: Int, hAcc: Float?, vAcc: Float?, useFeet: Boolean) {
     // S.TERO calculation (GPS or MSL altitude above ground level)
     val agl = if (tero != null) {
         val currentAlt = gps ?: msl
@@ -352,6 +372,7 @@ fun InfoGrid(gps: Double?, msl: Double?, tero: Double?, baro: Double?, hAcc: Flo
         if (baro != null) {
             InfoItem("BARO", baro, null, useFeet)
         }
+        InfoItem(stringResource(R.string.sat_label), sats.toDouble(), null, false, isInt = true)
     }
     
     Spacer(modifier = Modifier.height(24.dp))
@@ -503,16 +524,20 @@ fun SettingsSheet(
 }
 
 @Composable
-fun InfoItem(label: String, value: Double?, accuracy: Float?, useFeet: Boolean) {
+fun InfoItem(label: String, value: Double?, accuracy: Float?, useFeet: Boolean, isInt: Boolean = false) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = label, color = Color.Gray, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-        val displayVal = if (value != null) {
-            val converted = if (useFeet) value * 3.28084 else value
-            String.format("%.1f %s", converted, if (useFeet) "ft" else "m")
+        Text(label, color = Color.Gray, fontSize = 10.sp, fontWeight = FontWeight.ExtraBold)
+        val displayValue = if (value != null) {
+            if (isInt) {
+                String.format("%.0f", value)
+            } else {
+                val converted = if (useFeet) value * 3.28084 else value
+                String.format("%.1f", converted)
+            }
         } else "—"
-        
+
         Text(
-            text = displayVal,
+            text = displayValue,
             color = Color.White.copy(alpha = 0.8f),
             fontSize = 18.sp,
             fontFamily = FontFamily.Monospace
