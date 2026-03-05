@@ -1,6 +1,6 @@
 {
-  "name": "Gova Alteco-Monitorilo",
-  "short_name": "Gova",
+  "name": "Alteco",
+  "short_name": "Alteco",
   "description": "Minimalisma kaj preciza altimetro kun subteno por GPS, MSL-korekto kaj Barometro.",
   "start_url": "/",
   "display": "standalone",
