@@ -154,8 +154,10 @@ const GPS = (() => {
     // 2. Provi ĉiun provizanton laŭvice
     for (const provider of ELEVATION_PROVIDERS) {
       try {
+        console.debug(`[GPS] Provante ${provider.name}...`);
         const alt = await provider.fetch(lat, lon);
         if (alt !== null) {
+          console.debug(`[GPS] ${provider.name} sukcesis: ${alt}m`);
           _lastMSLSource = provider.name;
           // 3. Konservi en kaŝmemoro
           try {
@@ -166,8 +168,9 @@ const GPS = (() => {
           } catch (e) {}
           return alt;
         }
+        console.warn(`[GPS] ${provider.name} revenis null`);
       } catch (e) {
-        console.warn(`Alteco-provizanto ${provider.name} malsukcesis:`, e);
+        console.warn(`[GPS] ${provider.name} malsukcesis:`, e.message || e);
       }
     }
 

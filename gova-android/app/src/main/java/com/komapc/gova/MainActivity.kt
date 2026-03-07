@@ -174,33 +174,14 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                     }
                 }
                 
-                // Fetch ground elevation (TERO) from Open-Elevation API
+                // Fetch ground elevation (TERO) — tries multiple providers
                 if (System.currentTimeMillis() - lastNetworkFetchTime > 60000) {
                     lastNetworkFetchTime = System.currentTimeMillis()
                     coroutineScope.launch {
-                        try {
-                            val result = withContext(Dispatchers.IO) {
-                                val url = URL("https://api.open-elevation.com/api/v1/lookup?locations=${location.latitude},${location.longitude}")
-                                val connection = url.openConnection() as HttpURLConnection
-                                connection.requestMethod = "GET"
-                                connection.connectTimeout = 5000
-                                connection.readTimeout = 5000
-                                
-                                if (connection.responseCode == HttpURLConnection.HTTP_OK) {
-                                    val response = connection.inputStream.bufferedReader().use { it.readText() }
-                                    val jsonObject = JSONObject(response)
-                                    val results = jsonObject.getJSONArray("results")
-                                    if (results.length() > 0) {
-                                        results.getJSONObject(0).getDouble("elevation")
-                                    } else null
-                                } else null
-                            }
-                            if (result != null) {
-                                teroAltitude = result
-                            }
-                        } catch (e: Exception) {
-                            // Ignored, fallback to GPS altitude will remain
+                        val result = withContext(Dispatchers.IO) {
+                            fetchElevation(location.latitude, location.longitude)
                         }
+                        if (result != null) teroAltitude = result
                     }
                 }
             }
@@ -547,6 +528,30 @@ fun InfoItem(label: String, value: Double?, accuracy: Float?, useFeet: Boolean, 
             Text(text = "±${String.format("%.0f", accDisp)}", color = Color.Gray, fontSize = 9.sp)
         }
     }
+}
+
+/** Tries multiple elevation APIs in order, returns first non-null result. */
+fun fetchElevation(lat: Double, lon: Double): Double? {
+    data class Provider(val url: String, val isOpenTopo: Boolean)
+    val providers = listOf(
+        Provider("https://api.opentopodata.org/v1/srtm30m?locations=$lat,$lon", true),
+        Provider("https://api.opentopodata.org/v1/aster30m?locations=$lat,$lon", true),
+        Provider("https://api.open-elevation.com/api/v1/lookup?locations=$lat,$lon", false),
+    )
+    for (provider in providers) {
+        try {
+            val conn = URL(provider.url).openConnection() as HttpURLConnection
+            conn.requestMethod = "GET"
+            conn.connectTimeout = 8000
+            conn.readTimeout = 8000
+            if (conn.responseCode != HttpURLConnection.HTTP_OK) continue
+            val json = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
+            if (provider.isOpenTopo && json.optString("status") != "OK") continue
+            val results = json.getJSONArray("results")
+            if (results.length() > 0) return results.getJSONObject(0).getDouble("elevation")
+        } catch (_: Exception) {}
+    }
+    return null
 }
 
 @SuppressLint("MissingPermission")
