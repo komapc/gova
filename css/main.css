@@ -145,10 +145,13 @@ body {
 /* --- Info Grid (Informativa Ekrano) --- */
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem 0.75rem;
   width: 100%;
   max-width: 600px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1.25rem;
+  border-radius: var(--radius-lg);
 }
 
 .info-item {

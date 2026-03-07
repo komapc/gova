@@ -123,63 +123,37 @@ const GPS = (() => {
   ];
 
   /**
-   * Akiras MSL-altecon provante plurajn API-ojn laŭvice.
-   * Uzas localStorage por kaŝmemoro (24h, 100m radiuso).
+   * Akiras ter-altecon de pluraj fontoj samtempe.
    * @param {number} lat
    * @param {number} lon
-   * @returns {Promise<number|null>}
+   * @returns {Promise<Object>} - { srtm, aster, zen }
    */
-  async function getMSLAltitude(lat, lon) {
-    const CACHE_KEY = 'gova_msl_cache';
-    const MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 horoj
+  async function getAllElevations(lat, lon) {
+    const results = { srtm: null, aster: null, zen: null };
+    if (!navigator.onLine) return results;
 
-    // 1. Kontroli lokan kaŝmemoron
     try {
-      const cachedData = localStorage.getItem(CACHE_KEY);
-      if (cachedData) {
-        const cache = JSON.parse(cachedData);
-        const now = Date.now();
-        const found = cache.find(p => {
-          const dLat = Math.abs(p.lat - lat);
-          const dLon = Math.abs(p.lon - lon);
-          // 0.0009 grado ~= 100m
-          return dLat < 0.0009 && dLon < 0.0009 && (now - p.ts < MAX_AGE_MS);
-        });
-        if (found) return found.alt;
-      }
-    } catch (e) {}
-
-    if (!navigator.onLine) return null;
-
-    // 2. Provi ĉiun provizanton laŭvice
-    for (const provider of ELEVATION_PROVIDERS) {
-      try {
-        console.debug(`[GPS] Provante ${provider.name}...`);
-        const alt = await provider.fetch(lat, lon);
-        if (alt !== null) {
-          console.debug(`[GPS] ${provider.name} sukcesis: ${alt}m`);
-          _lastMSLSource = provider.name;
-          // 3. Konservi en kaŝmemoro
-          try {
-            let cache = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]');
-            if (cache.length > 50) cache.shift();
-            cache.push({ lat, lon, alt, ts: Date.now() });
-            localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-          } catch (e) {}
-          return alt;
+      const resp = await fetch(
+        `https://api.opentopodata.org/v1/srtm30m,aster30m,mapzen?locations=${lat},${lon}`,
+        { signal: AbortSignal.timeout(10000) }
+      );
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.status === 'OK' && data.results) {
+          results.srtm = data.results[0]?.elevation ?? null;
+          results.aster = data.results[1]?.elevation ?? null;
+          results.zen = data.results[2]?.elevation ?? null;
         }
-        console.warn(`[GPS] ${provider.name} revenis null`);
-      } catch (e) {
-        console.warn(`[GPS] ${provider.name} malsukcesis:`, e.message || e);
       }
+    } catch (e) {
+      console.warn('[GPS] Malsukcesis peti plurajn altecojn:', e);
     }
-
-    return null;
+    return results;
   }
 
   /**
    * Komencas aŭtomatan ĝisdatigon ĉiuj `intervalMs` milisekundoj.
-   * @param {function} onSuccess - Callback(position, mslAltitude|null, baroAltitude|null)
+   * @param {function} onSuccess - Callback(position, elevations, baroAltitude|null)
    * @param {function} onError - Callback(error)
    * @param {number} intervalMs - Defaŭlto: 5000
    */
@@ -192,12 +166,12 @@ const GPS = (() => {
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
 
-        const mslAlt = await getMSLAltitude(lat, lon);
+        const elevations = await getAllElevations(lat, lon);
         
         // Se ni havas lastan premon, ni povas doni ankaŭ barometran altecon
         const baroAlt = _lastPressure ? calculateBaroAltitude(_lastPressure) : null;
         
-        onSuccess(pos, mslAlt, baroAlt);
+        onSuccess(pos, elevations, baroAlt);
       } catch (err) {
         onError(err);
       }

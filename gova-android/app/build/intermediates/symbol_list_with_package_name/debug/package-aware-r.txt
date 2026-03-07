@@ -331,6 +331,7 @@ string precision_desc
 string range_end
 string range_start
 string relative_label
+string sat_label
 string search_bar_search
 string selected
 string set_base_btn

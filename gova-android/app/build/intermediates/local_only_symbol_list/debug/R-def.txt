@@ -19,6 +19,7 @@ string close_btn
 string disclaimer
 string precision_desc
 string relative_label
+string sat_label
 string set_base_btn
 string settings_title
 string status_searching

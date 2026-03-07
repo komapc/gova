@@ -45,7 +45,9 @@
   // Detala krado
   const elValGps = document.querySelector('.val-gps');
   const elValAcc = document.querySelector('.val-acc');
-  const elValMsl = document.querySelector('.val-msl');
+  const elValSrtm = document.querySelector('.val-srtm');
+  const elValAster = document.querySelector('.val-aster');
+  const elValZen = document.querySelector('.val-zen');
   const elValAgl = document.querySelector('.val-agl');
   const elValBaro = document.querySelector('.val-baro');
   const elValSign = document.querySelector('.val-sign');
@@ -70,7 +72,7 @@
   const SWIPE_THRESHOLD = 50;
   let lastRefreshTime = 0;
   let lastGpsAlt = null;
-  let lastMslAlt = null;
+  let lastElevations = { srtm: null, aster: null, zen: null };
   let lastBaroAlt = null;
   let lastAccuracy = null;
   let wakeLock = null;
@@ -122,20 +124,20 @@
 
   // --- Montri altecon ---
   function _updateAltitudeDisplay(meters, accuracyMeters, animate = true) {
-      const baseHeight = Storage.getBaseHeight();
-      const rawAlt = lastBaroAlt ?? lastMslAlt ?? meters;
+    const baseHeight = Storage.getBaseHeight();
+    const rawAlt = lastBaroAlt ?? meters;
+    
+    if (rawAlt === null) return;
 
-      if (rawAlt === null) return;
+    // Glatigo (Smoothing)
+    if (smoothedAlt === null || !animate) {
+      smoothedAlt = rawAlt;
+    } else {
+      smoothedAlt = smoothedAlt + SMOOTHING_FACTOR * (rawAlt - smoothedAlt);
+    }
 
-      // Glatigo (Smoothing)
-      if (smoothedAlt === null || !animate) {
-        smoothedAlt = rawAlt;
-      } else {
-        smoothedAlt = smoothedAlt + SMOOTHING_FACTOR * (rawAlt - smoothedAlt);
-      }
-
-      const currentAlt = smoothedAlt;
-      const displayAlt = Units.getDisplayAltitude(currentAlt, baseHeight);
+    const currentAlt = smoothedAlt;
+    const displayAlt = Units.getDisplayAltitude(currentAlt, baseHeight);
     const isRelative = baseHeight !== null;
     const formatted = Units.formatAltitude(displayAlt, currentUnit, isRelative);
     const mslFormatted = Units.formatAltitude(currentAlt, currentUnit, false);
@@ -172,22 +174,33 @@
     });
     
     // Ĝisdatigi detalan kradon
-    if (elValGps && meters !== null) {
-      const gpsFmt = Units.formatAltitude(meters, currentUnit, false);
+    if (elValGps && lastGpsAlt !== null) {
+      const gpsFmt = Units.formatAltitude(lastGpsAlt, currentUnit, false);
       elValGps.textContent = `${gpsFmt.value} ${gpsFmt.unit}`;
+      if (elValAcc) elValAcc.textContent = `±${Math.round(accuracyMeters)}m`;
     }
 
-    if (elValMsl && lastMslAlt !== null) {
-      const mslFmt = Units.formatAltitude(lastMslAlt, currentUnit, false);
-      const src = GPS.getLastMSLSource ? GPS.getLastMSLSource() : '';
-      const srcLabel = src ? ` (${src})` : '';
-      elValMsl.textContent = `${mslFmt.value} ${mslFmt.unit}${srcLabel}`;
+    // Ter-fontoj
+    if (elValSrtm && lastElevations.srtm !== null) {
+      const f = Units.formatAltitude(lastElevations.srtm, currentUnit, false);
+      elValSrtm.textContent = `${f.value} ${f.unit}`;
+    }
+    if (elValAster && lastElevations.aster !== null) {
+      const f = Units.formatAltitude(lastElevations.aster, currentUnit, false);
+      elValAster.textContent = `${f.value} ${f.unit}`;
+    }
+    if (elValZen && lastElevations.zen !== null) {
+      const f = Units.formatAltitude(lastElevations.zen, currentUnit, false);
+      elValZen.textContent = `${f.value} ${f.unit}`;
     }
 
-    if (elValAgl && lastGpsAlt !== null && lastMslAlt !== null) {
-      const aglAlt = Math.max(0, lastGpsAlt - lastMslAlt);
-      const aglFmt = Units.formatAltitude(aglAlt, currentUnit, false);
-      elValAgl.textContent = `${aglFmt.value} ${aglFmt.unit}`;
+    if (elValAgl && lastGpsAlt !== null) {
+      const groundAlt = lastElevations.zen ?? lastElevations.srtm ?? lastElevations.aster;
+      if (groundAlt !== null) {
+        const aglAlt = Math.max(0, lastGpsAlt - groundAlt);
+        const aglFmt = Units.formatAltitude(aglAlt, currentUnit, false);
+        elValAgl.textContent = `${aglFmt.value} ${aglFmt.unit}`;
+      }
     }
 
     if (elValBaro && lastBaroAlt !== null) {
@@ -195,17 +208,6 @@
       elValBaro.textContent = `${baroFmt.value} ${baroFmt.unit}`;
       if (elItemBaro) elItemBaro.classList.remove('hidden');
     }
-    
-    if (elBaseIndicator) elBaseIndicator.classList.toggle('hidden', !isRelative);
-    
-    if (accuracyMeters !== null) {
-      const accStr = Units.formatAccuracy(accuracyMeters, currentUnit);
-      if (elAccuracyText) elAccuracyText.textContent = `Precizeco: ${accStr}`;
-      if (elValAcc) elValAcc.textContent = accStr;
-    }
-    
-    Storage.setLastAlt(meters);
-    if (accuracyMeters !== null) Storage.setLastAccuracy(accuracyMeters);
   }
 
   function _setStatus(state, text = '') {
@@ -228,20 +230,20 @@
   }
 
   // --- GPS-Sukceso ---
-  async function _onGpsSuccess(position, mslAlt, baroAlt) {
+  async function _onGpsSuccess(position, elevations, baroAlt) {
     const coords = position.coords;
     lastGpsAlt = coords.altitude;
-    lastMslAlt = mslAlt;
+    lastElevations = elevations || lastElevations;
     lastBaroAlt = baroAlt || lastBaroAlt;
-    // Uzi vertikalan precizecon se disponebla, alie horizontalan por la stela takso
+    // Uzi horizontalan precizecon kiel alternativon
     lastAccuracy = coords.altitudeAccuracy || coords.accuracy;
 
-    if (lastGpsAlt === null && lastMslAlt === null && lastBaroAlt === null) return;
+    if (lastGpsAlt === null && (lastElevations.zen === null) && lastBaroAlt === null) return;
 
     _updateAltitudeDisplay(lastGpsAlt, lastAccuracy, true);
-    _setStatus('locked', lastMslAlt !== null ? `${I18n.get('locked')} + MSL` : I18n.get('locked'));
+    _setStatus('locked', lastElevations.srtm !== null ? `${I18n.get('locked')} + MSL` : I18n.get('locked'));
 
-    const finalAlt = lastBaroAlt ?? lastMslAlt ?? lastGpsAlt;
+    const finalAlt = lastBaroAlt ?? lastElevations.zen ?? lastElevations.srtm ?? lastGpsAlt;
     History.add(finalAlt, lastAccuracy || 0, coords.latitude, coords.longitude);
     SavedPoints.updateTodayPoints(finalAlt, coords.latitude, coords.longitude);
   }
@@ -269,8 +271,8 @@
     try {
       GPS.stopAutoRefresh();
       const pos = await GPS.getOnce();
-      const mslAlt = await GPS.getMSLAltitude(pos.coords.latitude, pos.coords.longitude);
-      await _onGpsSuccess(pos, mslAlt, null);
+      const elevations = await GPS.getAllElevations(pos.coords.latitude, pos.coords.longitude);
+      await _onGpsSuccess(pos, elevations, null);
     } catch (err) {
       _onGpsError(err);
     } finally {
@@ -278,6 +280,35 @@
       if (elMain) elMain.classList.remove('refreshing');
       GPS.startAutoRefresh(_onGpsSuccess, _onGpsError, 5000);
     }
+  }
+
+  function _triggerPullRefresh() {
+    _manualRefresh();
+    _hidePullIndicator();
+  }
+
+  function _hidePullIndicator() {
+    if (elPullIndicator) {
+      elPullIndicator.classList.remove('visible', 'pulling', 'refreshing');
+      setTimeout(() => elPullIndicator.classList.add('hidden'), 300);
+    }
+  }
+
+  function _openSettings() {
+    if (elSettingsOverlay) {
+      elSettingsOverlay.classList.remove('hidden');
+      _updateSettingsUI();
+    }
+  }
+
+  function _closeSettings() {
+    if (elSettingsOverlay) elSettingsOverlay.classList.add('hidden');
+  }
+
+  function _setScreen(index) {
+    currentScreen = index;
+    if (elScreensContainer) elScreensContainer.dataset.currentScreen = currentScreen;
+    elDots.forEach((dot, i) => dot.classList.toggle('active', i === currentScreen));
   }
 
   // --- Gesta Administrado ---
@@ -350,38 +381,6 @@
     }
     
     if (touchDuration < LONG_PRESS_DURATION) _manualRefresh();
-  }
-
-  function _setScreen(index) {
-    currentScreen = index;
-    if (elScreensContainer) elScreensContainer.dataset.currentScreen = currentScreen;
-    elDots.forEach((dot, i) => dot.classList.toggle('active', i === currentScreen));
-  }
-
-  function _triggerPullRefresh() {
-    if (elPullIndicator) {
-      elPullIndicator.classList.add('refreshing');
-      elPullIndicator.classList.remove('pulling');
-    }
-    _manualRefresh().finally(() => setTimeout(_hidePullIndicator, 500));
-  }
-
-  function _hidePullIndicator() {
-    if (elPullIndicator) {
-      elPullIndicator.classList.remove('visible', 'pulling', 'refreshing');
-      setTimeout(() => elPullIndicator.classList.add('hidden'), 300);
-    }
-  }
-
-  // --- Agordoj ---
-  function _openSettings() {
-    if (elSettingsOverlay) elSettingsOverlay.classList.remove('hidden');
-    _updateSettingsUI();
-    if (elBtnCloseSettings) elBtnCloseSettings.focus();
-  }
-
-  function _closeSettings() {
-    if (elSettingsOverlay) elSettingsOverlay.classList.add('hidden');
   }
 
   function _updateSettingsUI() {
