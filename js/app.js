@@ -233,7 +233,8 @@
     lastGpsAlt = coords.altitude;
     lastMslAlt = mslAlt;
     lastBaroAlt = baroAlt || lastBaroAlt;
-    lastAccuracy = coords.altitudeAccuracy;
+    // Uzi vertikalan precizecon se disponebla, alie horizontalan por la stela takso
+    lastAccuracy = coords.altitudeAccuracy || coords.accuracy;
 
     if (lastGpsAlt === null && lastMslAlt === null && lastBaroAlt === null) return;
 
