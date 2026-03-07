@@ -74,6 +74,8 @@
   let lastBaroAlt = null;
   let lastAccuracy = null;
   let wakeLock = null;
+  let smoothedAlt = null;
+  const SMOOTHING_FACTOR = 0.3;
 
   async function _requestWakeLock() {
     if ('wakeLock' in navigator) {
@@ -115,15 +117,13 @@
     const lastAlt = Storage.getLastAlt() || lastGpsAlt;
     if (lastAlt !== null) {
       _updateAltitudeDisplay(lastAlt, lastAccuracy || Storage.getLastAccuracy(), false);
-    let lastAccuracy = null;
-    let smoothedAlt = null;
-    const SMOOTHING_FACTOR = 0.3; // Ju pli malgranda, des pli glata
-    let wakeLock = null;
+    }
+  }
 
-    // --- Montri altecon ---
-    function _updateAltitudeDisplay(meters, accuracyMeters, animate = true) {
+  // --- Montri altecon ---
+  function _updateAltitudeDisplay(meters, accuracyMeters, animate = true) {
       const baseHeight = Storage.getBaseHeight();
-      const rawAlt = lastBaroAlt ?? meters;
+      const rawAlt = lastBaroAlt ?? lastMslAlt ?? meters;
 
       if (rawAlt === null) return;
 
@@ -179,7 +179,9 @@
 
     if (elValMsl && lastMslAlt !== null) {
       const mslFmt = Units.formatAltitude(lastMslAlt, currentUnit, false);
-      elValMsl.textContent = `${mslFmt.value} ${mslFmt.unit}`;
+      const src = GPS.getLastMSLSource ? GPS.getLastMSLSource() : '';
+      const srcLabel = src ? ` (${src})` : '';
+      elValMsl.textContent = `${mslFmt.value} ${mslFmt.unit}${srcLabel}`;
     }
 
     if (elValAgl && lastGpsAlt !== null && lastMslAlt !== null) {

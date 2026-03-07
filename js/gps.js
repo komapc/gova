@@ -16,12 +16,6 @@ const GPS = (() => {
     maximumAge: 0,
   };
 
-  const OPTIONS_LOW = {
-    enableHighAccuracy: false,
-    timeout: 10000,
-    maximumAge: 30000,
-  };
-
   let _pressureSensor = null;
   let _lastPressure = null;
 
@@ -82,16 +76,61 @@ const GPS = (() => {
   }
 
   /**
-   * Akiras altecon de Open-Elevation API (kiam rete).
-   * Redonas null se eraro aŭ ofline.
-   * Uzas localStorage por kaŝmemoro por ŝpari ret-petojn kaj por senreta uzo.
+   * Listo de alteco-API-provizantoj laŭ prioritato.
+   * Ĉiu havas `fetch(lat, lon)` kiu redonas Promise<number|null>.
+   */
+  let _lastMSLSource = null;
+
+  const ELEVATION_PROVIDERS = [
+    {
+      name: 'opentopodata-srtm30m',
+      fetch: async (lat, lon) => {
+        const resp = await fetch(
+          `https://api.opentopodata.org/v1/srtm30m?locations=${lat},${lon}`,
+          { signal: AbortSignal.timeout(8000) }
+        );
+        if (!resp.ok) return null;
+        const data = await resp.json();
+        if (data?.status !== 'OK') return null;
+        return data?.results?.[0]?.elevation ?? null;
+      },
+    },
+    {
+      name: 'opentopodata-aster30m',
+      fetch: async (lat, lon) => {
+        const resp = await fetch(
+          `https://api.opentopodata.org/v1/aster30m?locations=${lat},${lon}`,
+          { signal: AbortSignal.timeout(8000) }
+        );
+        if (!resp.ok) return null;
+        const data = await resp.json();
+        if (data?.status !== 'OK') return null;
+        return data?.results?.[0]?.elevation ?? null;
+      },
+    },
+    {
+      name: 'open-elevation',
+      fetch: async (lat, lon) => {
+        const resp = await fetch(
+          `https://api.open-elevation.com/api/v1/lookup?locations=${lat},${lon}`,
+          { signal: AbortSignal.timeout(8000) }
+        );
+        if (!resp.ok) return null;
+        const data = await resp.json();
+        return data?.results?.[0]?.elevation ?? null;
+      },
+    },
+  ];
+
+  /**
+   * Akiras MSL-altecon provante plurajn API-ojn laŭvice.
+   * Uzas localStorage por kaŝmemoro (24h, 100m radiuso).
    * @param {number} lat
    * @param {number} lon
    * @returns {Promise<number|null>}
    */
   async function getMSLAltitude(lat, lon) {
     const CACHE_KEY = 'gova_msl_cache';
-    const MAX_DIST_M = 100; // 100m radiuso
     const MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 horoj
 
     // 1. Kontroli lokan kaŝmemoron
@@ -100,45 +139,39 @@ const GPS = (() => {
       if (cachedData) {
         const cache = JSON.parse(cachedData);
         const now = Date.now();
-        
-        // Trovi proksiman punkton en kaŝmemoro
         const found = cache.find(p => {
           const dLat = Math.abs(p.lat - lat);
           const dLon = Math.abs(p.lon - lon);
-          // Tre simpla distanco-proksimumo (0.001 grado ~= 111m)
+          // 0.0009 grado ~= 100m
           return dLat < 0.0009 && dLon < 0.0009 && (now - p.ts < MAX_AGE_MS);
         });
-
         if (found) return found.alt;
       }
     } catch (e) {}
 
-    // 2. Se ne trovis aŭ malnova, peti de API
     if (!navigator.onLine) return null;
-    
-    try {
-      const url = `https://api.open-elevation.com/api/v1/lookup?locations=${lat},${lon}`;
-      const resp = await fetch(url, { signal: AbortSignal.timeout(8000) });
-      if (!resp.ok) return null;
-      const data = await resp.json();
-      const alt = data?.results?.[0]?.elevation ?? null;
 
-      // 3. Konservi en kaŝmemoro
-      if (alt !== null) {
-        try {
-          let cache = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]');
-          // Limigi kaŝmemoron al 50 lokoj
-          if (cache.length > 50) cache.shift();
-          
-          cache.push({ lat, lon, alt, ts: Date.now() });
-          localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-        } catch (e) {}
+    // 2. Provi ĉiun provizanton laŭvice
+    for (const provider of ELEVATION_PROVIDERS) {
+      try {
+        const alt = await provider.fetch(lat, lon);
+        if (alt !== null) {
+          _lastMSLSource = provider.name;
+          // 3. Konservi en kaŝmemoro
+          try {
+            let cache = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]');
+            if (cache.length > 50) cache.shift();
+            cache.push({ lat, lon, alt, ts: Date.now() });
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+          } catch (e) {}
+          return alt;
+        }
+      } catch (e) {
+        console.warn(`Alteco-provizanto ${provider.name} malsukcesis:`, e);
       }
-
-      return alt;
-    } catch {
-      return null;
     }
+
+    return null;
   }
 
   /**
@@ -214,6 +247,7 @@ const GPS = (() => {
     isAvailable,
     getOnce,
     getMSLAltitude,
+    getLastMSLSource: () => _lastMSLSource,
     startAutoRefresh,
     stopAutoRefresh,
     getErrorMessage,

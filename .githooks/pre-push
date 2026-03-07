@@ -1,0 +1,8 @@
+#!/bin/sh
+echo "[pre-push] Running ESLint..."
+npm run lint
+if [ $? -ne 0 ]; then
+  echo "[pre-push] Lint failed — push aborted. Fix errors and try again."
+  exit 1
+fi
+exit 0

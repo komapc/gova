@@ -20,14 +20,9 @@ jobs:
     
     - name: Install dependencies
       run: npm install
-    
-    - name: Setup test environment
-      run: |
-        echo "Tests require browser environment"
-        echo "Opening tests/run-tests.html in browser for manual testing"
-    
-    - name: Lint check (if applicable)
-      run: echo "No linting configured yet"
+
+    - name: Lint
+      run: npm run lint
       
     - name: Build check
       run: |
