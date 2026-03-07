@@ -97,7 +97,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
     val coroutineScope = rememberCoroutineScope()
     var gpsAltitude by remember { mutableStateOf<Double?>(null) }
     var mslAltitude by remember { mutableStateOf<Double?>(null) }
-    var teroAltitude by remember { mutableStateOf<Double?>(null) }
+    var terrainElevations by remember { mutableStateOf(TerrainElevations()) }
     var hAccuracy by remember { mutableStateOf<Float?>(null) }
     var vAccuracy by remember { mutableStateOf<Float?>(null) }
     var satelliteCount by remember { mutableStateOf(0) }
@@ -179,9 +179,9 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                     lastNetworkFetchTime = System.currentTimeMillis()
                     coroutineScope.launch {
                         val result = withContext(Dispatchers.IO) {
-                            fetchElevation(location.latitude, location.longitude)
+                            fetchElevations(location.latitude, location.longitude)
                         }
-                        if (result != null) teroAltitude = result
+                        terrainElevations = result
                     }
                 }
             }
@@ -234,7 +234,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        InfoGrid(gpsAltitude, mslAltitude, teroAltitude, baroAltitude.value, satelliteCount, hAccuracy, vAccuracy, useFeet)
+                        InfoGrid(gpsAltitude, mslAltitude, terrainElevations, baroAltitude.value, satelliteCount, hAccuracy, vAccuracy, useFeet)
                     }
                 }
             } else {
@@ -255,7 +255,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                                 .fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            InfoGrid(gpsAltitude, mslAltitude, teroAltitude, baroAltitude.value, satelliteCount, hAccuracy, vAccuracy, useFeet)
+                            InfoGrid(gpsAltitude, mslAltitude, terrainElevations, baroAltitude.value, satelliteCount, hAccuracy, vAccuracy, useFeet)
                         }
                     }
                 }
@@ -278,13 +278,13 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                 SettingsSheet(
                     gpsAltitude = gpsAltitude,
                     mslAltitude = mslAltitude,
-                    teroAltitude = teroAltitude,
+                    teroAltitude = terrainElevations.zen ?: terrainElevations.srtm ?: terrainElevations.aster,
                     baroAltitude = baroAltitude.value,
                     baseHeight = baseHeight,
                     useFeet = useFeet,
                     onClose = { isSettingsOpen = false },
                     onToggleUnits = { useFeet = !useFeet },
-                    onSetBase = { baseHeight = teroAltitude ?: mslAltitude ?: baroAltitude.value ?: gpsAltitude },
+                    onSetBase = { baseHeight = terrainElevations.zen ?: terrainElevations.srtm ?: terrainElevations.aster ?: mslAltitude ?: baroAltitude.value ?: gpsAltitude },
                     onClearBase = { baseHeight = null }
                 )
             }
@@ -333,47 +333,62 @@ fun AltitudeDisplay(gps: Double?, msl: Double?, baro: Double?, base: Double?, is
 }
 
 @Composable
-fun InfoGrid(gps: Double?, msl: Double?, tero: Double?, baro: Double?, sats: Int, hAcc: Float?, vAcc: Float?, useFeet: Boolean) {
+fun InfoGrid(gps: Double?, msl: Double?, terrain: TerrainElevations, baro: Double?, sats: Int, hAcc: Float?, vAcc: Float?, useFeet: Boolean) {
     // S.TERO calculation (GPS or MSL altitude above ground level)
-    val agl = if (tero != null) {
+    val bestGround = terrain.zen ?: terrain.srtm ?: terrain.aster
+    val agl = if (bestGround != null) {
         val currentAlt = gps ?: msl
         if (currentAlt != null) {
-            maxOf(0.0, currentAlt - tero)
+            maxOf(0.0, currentAlt - bestGround)
         } else null
     } else null
 
-    // Raw Data Row
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        InfoItem("GPS", gps, vAcc, useFeet)
-        InfoItem("TERO", tero, null, useFeet)
-        InfoItem("S.TERO", agl, null, useFeet)
-        if (baro != null) {
-            InfoItem("BARO", baro, null, useFeet)
+    // Layout: Two rows for better space usage
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        // Row 1: GPS, BARO, S.TERO, SATS
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            InfoItem("GPS", gps, vAcc, useFeet)
+            if (baro != null) {
+                InfoItem("BARO", baro, null, useFeet)
+            }
+            InfoItem("S.TERO", agl, null, useFeet)
+            InfoItem(stringResource(R.string.sat_label), sats.toDouble(), null, false, isInt = true)
         }
-        InfoItem(stringResource(R.string.sat_label), sats.toDouble(), null, false, isInt = true)
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // Row 2: SRTM, ASTER, ZEN
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            InfoItem("SRTM", terrain.srtm, null, useFeet)
+            InfoItem("ASTER", terrain.aster, null, useFeet)
+            InfoItem("ZEN", terrain.zen, null, useFeet)
+        }
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        // Accuracy Text
+        val hAccDisp = if (useFeet) (hAcc ?: 0f) * 3.28084f else (hAcc ?: 0f)
+        val vAccDisp = if (useFeet) (vAcc ?: 0f) * 3.28084f else (vAcc ?: 0f)
+        val unitStr = if (useFeet) "ft" else "m"
+        
+        Text(
+            text = stringResource(
+                R.string.accuracy_format,
+                String.format("%.0f", hAccDisp),
+                unitStr,
+                String.format("%.0f", vAccDisp),
+                unitStr
+            ),
+            color = Color.Gray.copy(alpha = 0.6f),
+            fontSize = 12.sp
+        )
     }
-    
-    Spacer(modifier = Modifier.height(24.dp))
-    
-    // Accuracy Text
-    val hAccDisp = if (useFeet) (hAcc ?: 0f) * 3.28084f else (hAcc ?: 0f)
-    val vAccDisp = if (useFeet) (vAcc ?: 0f) * 3.28084f else (vAcc ?: 0f)
-    val unitStr = if (useFeet) "ft" else "m"
-    
-    Text(
-        text = stringResource(
-            R.string.accuracy_format,
-            String.format("%.0f", hAccDisp),
-            unitStr,
-            String.format("%.0f", vAccDisp),
-            unitStr
-        ),
-        color = Color.Gray.copy(alpha = 0.6f),
-        fontSize = 12.sp
-    )
 }
 
 @Composable
@@ -530,28 +545,52 @@ fun InfoItem(label: String, value: Double?, accuracy: Float?, useFeet: Boolean, 
     }
 }
 
-/** Tries multiple elevation APIs in order, returns first non-null result. */
-fun fetchElevation(lat: Double, lon: Double): Double? {
-    data class Provider(val url: String, val isOpenTopo: Boolean)
-    val providers = listOf(
-        Provider("https://api.opentopodata.org/v1/srtm30m?locations=$lat,$lon", true),
-        Provider("https://api.opentopodata.org/v1/aster30m?locations=$lat,$lon", true),
-        Provider("https://api.open-elevation.com/api/v1/lookup?locations=$lat,$lon", false),
-    )
-    for (provider in providers) {
-        try {
-            val conn = URL(provider.url).openConnection() as HttpURLConnection
-            conn.requestMethod = "GET"
-            conn.connectTimeout = 8000
-            conn.readTimeout = 8000
-            if (conn.responseCode != HttpURLConnection.HTTP_OK) continue
+data class TerrainElevations(
+    val srtm: Double? = null,
+    val aster: Double? = null,
+    val zen: Double? = null
+)
+
+/** Fetches terrain elevation from multiple sources. */
+fun fetchElevations(lat: Double, lon: Double): TerrainElevations {
+    var srtm: Double? = null
+    var aster: Double? = null
+    var zen: Double? = null
+
+    // Fetch SRTM and ASTER from OpenTopoData in one go
+    try {
+        val url = URL("https://api.opentopodata.org/v1/srtm30m,aster30m?locations=$lat,$lon")
+        val conn = url.openConnection() as HttpURLConnection
+        conn.connectTimeout = 8000
+        if (conn.responseCode == HttpURLConnection.HTTP_OK) {
             val json = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
-            if (provider.isOpenTopo && json.optString("status") != "OK") continue
-            val results = json.getJSONArray("results")
-            if (results.length() > 0) return results.getJSONObject(0).getDouble("elevation")
-        } catch (_: Exception) {}
-    }
-    return null
+            if (json.optString("status") == "OK") {
+                val results = json.getJSONArray("results")
+                if (results.length() >= 2) {
+                    srtm = results.getJSONObject(0).optDouble("elevation").takeIf { !it.isNaN() }
+                    aster = results.getJSONObject(1).optDouble("elevation").takeIf { !it.isNaN() }
+                }
+            }
+        }
+    } catch (_: Exception) {}
+
+    // Fetch Mapzen
+    try {
+        val url = URL("https://api.opentopodata.org/v1/mapzen?locations=$lat,$lon")
+        val conn = url.openConnection() as HttpURLConnection
+        conn.connectTimeout = 5000
+        if (conn.responseCode == HttpURLConnection.HTTP_OK) {
+            val json = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
+            if (json.optString("status") == "OK") {
+                val results = json.getJSONArray("results")
+                if (results.length() > 0) {
+                    zen = results.getJSONObject(0).optDouble("elevation").takeIf { !it.isNaN() }
+                }
+            }
+        }
+    } catch (_: Exception) {}
+
+    return TerrainElevations(srtm, aster, zen)
 }
 
 @SuppressLint("MissingPermission")
