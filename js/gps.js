@@ -76,53 +76,6 @@ const GPS = (() => {
   }
 
   /**
-   * Listo de alteco-API-provizantoj laŭ prioritato.
-   * Ĉiu havas `fetch(lat, lon)` kiu redonas Promise<number|null>.
-   */
-  let _lastMSLSource = null;
-
-  const ELEVATION_PROVIDERS = [
-    {
-      name: 'opentopodata-srtm30m',
-      fetch: async (lat, lon) => {
-        const resp = await fetch(
-          `https://api.opentopodata.org/v1/srtm30m?locations=${lat},${lon}`,
-          { signal: AbortSignal.timeout(8000) }
-        );
-        if (!resp.ok) return null;
-        const data = await resp.json();
-        if (data?.status !== 'OK') return null;
-        return data?.results?.[0]?.elevation ?? null;
-      },
-    },
-    {
-      name: 'opentopodata-aster30m',
-      fetch: async (lat, lon) => {
-        const resp = await fetch(
-          `https://api.opentopodata.org/v1/aster30m?locations=${lat},${lon}`,
-          { signal: AbortSignal.timeout(8000) }
-        );
-        if (!resp.ok) return null;
-        const data = await resp.json();
-        if (data?.status !== 'OK') return null;
-        return data?.results?.[0]?.elevation ?? null;
-      },
-    },
-    {
-      name: 'open-elevation',
-      fetch: async (lat, lon) => {
-        const resp = await fetch(
-          `https://api.open-elevation.com/api/v1/lookup?locations=${lat},${lon}`,
-          { signal: AbortSignal.timeout(8000) }
-        );
-        if (!resp.ok) return null;
-        const data = await resp.json();
-        return data?.results?.[0]?.elevation ?? null;
-      },
-    },
-  ];
-
-  /**
    * Akiras ter-altecon de pluraj fontoj samtempe.
    * @param {number} lat
    * @param {number} lon
@@ -223,8 +176,7 @@ const GPS = (() => {
   return {
     isAvailable,
     getOnce,
-    getMSLAltitude,
-    getLastMSLSource: () => _lastMSLSource,
+    getAllElevations,
     startAutoRefresh,
     stopAutoRefresh,
     getErrorMessage,
