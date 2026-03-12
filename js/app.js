@@ -493,9 +493,6 @@
     if (elThemeDark) elThemeDark.classList.toggle('active', theme === 'dark');
   }
 
-  if (elBtnViewHistory) elBtnViewHistory.onclick = () => { window.location.href = 'history.html'; };
-  if (elBtnViewPoints) elBtnViewPoints.onclick = () => { window.location.href = 'points.html'; };
-  
   if (elBtnSavePoint) elBtnSavePoint.onclick = () => {
     const currentAlt = lastBaroAlt ?? lastGpsAlt ?? Storage.getLastAlt();
     if (currentAlt === null) return _showToast(I18n.get('toastNoGps'));

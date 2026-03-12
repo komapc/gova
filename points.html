@@ -13,6 +13,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#2563EB" />
+  <meta name="description" content="Viaj konservitaj punktoj kaj altecoj en Gova. Vidu lokojn sur mapo kaj administru viajn atingojn." />
+  <link rel="canonical" href="https://komapc.github.io/gova/points.html" />
+
+  <!-- Social Media Preview -->
+  <meta property="og:title" content="Konservitaj Punktoj — Gova" />
+  <meta property="og:description" content="Viaj konservitaj punktoj kaj altecoj en Gova." />
+  <meta property="og:url" content="https://komapc.github.io/gova/points.html" />
+  <meta property="og:type" content="website" />
+
   <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="css/main.css" />
@@ -77,7 +86,7 @@
 <body>
 
   <header class="history-header">
-    <button id="btn-back" class="btn-icon" data-i18n-aria="back">←</button>
+    <a id="btn-back" href="index.html" class="btn-icon" style="text-decoration: none;" data-i18n-aria="back">←</a>
     <h1 data-i18n="pointsTitle">Konservitaj Punktoj</h1>
     <div></div> <!-- Spacer -->
   </header>
@@ -107,7 +116,6 @@
 
       const elPointsList = document.getElementById('points-list');
       const elNoData = document.getElementById('no-data');
-      const elBtnBack = document.getElementById('btn-back');
 
       let currentUnit = Storage.getUnit();
 
@@ -171,10 +179,6 @@
           });
         });
       }
-
-      elBtnBack.addEventListener('click', () => {
-        window.location.href = 'index.html';
-      });
 
       I18n.init();
       Theme.init();
