@@ -1,6 +1,6 @@
 {
-  "name": "Alteco",
-  "short_name": "Alteco",
+  "name": "Gova — Preciza Altimetro",
+  "short_name": "Gova",
   "description": "Minimalisma kaj preciza altimetro kun subteno por GPS, MSL-korekto kaj Barometro.",
   "start_url": "/",
   "display": "standalone",

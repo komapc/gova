@@ -6,7 +6,6 @@
   'use strict';
 
   // DOM-Elementoj
-  const elBtnBack = document.getElementById('btn-back');
   const elBtnMenu = document.getElementById('btn-menu');
   const elPeriodBtns = document.querySelectorAll('.period-btn');
   const elStatMin = document.getElementById('stat-min');
@@ -100,11 +99,6 @@
       currentPeriod = btn.dataset.period === 'all' ? 'all' : parseInt(btn.dataset.period);
       loadData();
     });
-  });
-
-  // Reen-butono
-  elBtnBack.addEventListener('click', () => {
-    window.location.href = 'index.html';
   });
 
   // Menuo-butono

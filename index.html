@@ -16,32 +16,53 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Alteco" />
+  <meta name="apple-mobile-web-app-title" content="Gova" />
+
+  <link rel="canonical" href="https://komapc.github.io/gova/" />
 
   <!-- Social Media Preview (Open Graph / WhatsApp) -->
-  <meta property="og:title" content="Alteco — Preciza Altimetro" />
-  <meta property="og:description" content="Minimalisma kaj preciza alteco-monitorilo por via poŝtelefono. Subtenas GPS, MSL kaj Barometron." />
+  <meta property="og:title" content="Gova — Preciza Altimetro (Alteco)" />
+  <meta property="og:description" content="Minimalisma kaj preciza alteco-monitorilo por via poŝtelefono. Subtenas GPS, MSL-geoidon kaj Barometron." />
   <meta property="og:image" content="https://komapc.github.io/gova/icons/icon-512.png" />
   <meta property="og:url" content="https://komapc.github.io/gova/" />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Alteco" />
+  <meta property="og:site_name" content="Gova" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Alteco — Preciza Altimetro" />
+  <meta name="twitter:title" content="Gova — Preciza Altimetro (Alteco)" />
   <meta name="twitter:description" content="Minimalisma kaj preciza altimetro. Subtenas GPS, MSL kaj Barometron." />
   <meta name="twitter:image" content="https://komapc.github.io/gova/icons/icon-512.png" />
 
-  <meta name="description" content="Alteco — Minimalisma kaj preciza alteco-monitorilo (altimetro) en Esperanto. Uzas GPS, MSL-datumojn kaj Barometron." />
+  <meta name="description" content="Gova — Preciza kaj minimalisma alteco-monitorilo (altimetro) en Esperanto. Uzas GPS, MSL-datumojn kaj Barometron por precizaj mezuroj de via alteco." />
 
   <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
   <link rel="icon" type="image/svg+xml" href="icons/logo.svg" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="css/main.css" />
-  <title>Alteco</title>
+  <title>Gova — Preciza Altimetro (Alteco)</title>
+
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Gova",
+      "operatingSystem": "Web, Android, iOS",
+      "applicationCategory": "UtilitiesApplication",
+      "description": "Minimalisma kaj preciza alteco-monitorilo (altimetro) subtenanta GPS kaj Barometron.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+  </script>
 </head>
 <body>
+
+  <h1 class="visually-hidden">Gova — Preciza Alteco-Monitorilo</h1>
 
   <!-- Tutekrana tuŝ-areo kun glit-ujo -->
   <main id="main" class="fullscreen-tap-area" data-i18n-aria="subtitle">
@@ -182,7 +203,7 @@
       <!-- Historio kaj Statistikoj -->
       <div class="settings-section">
         <label class="settings-label" data-i18n="history">Historio</label>
-        <button id="btn-view-history" class="btn-secondary" data-i18n="viewHistory">Vidi Historion</button>
+        <a id="btn-view-history" href="history.html" class="btn-secondary" data-i18n="viewHistory">Vidi Historion</a>
       </div>
 
       <!-- Konservitaj Punktoj -->
@@ -203,7 +224,7 @@
           </div>
         </div>
         
-        <button id="btn-view-points" class="btn-secondary">📍 <span data-i18n="viewPoints">Vidi Ĉiujn Punktojn</span> (<span id="points-count">0</span>)</button>
+        <a id="btn-view-points" href="points.html" class="btn-secondary">📍 <span data-i18n="viewPoints">Vidi Ĉiujn Punktojn</span> (<span id="points-count">0</span>)</a>
       </div>
 
       <!-- Pri Gova (About) -->
