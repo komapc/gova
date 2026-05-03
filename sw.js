@@ -7,24 +7,26 @@
  * - Nekonata: Reto kun kaŝmemor-retropaŝo
  */
 
-const CACHE_NAME = 'gova-v3.2';
+const CACHE_NAME = 'gova-v3.3';
 
 const STATIC_ASSETS = [
   './',
   './index.html',
   './history.html',
+  './points.html',
   './css/main.css',
   './css/history.css',
   './js/app.js',
   './js/gps.js',
   './js/units.js',
   './js/storage.js',
+  './js/i18n.js',
   './js/history.js',
+  './js/history-page.js',
   './js/saved-points.js',
   './js/chart.js',
   './js/theme.js',
   './js/install.js',
-  './js/history-page.js',
   './js/sw-register.js',
   './manifest.json',
   './icons/icon-192.png',
@@ -110,9 +112,9 @@ self.addEventListener('fetch', (event) => {
         }
         return response;
       }).catch(() => {
-        // Ofline kaj ne kaŝmemorита
+        // Ofline kaj ne kaŝmemorita — provu `index.html` ambaŭ formatojn
         if (url.pathname.endsWith('.html') || url.pathname === '/') {
-          return caches.match('/index.html');
+          return caches.match('./index.html') || caches.match('/index.html');
         }
         return new Response('Ofline — enhavo ne disponebla', {
           status: 503,

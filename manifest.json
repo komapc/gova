@@ -65,5 +65,19 @@
   ],
   "screenshots": [],
   "categories": ["utilities", "sports", "travel"],
-  "lang": "eo"
+  "lang": "eo",
+  "shortcuts": [
+    {
+      "name": "Vidi Historion",
+      "short_name": "Historio",
+      "url": "/history.html",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Konservitaj Punktoj",
+      "short_name": "Punktoj",
+      "url": "/points.html",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
 }

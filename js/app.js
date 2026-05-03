@@ -80,30 +80,35 @@
   const SMOOTHING_FACTOR = 0.3;
 
   async function _requestWakeLock() {
-    if ('wakeLock' in navigator) {
-      try {
-        wakeLock = await navigator.wakeLock.request('screen');
-      } catch (err) {
-        console.warn('Wake Lock error:', err);
-      }
+    if (!('wakeLock' in navigator)) return;
+    try {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } catch (err) {
+      console.warn('Wake Lock error:', err);
+      wakeLock = null;
     }
   }
 
   document.addEventListener('visibilitychange', () => {
-    if (wakeLock !== null && document.visibilityState === 'visible') {
+    if (document.visibilityState === 'visible' && wakeLock === null) {
       _requestWakeLock();
     }
   });
 
   // --- Sinkronigo inter paĝoj ---
+  let settingsChannel = null;
   if ('BroadcastChannel' in window) {
-    const channel = new BroadcastChannel('gova_settings');
-    channel.onmessage = (ev) => {
+    settingsChannel = new BroadcastChannel('gova_settings');
+    settingsChannel.onmessage = (ev) => {
       if (ev.data?.type === 'unit_change') {
         currentUnit = ev.data.unit;
         _refreshDisplayedValues();
       }
     };
+  }
+  function _broadcastUnit(unit) {
+    if (settingsChannel) settingsChannel.postMessage({ type: 'unit_change', unit });
   }
 
   // --- Ŝarĝi kaŝmemoron ---
@@ -244,8 +249,12 @@
     _setStatus('locked', lastElevations.srtm !== null ? `${I18n.get('locked')} + MSL` : I18n.get('locked'));
 
     const finalAlt = lastBaroAlt ?? lastElevations.zen ?? lastElevations.srtm ?? lastGpsAlt;
-    History.add(finalAlt, lastAccuracy || 0, coords.latitude, coords.longitude);
-    SavedPoints.updateTodayPoints(finalAlt, coords.latitude, coords.longitude);
+    if (finalAlt !== null && finalAlt !== undefined) {
+      Storage.setLastAlt(finalAlt);
+      if (lastAccuracy !== null) Storage.setLastAccuracy(lastAccuracy);
+      History.add(finalAlt, lastAccuracy || 0, coords.latitude, coords.longitude);
+      SavedPoints.updateTodayPoints(finalAlt, coords.latitude, coords.longitude);
+    }
   }
 
   function _onBaroUpdate(alt) {
@@ -461,8 +470,8 @@
     };
   });
 
-  if (elUnitM) elUnitM.onclick = () => { currentUnit = 'm'; Storage.setUnit('m'); _refreshDisplayedValues(); _updateSettingsUI(); if (window.BroadcastChannel) new BroadcastChannel('gova_settings').postMessage({type: 'unit_change', unit: 'm'}); };
-  if (elUnitFt) elUnitFt.onclick = () => { currentUnit = 'ft'; Storage.setUnit('ft'); _refreshDisplayedValues(); _updateSettingsUI(); if (window.BroadcastChannel) new BroadcastChannel('gova_settings').postMessage({type: 'unit_change', unit: 'ft'}); };
+  if (elUnitM) elUnitM.onclick = () => { currentUnit = 'm'; Storage.setUnit('m'); _refreshDisplayedValues(); _updateSettingsUI(); _broadcastUnit('m'); };
+  if (elUnitFt) elUnitFt.onclick = () => { currentUnit = 'ft'; Storage.setUnit('ft'); _refreshDisplayedValues(); _updateSettingsUI(); _broadcastUnit('ft'); };
   if (elBtnSetBase) elBtnSetBase.onclick = () => {
     const alt = lastBaroAlt ?? lastGpsAlt ?? Storage.getLastAlt();
     if (alt) { 
@@ -513,6 +522,9 @@
   
   if (elBtnCloseSettings) elBtnCloseSettings.onclick = _closeSettings;
   if (elSettingsOverlay) elSettingsOverlay.onclick = (e) => { if (e.target === elSettingsOverlay) _closeSettings(); };
+
+  const elBtnOpenSettings = document.getElementById('btn-open-settings');
+  if (elBtnOpenSettings) elBtnOpenSettings.onclick = (e) => { e.stopPropagation(); _openSettings(); };
   
   document.onkeydown = (e) => {
     if (e.key === 'Escape') _closeSettings();
