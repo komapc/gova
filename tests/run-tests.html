@@ -50,6 +50,8 @@
 
   <script src="../js/storage.js"></script>
   <script src="../js/units.js"></script>
+  <script src="../js/history.js"></script>
+  <script src="../js/saved-points.js"></script>
   <script>
     const resultsDiv = document.getElementById('results');
     let totalPassed = 0;
@@ -186,6 +188,124 @@
         if (Storage.hasBaseHeight() !== false) throw new Error('hasBaseHeight devus esti false');
         Storage.setBaseHeight(100);
         if (Storage.hasBaseHeight() !== true) throw new Error('hasBaseHeight devus esti true');
+      });
+    });
+
+    // --- History Tests ---
+    runTestSuite('History Module', (results) => {
+      function test(name, fn) {
+        try { localStorage.removeItem('gova_history'); } catch {}
+        try {
+          fn();
+          results.passed++;
+          console.log(`✓ ${name}`);
+        } catch (err) {
+          results.failed++;
+          console.error(`✗ ${name}: ${err.message}`);
+        }
+      }
+
+      test('getAll komence malplena', () => {
+        if (History.getAll().length !== 0) throw new Error('Atendita malplena');
+      });
+
+      test('add konservas registron', () => {
+        History.add(100, 5, 50, 14);
+        const all = History.getAll();
+        if (all.length !== 1) throw new Error(`Atendita 1, got ${all.length}`);
+        if (all[0].altitude !== 100) throw new Error('Alteco malĝusta');
+      });
+
+      test('add ignoras tujajn duobligojn', () => {
+        History.add(100, 5, 50, 14);
+        History.add(100, 5, 50, 14);
+        if (History.getAll().length !== 1) throw new Error('Throttling fiaskis');
+      });
+
+      test('add akceptas signifan ŝanĝon de alteco', () => {
+        History.add(100, 5, 50, 14);
+        History.add(101, 5, 50, 14);
+        if (History.getAll().length !== 2) throw new Error('Atendita 2 registroj');
+      });
+
+      test('getStats kalkulas min/max/range', () => {
+        History.add(100, 5, 50, 14);
+        History.add(120, 5, 50.001, 14);
+        History.add(80, 5, 50.002, 14);
+        const s = History.getStats(24);
+        if (s.min !== 80 || s.max !== 120 || s.range !== 40)
+          throw new Error(`min/max/range malĝusta: ${s.min}/${s.max}/${s.range}`);
+      });
+
+      test('exportCSV havas korektajn kapojn', () => {
+        History.add(100, 5, 50, 14);
+        if (!History.exportCSV().startsWith('Timestamp,Date,Time,Altitude'))
+          throw new Error('CSP-kapo malĝusta');
+      });
+
+      test('clear forigas ĉion', () => {
+        History.add(100, 5, 50, 14);
+        History.clear();
+        if (History.getAll().length !== 0) throw new Error('Clear fiaskis');
+      });
+    });
+
+    // --- SavedPoints Tests ---
+    runTestSuite('SavedPoints Module', (results) => {
+      function test(name, fn) {
+        try {
+          localStorage.removeItem('gova_saved_points');
+          localStorage.removeItem('gova_today_high');
+          localStorage.removeItem('gova_today_low');
+          localStorage.removeItem('gova_last_reset_date');
+        } catch {}
+        try {
+          fn();
+          results.passed++;
+          console.log(`✓ ${name}`);
+        } catch (err) {
+          results.failed++;
+          console.error(`✗ ${name}: ${err.message}`);
+        }
+      }
+
+      test('save konservas kun aŭto-nomo', () => {
+        const p = SavedPoints.save(500, 50, 14);
+        if (!p || p.altitude !== 500) throw new Error('Save malsukcesis');
+        if (!p.name.includes('Punkto')) throw new Error('Aŭto-nomo malĝusta');
+      });
+
+      test('save akceptas eksplicitan nomon', () => {
+        const p = SavedPoints.save(500, 50, 14, 'Pinto');
+        if (p.name !== 'Pinto') throw new Error('Eksplicita nomo malĝusta');
+      });
+
+      test('remove forigas per ID', () => {
+        const p = SavedPoints.save(500, 50, 14);
+        SavedPoints.remove(p.id);
+        if (SavedPoints.getAll().length !== 0) throw new Error('Remove fiaskis');
+      });
+
+      test('rename ŝanĝas nomon', () => {
+        const p = SavedPoints.save(500, 50, 14);
+        SavedPoints.rename(p.id, 'Nova');
+        const u = SavedPoints.getAll().find(x => x.id === p.id);
+        if (u.name !== 'Nova') throw new Error('Rename fiaskis');
+      });
+
+      test('updateTodayPoints registras maksimumon', () => {
+        SavedPoints.updateTodayPoints(100, 50, 14);
+        SavedPoints.updateTodayPoints(200, 50, 14);
+        SavedPoints.updateTodayPoints(150, 50, 14);
+        if (SavedPoints.getTodayHigh().altitude !== 200)
+          throw new Error('TodayHigh malĝusta');
+      });
+
+      test('updateTodayPoints registras minimumon', () => {
+        SavedPoints.updateTodayPoints(100, 50, 14);
+        SavedPoints.updateTodayPoints(50, 50, 14);
+        if (SavedPoints.getTodayLow().altitude !== 50)
+          throw new Error('TodayLow malĝusta');
       });
     });
 

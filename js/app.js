@@ -16,24 +16,20 @@
   const elAltUnits = document.querySelectorAll('.altitude-unit');
   
   const elStatusIndicator = document.getElementById('status-indicator');
-  const elBaseIndicator = document.getElementById('base-indicator');
   const elPullIndicator = document.getElementById('pull-indicator');
-  
+
   const elSettingsOverlay = document.getElementById('settings-overlay');
   const elStatusDot = document.getElementById('status-dot');
   const elStatusText = document.getElementById('status-text');
-  const elAccuracyText = document.getElementById('accuracy-text');
-  
+
   const elUnitM = document.getElementById('unit-m');
   const elUnitFt = document.getElementById('unit-ft');
   const elBtnSetBase = document.getElementById('btn-set-base');
   const elBtnClearBase = document.getElementById('btn-clear-base');
   const elBaseHeightInfo = document.getElementById('base-height-info');
   const elBtnCloseSettings = document.getElementById('btn-close-settings');
-  
-  const elBtnViewHistory = document.getElementById('btn-view-history');
+
   const elBtnSavePoint = document.getElementById('btn-save-point');
-  const elBtnViewPoints = document.getElementById('btn-view-points');
   const elPointsCount = document.getElementById('points-count');
   const elTodayHighPoint = document.getElementById('today-high-point');
   const elTodayLowPoint = document.getElementById('today-low-point');
@@ -525,6 +521,22 @@
 
   const elBtnOpenSettings = document.getElementById('btn-open-settings');
   if (elBtnOpenSettings) elBtnOpenSettings.onclick = (e) => { e.stopPropagation(); _openSettings(); };
+
+  // Privateca-baskulilo
+  const elToggleAnalytics = document.getElementById('toggle-analytics');
+  const elDntNote = document.getElementById('dnt-note');
+  if (elToggleAnalytics && typeof Analytics !== 'undefined') {
+    const dnt = Analytics.dntEnabled();
+    elToggleAnalytics.checked = Analytics.consented();
+    elToggleAnalytics.disabled = dnt;
+    if (dnt) {
+      elToggleAnalytics.checked = false;
+      if (elDntNote) elDntNote.classList.remove('hidden');
+    }
+    elToggleAnalytics.onchange = () => {
+      Analytics.setConsent(elToggleAnalytics.checked);
+    };
+  }
   
   document.onkeydown = (e) => {
     if (e.key === 'Escape') _closeSettings();

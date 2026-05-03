@@ -923,3 +923,64 @@ body {
 .settings-fab:active {
   transform: scale(0.94);
 }
+
+/* --- Privateco: baskula ŝaltilo --- */
+.privacy-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--color-border);
+  border-radius: 999px;
+  transition: background var(--transition-fast);
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform var(--transition-fast);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--color-accent);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+.toggle-switch input:focus-visible + .toggle-slider {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.toggle-switch input:disabled + .toggle-slider {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

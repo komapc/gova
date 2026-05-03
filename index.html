@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="eo">
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1VVXHTP77"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-E1VVXHTP77');
-  </script>
-  
   <meta charset="UTF-8" />
   <meta name="msvalidate.01" content="CAFA7BE0D5D83695993D635831499022" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -237,6 +228,19 @@
         <a id="btn-view-points" href="points.html" class="btn-secondary">📍 <span data-i18n="viewPoints">Vidi Ĉiujn Punktojn</span> (<span id="points-count">0</span>)</a>
       </div>
 
+      <!-- Privateco -->
+      <div class="settings-section">
+        <label class="settings-label" data-i18n="privacy">Privateco</label>
+        <div class="privacy-row">
+          <span class="info-text" data-i18n="analyticsLabel">Anonima uzo-statistiko (Google Analytics)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-analytics" />
+            <span class="toggle-slider" aria-hidden="true"></span>
+          </label>
+        </div>
+        <p id="dnt-note" class="info-text hidden" data-i18n="dntActive">Do-Not-Track aktiva — statistiko malŝaltita ĉiel.</p>
+      </div>
+
       <!-- Pri Gova (About) -->
       <div class="settings-section">
         <label class="settings-label" data-i18n="about">Pri Gova</label>
@@ -268,6 +272,7 @@
   <!-- Toasto por sciigoj -->
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
+  <script src="js/analytics.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/units.js"></script>

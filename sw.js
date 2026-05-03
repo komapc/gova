@@ -7,7 +7,7 @@
  * - Nekonata: Reto kun kaŝmemor-retropaŝo
  */
 
-const CACHE_NAME = 'gova-v3.3';
+const CACHE_NAME = 'gova-v3.4';
 
 const STATIC_ASSETS = [
   './',
@@ -21,6 +21,7 @@ const STATIC_ASSETS = [
   './js/units.js',
   './js/storage.js',
   './js/i18n.js',
+  './js/analytics.js',
   './js/history.js',
   './js/history-page.js',
   './js/saved-points.js',
