@@ -8,9 +8,10 @@ export default [
       sourceType: 'script',
       globals: {
         ...globals.browser,
-        // Experimental browser APIs
-        PressureSensor: 'readonly',
+        // Experimental browser APIs (Generic Sensor)
+        Barometer: 'readonly',
         // Cross-file globals (loaded via <script> tags)
+        Analytics: 'readonly',
         Chart: 'readonly',
         GPS: 'readonly',
         Storage: 'readonly',

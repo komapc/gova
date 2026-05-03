@@ -68,7 +68,10 @@ const I18n = (() => {
       deleteAllPoints: 'ܫܩܘܠ ܟܠ',
       signLabel: 'ܐܬܬܐ',
       satLabel: 'ܠܘܚܝ̈ܐ',
-      baroLabel: 'ܒܐܪܘ'
+      baroLabel: 'ܒܐܪܘ',
+      privacy: 'ܛܘܫܝܘܬܐ',
+      analyticsLabel: 'ܡܢܝܢܐ ܕܛܫܝܐ ܕܚܫܚܬܐ (Google Analytics)',
+      dntActive: 'Do-Not-Track ܫܪܝܐ — ܡܢܝܢܐ ܡܛܦܝܐ ܒܟܠ ܙܢܐ.'
     },
     eo: {
       subtitle: 'Alteco-Monitorilo',
@@ -126,7 +129,10 @@ const I18n = (() => {
       deleteAllPoints: 'Forigi Ĉion',
       signLabel: 'SIGN',
       satLabel: 'SAT',
-      baroLabel: 'BARO'
+      baroLabel: 'BARO',
+      privacy: 'Privateco',
+      analyticsLabel: 'Anonima uzo-statistiko (Google Analytics)',
+      dntActive: 'Do-Not-Track aktiva — statistiko malŝaltita ĉiel.'
     },
     lv: {
       subtitle: 'Augstuma mērītājs',
@@ -184,7 +190,10 @@ const I18n = (() => {
       deleteAllPoints: 'Dzēst visu',
       signLabel: 'SIGN',
       satLabel: 'SAT',
-      baroLabel: 'BARO'
+      baroLabel: 'BARO',
+      privacy: 'Privātums',
+      analyticsLabel: 'Anonīma lietošanas statistika (Google Analytics)',
+      dntActive: 'Do-Not-Track aktīvs — statistika vienmēr izslēgta.'
     },
     be: {
       subtitle: 'Манітор вышыні',
@@ -242,7 +251,10 @@ const I18n = (() => {
       deleteAllPoints: 'Выдаліць усё',
       signLabel: 'СІГН',
       satLabel: 'САТ',
-      baroLabel: 'БАРО'
+      baroLabel: 'БАРО',
+      privacy: 'Прыватнасць',
+      analyticsLabel: 'Ананімная статыстыка выкарыстання (Google Analytics)',
+      dntActive: 'Do-Not-Track актыўны — статыстыка заўсёды адключаная.'
     },
     tp: {
       subtitle: 'ilo pi suli sewi',
@@ -300,7 +312,10 @@ const I18n = (() => {
       deleteAllPoints: 'o weka e ale',
       signLabel: 'KON',
       satLabel: 'MUN',
-      baroLabel: 'KON'
+      baroLabel: 'KON',
+      privacy: 'sona awen',
+      analyticsLabel: 'sona pi pali ilo (Google Analytics)',
+      dntActive: 'Do-Not-Track li lon — sona li weka tan tenpo ale.'
     }
   };
 
