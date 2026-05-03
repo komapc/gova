@@ -45,4 +45,4 @@ jobs:
       run: |
         echo "✅ File structure validated"
         echo "📝 For full test suite, open tests/run-tests.html in a browser"
-        echo "🧪 27 tests available (13 Units + 14 Storage)"
+        echo "🧪 4 suites available: Units, Storage, History, SavedPoints"
