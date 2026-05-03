@@ -34,3 +34,12 @@ android/.gradle/
 android/local.properties
 android/*.apk
 android/*.aab
+gova-android/app/build/
+gova-android/.gradle/
+gova-android/local.properties
+gova-android/*.apk
+gova-android/*.aab
+
+# Konstruitaj Android-aplikoj (ne metu en git)
+*.apk
+*.aab

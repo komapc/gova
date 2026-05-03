@@ -5,6 +5,11 @@
 const History = (() => {
   const KEY = 'gova_history';
   const MAX_ENTRIES = 1000; // Maksimume 1000 registroj
+  // Konservi nur kiam alteco aŭ pozicio signife ŝanĝiĝis,
+  // por eviti plenigi 1000-en-limon ene de horo ĉe 5s-poll.
+  const MIN_ALT_DELTA_M = 0.5;
+  const MIN_LATLON_DELTA = 0.00005; // ~5m
+  const MIN_INTERVAL_MS = 30 * 1000; // 30s mallonga limo
 
   /**
    * Strukturo de historio-ero:
@@ -41,7 +46,20 @@ const History = (() => {
    */
   function add(altitude, accuracy, latitude, longitude) {
     const history = getAll();
-    
+
+    const last = history.length ? history[history.length - 1] : null;
+    if (last) {
+      const dt = Date.now() - last.timestamp;
+      const dAlt = Math.abs(altitude - last.altitude);
+      const dLat = Math.abs(latitude - last.latitude);
+      const dLon = Math.abs(longitude - last.longitude);
+      const significant =
+        dAlt >= MIN_ALT_DELTA_M ||
+        dLat >= MIN_LATLON_DELTA ||
+        dLon >= MIN_LATLON_DELTA;
+      if (dt < MIN_INTERVAL_MS && !significant) return;
+    }
+
     const entry = {
       timestamp: Date.now(),
       altitude: Math.round(altitude * 10) / 10, // 1 decimalo
@@ -54,7 +72,7 @@ const History = (() => {
 
     // Limigi al MAX_ENTRIES
     if (history.length > MAX_ENTRIES) {
-      history.shift(); // Forigi plej malnovan
+      history.splice(0, history.length - MAX_ENTRIES);
     }
 
     try {

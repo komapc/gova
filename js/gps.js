@@ -18,6 +18,7 @@ const GPS = (() => {
 
   let _pressureSensor = null;
   let _lastPressure = null;
+  let _baroOnUpdate = null;
 
   /**
    * Kalkulas altecon el aerpremo (P0 = 1013.25 hPa)
@@ -31,22 +32,37 @@ const GPS = (() => {
 
   /**
    * Komencas aŭskulti la barometron se disponebla.
+   * Uzas la Generic Sensor API (`Barometer`).
    * @param {function} onUpdate - Callback(altitude)
    */
   function startBarometer(onUpdate) {
-    if ('PressureSensor' in window) {
-      try {
-        _pressureSensor = new PressureSensor({ frequency: 1 });
-        _pressureSensor.addEventListener('reading', () => {
-          _lastPressure = _pressureSensor.pressure;
-          const alt = calculateBaroAltitude(_lastPressure);
-          onUpdate(alt);
-        });
-        _pressureSensor.start();
-      } catch (e) {
-        console.warn('Barometro ne atingebla:', e);
-      }
+    _baroOnUpdate = onUpdate;
+    if (_pressureSensor) return;
+    const BarometerCtor = (typeof window !== 'undefined') ? window.Barometer : undefined;
+    if (!BarometerCtor) return;
+    try {
+      _pressureSensor = new BarometerCtor({ frequency: 1 });
+      _pressureSensor.addEventListener('reading', () => {
+        _lastPressure = _pressureSensor.pressure;
+        const alt = calculateBaroAltitude(_lastPressure);
+        if (_baroOnUpdate) _baroOnUpdate(alt);
+      });
+      _pressureSensor.addEventListener('error', (e) => {
+        console.warn('Barometro-eraro:', e.error || e);
+      });
+      _pressureSensor.start();
+    } catch (e) {
+      console.warn('Barometro ne atingebla:', e);
+      _pressureSensor = null;
     }
+  }
+
+  function stopBarometer() {
+    if (_pressureSensor) {
+      try { _pressureSensor.stop(); } catch {}
+      _pressureSensor = null;
+    }
+    _baroOnUpdate = null;
   }
 
   /**
@@ -75,6 +91,19 @@ const GPS = (() => {
     });
   }
 
+  // Kaŝmemoro por ter-alteco. Ŝlosilo: lat/lon rondigita al ~100m.
+  // opentopodata.org estas senpaga publika servo; ni evitas trafiki ĝin
+  // por la sama loko-kvadrato.
+  const _elevationCache = new Map();
+  const ELEVATION_CACHE_TTL_MS = 60 * 60 * 1000; // 1 horo
+  const ELEVATION_CACHE_MAX = 200;
+  let _lastElevationCallTs = 0;
+  const ELEVATION_MIN_INTERVAL_MS = 1500; // ≤1 peto/1.5s
+
+  function _elevationKey(lat, lon) {
+    return `${lat.toFixed(3)},${lon.toFixed(3)}`;
+  }
+
   /**
    * Akiras ter-altecon de pluraj fontoj samtempe.
    * @param {number} lat
@@ -82,9 +111,23 @@ const GPS = (() => {
    * @returns {Promise<Object>} - { srtm, aster, zen }
    */
   async function getAllElevations(lat, lon) {
-    const results = { srtm: null, aster: null, zen: null };
-    if (!navigator.onLine) return results;
+    const empty = { srtm: null, aster: null, zen: null };
+    if (!navigator.onLine) return empty;
 
+    const key = _elevationKey(lat, lon);
+    const cached = _elevationCache.get(key);
+    if (cached && Date.now() - cached.ts < ELEVATION_CACHE_TTL_MS) {
+      return cached.data;
+    }
+
+    // Trafik-limigo
+    const sinceLast = Date.now() - _lastElevationCallTs;
+    if (sinceLast < ELEVATION_MIN_INTERVAL_MS) {
+      return cached ? cached.data : empty;
+    }
+    _lastElevationCallTs = Date.now();
+
+    const results = { srtm: null, aster: null, zen: null };
     try {
       const resp = await fetch(
         `https://api.opentopodata.org/v1/srtm30m,aster30m,mapzen?locations=${lat},${lon}`,
@@ -100,6 +143,13 @@ const GPS = (() => {
       }
     } catch (e) {
       console.warn('[GPS] Malsukcesis peti plurajn altecojn:', e);
+      return cached ? cached.data : empty;
+    }
+
+    _elevationCache.set(key, { ts: Date.now(), data: results });
+    if (_elevationCache.size > ELEVATION_CACHE_MAX) {
+      const firstKey = _elevationCache.keys().next().value;
+      _elevationCache.delete(firstKey);
     }
     return results;
   }
@@ -147,10 +197,6 @@ const GPS = (() => {
       clearInterval(_autoInterval);
       _autoInterval = null;
     }
-    if (_pressureSensor) {
-      _pressureSensor.stop();
-      _pressureSensor = null;
-    }
   }
 
   /**
@@ -181,5 +227,6 @@ const GPS = (() => {
     stopAutoRefresh,
     getErrorMessage,
     startBarometer,
+    stopBarometer,
   };
 })();
