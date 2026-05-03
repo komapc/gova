@@ -243,12 +243,21 @@
     // Uzi horizontalan precizecon kiel alternativon
     lastAccuracy = coords.altitudeAccuracy || coords.accuracy;
 
-    if (lastGpsAlt === null && (lastElevations.zen === null) && lastBaroAlt === null) return;
+    const anyElevation =
+      lastElevations.zen !== null ||
+      lastElevations.srtm !== null ||
+      lastElevations.aster !== null;
+    if (lastGpsAlt === null && !anyElevation && lastBaroAlt === null) return;
 
-    _updateAltitudeDisplay(lastGpsAlt, lastAccuracy, true);
+    const finalAlt =
+      lastBaroAlt ??
+      lastElevations.zen ??
+      lastElevations.srtm ??
+      lastElevations.aster ??
+      lastGpsAlt;
+
+    _updateAltitudeDisplay(finalAlt, lastAccuracy, true);
     _setStatus('locked', lastElevations.srtm !== null ? `${I18n.get('locked')} + MSL` : I18n.get('locked'));
-
-    const finalAlt = lastBaroAlt ?? lastElevations.zen ?? lastElevations.srtm ?? lastGpsAlt;
     if (finalAlt !== null && finalAlt !== undefined) {
       Storage.setLastAlt(finalAlt);
       if (lastAccuracy !== null) Storage.setLastAccuracy(lastAccuracy);
