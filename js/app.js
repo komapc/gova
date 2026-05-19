@@ -51,7 +51,6 @@
 
   const elCoordsPanel = document.getElementById('coords-panel');
   const elValITM = document.getElementById('val-itm');
-  const elValICS = document.getElementById('val-ics');
 
   // --- Stato ---
   let currentUnit = Storage.getUnit();
@@ -241,7 +240,6 @@
     if (!elCoordsPanel || elCoordsPanel.classList.contains('hidden')) return;
     if (lastLat === null || lastLon === null) return;
     if (elValITM) elValITM.textContent = Coords.format(Coords.toITM(lastLat, lastLon));
-    if (elValICS) elValICS.textContent = Coords.format(Coords.toICS(lastLat, lastLon));
   }
 
   // --- GPS-Sukceso ---
