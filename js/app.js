@@ -376,9 +376,18 @@
           elPullIndicator.classList.add('visible');
           elPullIndicator.classList.toggle('pulling', deltaY >= PULL_THRESHOLD);
         }
-      } else if (!isPulling && deltaY > 15 && Math.abs(deltaY) > Math.abs(deltaX)) {
-        isSwipingDown = true;
-        clearTimeout(longPressTimer);
+      } else if (deltaY > 15 && Math.abs(deltaY) > Math.abs(deltaX)) {
+        if (!isSwipingDown) {
+          isSwipingDown = true;
+          clearTimeout(longPressTimer);
+          if (elPullIndicator) {
+            elPullIndicator.classList.remove('hidden');
+            elPullIndicator.classList.add('visible');
+          }
+        }
+        if (elPullIndicator) {
+          elPullIndicator.classList.toggle('pulling', deltaY >= SWIPE_THRESHOLD);
+        }
       }
     }
   }
@@ -409,7 +418,11 @@
 
     if (isSwipingDown) {
       const currentY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
-      if (currentY - touchStartY >= SWIPE_THRESHOLD) _manualRefresh();
+      if (currentY - touchStartY >= SWIPE_THRESHOLD) {
+        _triggerPullRefresh();
+      } else {
+        _hidePullIndicator();
+      }
       isSwipingDown = false;
       return;
     }
