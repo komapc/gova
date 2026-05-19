@@ -3,12 +3,11 @@
  *
  * AVERTO: La Geolocation API liveras altecon relative al WGS84-elipsoido,
  * NE marnivelo (MSL). Diferenco povas esti ±100m depende de loko.
- * Kiam rete, uzu Open-Elevation API por akiri veran MSL-altecon.
+ * Kiam rete, uzu opentopodata.org por akiri veran MSL-altecon.
  */
 
 const GPS = (() => {
   let _watchId = null;
-  let _autoInterval = null;
 
   const OPTIONS_HIGH = {
     enableHighAccuracy: true,
@@ -163,26 +162,30 @@ const GPS = (() => {
   function startAutoRefresh(onSuccess, onError, intervalMs = 5000) {
     stopAutoRefresh();
 
-    async function fetchAndReport() {
-      try {
-        const pos = await getOnce();
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
+    let lastCallMs = 0;
+    let pending = false;
 
-        const elevations = await getAllElevations(lat, lon);
-        
-        // Se ni havas lastan premon, ni povas doni ankaŭ barometran altecon
-        const baroAlt = _lastPressure ? calculateBaroAltitude(_lastPressure) : null;
-        
-        onSuccess(pos, elevations, baroAlt);
-      } catch (err) {
-        onError(err);
-      }
-    }
-
-    // Tuja unua alveturado
-    fetchAndReport();
-    _autoInterval = setInterval(fetchAndReport, intervalMs);
+    _watchId = navigator.geolocation.watchPosition(
+      async (pos) => {
+        const now = Date.now();
+        if (now - lastCallMs < intervalMs || pending) return;
+        lastCallMs = now;
+        pending = true;
+        try {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          const elevations = await getAllElevations(lat, lon);
+          const baroAlt = _lastPressure ? calculateBaroAltitude(_lastPressure) : null;
+          onSuccess(pos, elevations, baroAlt);
+        } catch (err) {
+          onError(err);
+        } finally {
+          pending = false;
+        }
+      },
+      onError,
+      { enableHighAccuracy: true, maximumAge: Math.floor(intervalMs / 2), timeout: 15000 }
+    );
   }
 
   /**
@@ -192,10 +195,6 @@ const GPS = (() => {
     if (_watchId !== null) {
       navigator.geolocation.clearWatch(_watchId);
       _watchId = null;
-    }
-    if (_autoInterval !== null) {
-      clearInterval(_autoInterval);
-      _autoInterval = null;
     }
   }
 

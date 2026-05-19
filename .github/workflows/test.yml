@@ -41,8 +41,5 @@ jobs:
         test -f gova-android/app/src/main/AndroidManifest.xml
         echo "All files present!"
     
-    - name: Test summary
-      run: |
-        echo "✅ File structure validated"
-        echo "📝 For full test suite, open tests/run-tests.html in a browser"
-        echo "🧪 4 suites available: Units, Storage, History, SavedPoints"
+    - name: Run tests
+      run: npm test

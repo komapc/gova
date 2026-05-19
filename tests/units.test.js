@@ -73,14 +73,14 @@ test('getDisplayAltitude kalkulas relativan altecon kun bazo', () => {
 
 test('formatAltitude formatas metrojn korekte', () => {
   const result = Units.formatAltitude(1234, 'm', false);
-  assert.equal(result.value, '1,234');
+  assert.equal(result.value, '1,234.0');
   assert.equal(result.unit, 'm');
   assert.equal(result.prefix, '');
 });
 
 test('formatAltitude formatas futojn korekte', () => {
   const result = Units.formatAltitude(1000, 'ft', false);
-  assert.equal(result.value, '3,281');
+  assert.equal(result.value, '3,280.8');
   assert.equal(result.unit, 'ft');
   assert.equal(result.prefix, '');
 });
@@ -88,13 +88,13 @@ test('formatAltitude formatas futojn korekte', () => {
 test('formatAltitude aldonas + prefikson por pozitivaj relativaj valoroj', () => {
   const result = Units.formatAltitude(100, 'm', true);
   assert.equal(result.prefix, '+');
-  assert.equal(result.value, '100');
+  assert.equal(result.value, '100.0');
 });
 
 test('formatAltitude aldonas - prefikson por negativaj relativaj valoroj', () => {
   const result = Units.formatAltitude(-50, 'm', true);
   assert.equal(result.prefix, '');
-  assert.equal(result.value, '-50');
+  assert.equal(result.value, '-50.0');
 });
 
 test('formatAltitude traktas null-valorojn', () => {

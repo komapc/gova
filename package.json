@@ -7,7 +7,7 @@
     "lint": "eslint js/",
     "lint:fix": "eslint js/ --fix",
     "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
-    "test": "echo 'Tests require browser environment. Open tests/run-tests.html in your browser.' && exit 0",
+    "test": "node tests/node-runner.cjs",
     "test:browser": "echo 'Open tests/run-tests.html in your browser'",
     "serve": "python3 -m http.server 8000",
     "serve:alt": "php -S localhost:8000"
