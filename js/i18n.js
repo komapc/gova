@@ -5,73 +5,74 @@
 const I18n = (() => {
   const LANGUAGES = {
     eo: 'Esperanto',
+    en: 'English',
     lv: 'Latviešu',
     be: 'Беларуская',
     tp: 'Toki Pona',
-    arc: 'ܐܪܡܝܐ'
   };
 
   const STRINGS = {
-    arc: {
-      subtitle: 'ܡܫܘܚܐ ܕܪܘܡܐ',
-      searching: 'ܒܨܝܐ ܥܠ GPS...',
-      locked: 'GPS ܐܫܟܚ',
-      error: 'ܦܘܕܐ ܒ GPS',
-      unit: 'ܟܝܘܠ̈ܐ',
-      meters: 'ܡܬܪ̈ܐ',
-      feet: 'ܦܘܛ̈ܐ',
-      baseHeight: 'ܪܘܡܐ ܫܪܫܝܐ',
-      setBase: 'ܣܝܡ ܪܘܡܐ ܗܫܝܐ ܐܝܟ ܫܪܫܐ',
-      clearBase: 'ܫܩܘܠ ܫܪܫܐ',
-      noBase: 'ܠܝܬ ܪܘܡܐ ܫܪܫܝܐ',
-      hasBase: 'ܫܪܫܐ: ',
-      theme: 'ܨܘܪܬܐ',
-      auto: 'ܝܬܝܐ',
-      light: 'ܒܗܝܪܐ',
-      dark: 'ܚܫܘܟܐ',
-      history: 'ܬܫܥܝܬܐ',
-      viewHistory: 'ܚܙܝ ܬܫܥܝܬܐ',
-      points: 'ܢܘܩܙ̈ܐ ܢܛܝܪ̈ܐ',
-      savePoint: '💾 ܢܛܘܪ ܢܘܩܙܐ ܗܫܝܐ',
-      todayHigh: 'ܪܘܡܐ ܥܠܝܐ ܕܝܘܡܐ:',
-      todayLow: 'ܪܘܡܐ ܬܚܬܝܐ ܕܝܘܡܐ:',
-      viewPoints: '📍 ܚܙܝ ܟܠ ܢܘܩܙ̈ܐ',
-      about: 'ܡܢ ܓܘܒܐ',
-      aboutDesc: 'ܓܘܒܐ ܗܘ ܡܐܢܐ ܕܡܫܘܚܐ ܕܪܘܡܐ ܒܠܫܢܐ ܐܣܦܪܢܛܘ.',
-      precisionDesc: 'ܚܬܝܬܘܬܐ: GPS ܥܠ WGS84. MSL ܥܠ Geoid. TERO ܗܘ ܐܪܥܐ. BARO ܗܘ ܚܝܠܐ ܕܐܐܪ.',
-      github: 'ܦܪܘܓܪܡܐ ܒ GitHub ↗',
-      install: 'ܐܬܩܢ ܐܦܠܝܩܣܝܘܢ',
-      installBtn: 'ܐܬܩܢ ܓܘܒܐ',
-      installDesc: 'ܐܬܩܢ ܠܡܛܝܬܐ ܩܠܝܠܬܐ',
-      close: 'ܣܟܘܪ',
-      versionDate: 'ܐܕܪ 2026',
-      toastNoGps: 'ܠܝܬ ܝܕܥܬܐ ܕ GPS',
-      toastNoLoc: 'ܠܝܬ ܝܕܥܬܐ ܕܕܘܟܬܐ',
-      toastSaved: 'ܢܘܩܙܐ ܐܬܢܛܪ!',
-      toastBaseSet: 'ܫܪܫܐ ܐܬܣܝܡ',
-      toastBaseCleared: 'ܫܪܫܐ ܐܬܫܩܠ',
-      historyTitle: 'ܬܫܥܝܬܐ ܕܪܘܡܐ',
-      min: 'ܬܚܬܝܐ',
-      max: 'ܥܠܝܐ',
-      avg: 'ܡܨܥܝܐ',
-      range: 'ܦܪܝܫܘܬܐ',
-      noHistory: 'ܠܝܬ ܬܫܥܝܬܐ ܥܕܟܝܠ',
-      historyDesc: 'ܝܕܥܬ̈ܐ ܡܬܟܢܫܝܢ ܟܕ ܡܦܠܚ ܐܢܬ ܠܐܦܠܝܩܣܝܘܢ',
-      exportJson: 'ܦܠܘܛ JSON',
-      exportCsv: 'ܦܠܘܛ CSV',
-      clearHistory: 'ܫܩܘܠ ܬܫܥܝܬܐ',
-      cancel: 'ܒܛܘܠ',
-      back: 'ܠܒܬܪܐ',
-      pointsTitle: 'ܢܘܩܙ̈ܐ ܢܛܝܪ̈ܐ',
-      noPoints: 'ܠܝܬ ܢܘܩܙ̈ܐ ܢܛܝܪ̈ܐ ܥܕܟܝܠ',
-      deletePoint: 'ܫܩܘܠ',
-      deleteAllPoints: 'ܫܩܘܠ ܟܠ',
-      signLabel: 'ܐܬܬܐ',
-      satLabel: 'ܠܘܚܝ̈ܐ',
-      baroLabel: 'ܒܐܪܘ',
-      privacy: 'ܛܘܫܝܘܬܐ',
-      analyticsLabel: 'ܡܢܝܢܐ ܕܛܫܝܐ ܕܚܫܚܬܐ (Google Analytics)',
-      dntActive: 'Do-Not-Track ܫܪܝܐ — ܡܢܝܢܐ ܡܛܦܝܐ ܒܟܠ ܙܢܐ.'
+    en: {
+      subtitle: 'Altitude Monitor',
+      searching: 'Searching GPS...',
+      locked: 'GPS locked',
+      error: 'GPS error',
+      unit: 'Unit',
+      meters: 'Meters',
+      feet: 'Feet',
+      baseHeight: 'Base Altitude',
+      setBase: 'Set Current as Base',
+      clearBase: 'Clear Base',
+      noBase: 'No base altitude set',
+      hasBase: 'Base: ',
+      theme: 'Theme',
+      auto: 'Auto',
+      light: 'Light',
+      dark: 'Dark',
+      history: 'History',
+      viewHistory: 'View History',
+      points: 'Saved Points',
+      savePoint: '💾 Save Current Point',
+      todayHigh: "Today's highest:",
+      todayLow: "Today's lowest:",
+      viewPoints: '📍 View All Points',
+      about: 'About Gova',
+      aboutDesc: 'Gova is an open-source altitude monitoring tool.',
+      precisionDesc: 'Accuracy: GPS is WGS84. MSL uses Geoid model. GROUND is terrain. BARO uses air pressure.',
+      github: 'GitHub Project ↗',
+      install: 'Install App',
+      installBtn: 'Install Gova',
+      installDesc: 'Install for faster access and offline use',
+      close: 'Close',
+      versionDate: 'March 2026',
+      toastNoGps: 'No GPS data available',
+      toastNoLoc: 'No location data available',
+      toastSaved: 'Point saved!',
+      toastBaseSet: 'Base set',
+      toastBaseCleared: 'Base cleared',
+      historyTitle: 'Altitude History',
+      min: 'Minimum',
+      max: 'Maximum',
+      avg: 'Average',
+      range: 'Range',
+      noHistory: 'No history data yet',
+      historyDesc: 'Data will be collected automatically as you use the app',
+      exportJson: 'Export JSON',
+      exportCsv: 'Export CSV',
+      clearHistory: 'Clear History',
+      cancel: 'Cancel',
+      back: 'Back',
+      pointsTitle: 'Saved Points',
+      noPoints: 'No saved points yet',
+      deletePoint: 'Delete',
+      deleteAllPoints: 'Delete All',
+      signLabel: 'SIGN',
+      satLabel: 'SAT',
+      baroLabel: 'BARO',
+      privacy: 'Privacy',
+      analyticsLabel: 'Anonymous usage statistics (Google Analytics)',
+      dntActive: 'Do-Not-Track active — analytics disabled.',
+      coordsLabel: 'Coordinates',
     },
     eo: {
       subtitle: 'Alteco-Monitorilo',
@@ -132,7 +133,8 @@ const I18n = (() => {
       baroLabel: 'BARO',
       privacy: 'Privateco',
       analyticsLabel: 'Anonima uzo-statistiko (Google Analytics)',
-      dntActive: 'Do-Not-Track aktiva — statistiko malŝaltita ĉiel.'
+      dntActive: 'Do-Not-Track aktiva — statistiko malŝaltita ĉiel.',
+      coordsLabel: 'Koordinatoj',
     },
     lv: {
       subtitle: 'Augstuma mērītājs',
@@ -193,7 +195,8 @@ const I18n = (() => {
       baroLabel: 'BARO',
       privacy: 'Privātums',
       analyticsLabel: 'Anonīma lietošanas statistika (Google Analytics)',
-      dntActive: 'Do-Not-Track aktīvs — statistika vienmēr izslēgta.'
+      dntActive: 'Do-Not-Track aktīvs — statistika vienmēr izslēgta.',
+      coordsLabel: 'Koordinātes',
     },
     be: {
       subtitle: 'Манітор вышыні',
@@ -254,7 +257,8 @@ const I18n = (() => {
       baroLabel: 'БАРО',
       privacy: 'Прыватнасць',
       analyticsLabel: 'Ананімная статыстыка выкарыстання (Google Analytics)',
-      dntActive: 'Do-Not-Track актыўны — статыстыка заўсёды адключаная.'
+      dntActive: 'Do-Not-Track актыўны — статыстыка заўсёды адключаная.',
+      coordsLabel: 'Каардынаты',
     },
     tp: {
       subtitle: 'ilo pi suli sewi',
@@ -315,7 +319,8 @@ const I18n = (() => {
       baroLabel: 'KON',
       privacy: 'sona awen',
       analyticsLabel: 'sona pi pali ilo (Google Analytics)',
-      dntActive: 'Do-Not-Track li lon — sona li weka tan tenpo ale.'
+      dntActive: 'Do-Not-Track li lon — sona li weka tan tenpo ale.',
+      coordsLabel: 'ma tomo',
     }
   };
 
@@ -374,14 +379,7 @@ const I18n = (() => {
       btn.classList.toggle('active', btn.dataset.lang === currentLang);
     });
 
-    // Handle RTL (Right-to-Left)
-    if (currentLang === 'arc') {
-      document.body.dir = 'rtl';
-      document.body.classList.add('rtl');
-    } else {
-      document.body.dir = 'ltr';
-      document.body.classList.remove('rtl');
-    }
+    document.body.dir = 'ltr';
   }
 
   return {

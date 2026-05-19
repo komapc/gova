@@ -9,6 +9,7 @@ const Storage = (() => {
     LAST_ACCURACY: 'gova_last_accuracy',
     LAST_LOCATION: 'gova_last_location_name',
     BASE_HEIGHT: 'gova_base_height',
+    SHOW_COORDS: 'gova_show_coords',
   };
 
   function safeGet(key, fallback = null) {
@@ -119,6 +120,17 @@ const Storage = (() => {
     return getBaseHeight() !== null;
   }
 
+  /** @returns {boolean} */
+  function getShowCoords() {
+    return safeGet(KEYS.SHOW_COORDS) === '1';
+  }
+
+  /** @param {boolean} show */
+  function setShowCoords(show) {
+    if (show) safeSet(KEYS.SHOW_COORDS, '1');
+    else safeRemove(KEYS.SHOW_COORDS);
+  }
+
   return {
     getUnit,
     setUnit,
@@ -133,5 +145,7 @@ const Storage = (() => {
     setBaseHeight,
     clearBaseHeight,
     hasBaseHeight,
+    getShowCoords,
+    setShowCoords,
   };
 })();

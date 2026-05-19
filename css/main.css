@@ -984,3 +984,43 @@ body {
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* === KOORDINATOJ === */
+.coords-panel {
+  width: 100%;
+  max-width: 600px;
+  margin-top: 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.875rem 1.25rem;
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.coords-panel.hidden {
+  display: none;
+}
+
+.coords-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.coords-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  min-width: 2.5rem;
+}
+
+.coords-value {
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}

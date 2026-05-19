@@ -49,6 +49,10 @@
   const elValSign = document.querySelector('.val-sign');
   const elItemBaro = document.querySelector('.item-baro');
 
+  const elCoordsPanel = document.getElementById('coords-panel');
+  const elValITM = document.getElementById('val-itm');
+  const elValICS = document.getElementById('val-ics');
+
   // --- Stato ---
   let currentUnit = Storage.getUnit();
   let currentScreen = 0; 
@@ -74,6 +78,8 @@
   let wakeLock = null;
   let smoothedAlt = null;
   const SMOOTHING_FACTOR = 0.3;
+  let lastLat = null;
+  let lastLon = null;
 
   async function _requestWakeLock() {
     if (!('wakeLock' in navigator)) return;
@@ -230,10 +236,19 @@
     setTimeout(() => elToast.classList.add('hidden'), 3000);
   }
 
+  function _updateCoordsDisplay() {
+    if (!elCoordsPanel || elCoordsPanel.classList.contains('hidden')) return;
+    if (lastLat === null || lastLon === null) return;
+    if (elValITM) elValITM.textContent = Coords.format(Coords.toITM(lastLat, lastLon));
+    if (elValICS) elValICS.textContent = Coords.format(Coords.toICS(lastLat, lastLon));
+  }
+
   // --- GPS-Sukceso ---
   async function _onGpsSuccess(position, elevations, baroAlt) {
     const coords = position.coords;
     lastGpsAlt = coords.altitude;
+    lastLat = coords.latitude;
+    lastLon = coords.longitude;
     lastElevations = elevations || lastElevations;
     lastBaroAlt = baroAlt || lastBaroAlt;
     // Uzi horizontalan precizecon kiel alternativon
@@ -242,6 +257,7 @@
     if (lastGpsAlt === null && (lastElevations.zen === null) && lastBaroAlt === null) return;
 
     _updateAltitudeDisplay(lastGpsAlt, lastAccuracy, true);
+    _updateCoordsDisplay();
     _setStatus('locked', lastElevations.srtm !== null ? `${I18n.get('locked')} + MSL` : I18n.get('locked'));
 
     const finalAlt = lastBaroAlt ?? lastElevations.zen ?? lastElevations.srtm ?? lastGpsAlt;
@@ -538,6 +554,17 @@
     };
   }
   
+  const elToggleCoords = document.getElementById('toggle-coords');
+  if (elToggleCoords) {
+    elToggleCoords.checked = Storage.getShowCoords();
+    if (elCoordsPanel) elCoordsPanel.classList.toggle('hidden', !Storage.getShowCoords());
+    elToggleCoords.onchange = () => {
+      Storage.setShowCoords(elToggleCoords.checked);
+      if (elCoordsPanel) elCoordsPanel.classList.toggle('hidden', !elToggleCoords.checked);
+      if (elToggleCoords.checked) _updateCoordsDisplay();
+    };
+  }
+
   document.onkeydown = (e) => {
     if (e.key === 'Escape') _closeSettings();
     if (e.key === 'ArrowRight') _setScreen(1);

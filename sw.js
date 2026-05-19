@@ -16,6 +16,7 @@ const STATIC_ASSETS = [
   './points.html',
   './css/main.css',
   './css/history.css',
+  './js/coords.js',
   './js/app.js',
   './js/gps.js',
   './js/units.js',

@@ -110,6 +110,17 @@
             <span class="val-zen info-value">—</span>
           </div>
         </div>
+
+        <div id="coords-panel" class="coords-panel hidden">
+          <div class="coords-row">
+            <span class="coords-label">ITM</span>
+            <span id="val-itm" class="coords-value">—</span>
+          </div>
+          <div class="coords-row">
+            <span class="coords-label">ICS</span>
+            <span id="val-ics" class="coords-value">—</span>
+          </div>
+        </div>
       </section>
 
     </div>
@@ -168,7 +179,7 @@
           <button class="lang-btn" data-lang="lv">LV</button>
           <button class="lang-btn" data-lang="be">BE</button>
           <button class="lang-btn" data-lang="tp">TP</button>
-          <button class="lang-btn" data-lang="arc">ARC</button>
+          <button class="lang-btn" data-lang="en">EN</button>
         </div>
       </div>
 
@@ -228,6 +239,18 @@
         <a id="btn-view-points" href="points.html" class="btn-secondary">📍 <span data-i18n="viewPoints">Vidi Ĉiujn Punktojn</span> (<span id="points-count">0</span>)</a>
       </div>
 
+      <!-- Koordinatoj -->
+      <div class="settings-section">
+        <label class="settings-label" data-i18n="coordsLabel">Koordinatoj</label>
+        <div class="privacy-row">
+          <span class="info-text">ITM / ICS</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-coords" />
+            <span class="toggle-slider" aria-hidden="true"></span>
+          </label>
+        </div>
+      </div>
+
       <!-- Privateco -->
       <div class="settings-section">
         <label class="settings-label" data-i18n="privacy">Privateco</label>
@@ -282,6 +305,7 @@
   <script src="js/theme.js"></script>
   <script src="js/install.js"></script>
   <script src="js/gps.js"></script>
+  <script src="js/coords.js"></script>
   <script src="js/app.js"></script>
   <script src="js/sw-register.js"></script>
 
