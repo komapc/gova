@@ -63,6 +63,7 @@
   let touchStartTime = 0;
   let isPulling = false;
   let isSwiping = false;
+  let isSwipingDown = false;
   let isMouseDown = false;
 
   let longPressTimer = null;
@@ -342,9 +343,10 @@
     touchStartTime = Date.now();
     isPulling = false;
     isSwiping = false;
-    
+    isSwipingDown = false;
+
     longPressTimer = setTimeout(() => {
-      if (!isSwiping && !isPulling) {
+      if (!isSwiping && !isPulling && !isSwipingDown) {
         _openSettings();
         if (navigator.vibrate) navigator.vibrate(50);
       }
@@ -367,12 +369,16 @@
     if (!isSwiping && elSettingsOverlay && elSettingsOverlay.classList.contains('hidden') && !isRefreshing) {
       if (deltaY > 10 && touchStartY < 100) {
         isPulling = true;
+        isSwipingDown = false;
         clearTimeout(longPressTimer);
         if (elPullIndicator) {
           elPullIndicator.classList.remove('hidden');
           elPullIndicator.classList.add('visible');
           elPullIndicator.classList.toggle('pulling', deltaY >= PULL_THRESHOLD);
         }
+      } else if (!isPulling && deltaY > 15 && Math.abs(deltaY) > Math.abs(deltaX)) {
+        isSwipingDown = true;
+        clearTimeout(longPressTimer);
       }
     }
   }
@@ -400,7 +406,14 @@
       isSwiping = false;
       return;
     }
-    
+
+    if (isSwipingDown) {
+      const currentY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+      if (currentY - touchStartY >= SWIPE_THRESHOLD) _manualRefresh();
+      isSwipingDown = false;
+      return;
+    }
+
     if (touchDuration < LONG_PRESS_DURATION) _manualRefresh();
   }
 
