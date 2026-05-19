@@ -7,7 +7,7 @@
  * - Nekonata: Reto kun kaŝmemor-retropaŝo
  */
 
-const CACHE_NAME = 'gova-v3.4';
+const CACHE_NAME = 'gova-v3.5';
 
 const STATIC_ASSETS = [
   './',
@@ -40,7 +40,7 @@ const STATIC_ASSETS = [
 // URLoj kiuj neniam estas kaŝmemorataj (retaj servoj)
 const NETWORK_ONLY_PATTERNS = [
   'nominatim.openstreetmap.org',
-  'api.open-elevation.com',
+  'api.opentopodata.org',
 ];
 
 // --- Instali: antaŭkaŝmemori statikajn dosierojn ---
@@ -87,19 +87,18 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) {
-        // Malantaŭe ĝisdatigi la kaŝmemoron
-        const fetchPromise = fetch(event.request)
+        const revalidation = fetch(event.request)
           .then((response) => {
             if (response && response.status === 200) {
               caches.open(CACHE_NAME).then((cache) => {
                 cache.put(event.request, response.clone());
               });
             }
-            return response;
           })
           .catch(() => null);
 
         // Redonu tuj el kaŝmemoro, ĝisdatigu malantaŭe
+        event.waitUntil(revalidation);
         return cached;
       }
 
