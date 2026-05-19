@@ -21,6 +21,7 @@ export default [
         Install: 'readonly',
         History: 'readonly',
         SavedPoints: 'readonly',
+        Coords: 'readonly',
       },
     },
     rules: {
