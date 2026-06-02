@@ -19,14 +19,61 @@ const GPS = (() => {
   let _lastPressure = null;
   let _baroOnUpdate = null;
 
+  // --- Barometra kalibrado ---
+  // La barometro estas preciza por *relativaj* ŝanĝoj, sed bezonas absolutan
+  // ankron: la vera marnivela premo (P0) varias laŭ vetero je dekoj da hPa,
+  // kio donas ±100m+ da absoluta eraro se oni uzas la normon 1013.25.
+  const SEA_LEVEL_PRESSURE_HPA = 1013.25;
+  let _seaLevelPressure = SEA_LEVEL_PRESSURE_HPA;
+  let _baroCalibrated = false;
+  let _lastCalibrationTs = 0;
+  const CAL_REFRESH_MS = 5 * 60 * 1000; // re-ankri ĉiun 5 min kontraŭ veter-drivo
+
   /**
-   * Kalkulas altecon el aerpremo (P0 = 1013.25 hPa)
+   * Pura funkcio: konvertas aerpremon al alteco per la barometra formulo.
    * @param {number} pressure - hPa
-   * @returns {number}
+   * @param {number} [p0] - marnivela referenca premo (hPa)
+   * @returns {number} alteco en metroj
    */
-  function calculateBaroAltitude(pressure) {
+  function pressureToAltitude(pressure, p0 = _seaLevelPressure) {
     // Standard formula: 44330 * (1 - (P/P0)^(1/5.255))
-    return 44330 * (1 - Math.pow(pressure / 1013.25, 1 / 5.255));
+    return 44330 * (1 - Math.pow(pressure / p0, 1 / 5.255));
+  }
+
+  /**
+   * Pura funkcio: inversigas la formulon — donas la marnivelan premon P0
+   * tia ke `pressure` ĉe la donita konata alteco redonus tiun altecon.
+   * @param {number} pressure - hPa
+   * @param {number} knownAltitude - konata vera alteco (metroj, MSL)
+   * @returns {number} marnivela referenca premo (hPa)
+   */
+  function solveSeaLevelPressure(pressure, knownAltitude) {
+    return pressure / Math.pow(1 - knownAltitude / 44330, 5.255);
+  }
+
+  /**
+   * Kalibras la barometron al konata MSL-alteco (ekz. ter-alteco de
+   * opentopodata). NE uzu krudan GPS-altecon — ĝi estas elipsoida, ne MSL.
+   * @param {number} knownAltitudeMeters - konata MSL-alteco
+   * @returns {boolean} ĉu kalibrado okazis
+   */
+  function calibrateBarometer(knownAltitudeMeters) {
+    if (_lastPressure === null || _lastPressure === undefined) return false;
+    if (knownAltitudeMeters === null || knownAltitudeMeters === undefined || isNaN(knownAltitudeMeters)) return false;
+    _seaLevelPressure = solveSeaLevelPressure(_lastPressure, knownAltitudeMeters);
+    _baroCalibrated = true;
+    _lastCalibrationTs = Date.now();
+    return true;
+  }
+
+  /** @returns {boolean} ĉu la barometro havas validan absolutan ankron */
+  function isBarometerCalibrated() {
+    return _baroCalibrated;
+  }
+
+  /** @returns {boolean} ĉu necesas (re-)kalibri pro manko aŭ tro-aĝa ankro */
+  function needsCalibration() {
+    return !_baroCalibrated || (Date.now() - _lastCalibrationTs > CAL_REFRESH_MS);
   }
 
   /**
@@ -43,7 +90,7 @@ const GPS = (() => {
       _pressureSensor = new BarometerCtor({ frequency: 1 });
       _pressureSensor.addEventListener('reading', () => {
         _lastPressure = _pressureSensor.pressure;
-        const alt = calculateBaroAltitude(_lastPressure);
+        const alt = pressureToAltitude(_lastPressure);
         if (_baroOnUpdate) _baroOnUpdate(alt);
       });
       _pressureSensor.addEventListener('error', (e) => {
@@ -96,12 +143,42 @@ const GPS = (() => {
   const _elevationCache = new Map();
   const ELEVATION_CACHE_TTL_MS = 60 * 60 * 1000; // 1 horo
   const ELEVATION_CACHE_MAX = 200;
+  const ELEVATION_CACHE_KEY = 'gova_elev_cache';
   let _lastElevationCallTs = 0;
   const ELEVATION_MIN_INTERVAL_MS = 1500; // ≤1 peto/1.5s
 
   function _elevationKey(lat, lon) {
     return `${lat.toFixed(3)},${lon.toFixed(3)}`;
   }
+
+  // Persisto: la kaŝmemoro vivis nur en RAM kaj malaperis ĉe reŝargo, do
+  // ofline-PWA montris nenian ter-altecon. Ni konservas ĝin al localStorage.
+  function _loadElevationCache() {
+    try {
+      const raw = localStorage.getItem(ELEVATION_CACHE_KEY);
+      if (!raw) return;
+      const entries = JSON.parse(raw);
+      if (!Array.isArray(entries)) return;
+      const now = Date.now();
+      for (const [key, value] of entries) {
+        if (value && now - value.ts < ELEVATION_CACHE_TTL_MS) {
+          _elevationCache.set(key, value);
+        }
+      }
+    } catch {
+      // korupta aŭ nedisponebla — ignoru
+    }
+  }
+
+  function _persistElevationCache() {
+    try {
+      localStorage.setItem(ELEVATION_CACHE_KEY, JSON.stringify([..._elevationCache]));
+    } catch {
+      // privateca modo / kvoto plena — ignoru
+    }
+  }
+
+  _loadElevationCache();
 
   /**
    * Akiras ter-altecon de pluraj fontoj samtempe.
@@ -111,13 +188,16 @@ const GPS = (() => {
    */
   async function getAllElevations(lat, lon) {
     const empty = { srtm: null, aster: null, zen: null };
-    if (!navigator.onLine) return empty;
 
+    // Kontrolu la (persistitan) kaŝmemoron ANTAŬ la ofline-gardilo, alie
+    // ofline-PWA neniam vidus la konservitajn ter-altecojn.
     const key = _elevationKey(lat, lon);
     const cached = _elevationCache.get(key);
     if (cached && Date.now() - cached.ts < ELEVATION_CACHE_TTL_MS) {
       return cached.data;
     }
+
+    if (!navigator.onLine) return cached ? cached.data : empty;
 
     // Trafik-limigo
     const sinceLast = Date.now() - _lastElevationCallTs;
@@ -150,6 +230,7 @@ const GPS = (() => {
       const firstKey = _elevationCache.keys().next().value;
       _elevationCache.delete(firstKey);
     }
+    _persistElevationCache();
     return results;
   }
 
@@ -175,7 +256,7 @@ const GPS = (() => {
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
           const elevations = await getAllElevations(lat, lon);
-          const baroAlt = _lastPressure ? calculateBaroAltitude(_lastPressure) : null;
+          const baroAlt = _lastPressure ? pressureToAltitude(_lastPressure) : null;
           onSuccess(pos, elevations, baroAlt);
         } catch (err) {
           onError(err);
@@ -227,5 +308,10 @@ const GPS = (() => {
     getErrorMessage,
     startBarometer,
     stopBarometer,
+    pressureToAltitude,
+    solveSeaLevelPressure,
+    calibrateBarometer,
+    isBarometerCalibrated,
+    needsCalibration,
   };
 })();

@@ -3,11 +3,11 @@
  *
  * Strategio:
  * - Statikaj dosieroj: Cache-unue (cache-first)
- * - Nominatim / Open-Elevation: Reto-nur (network-only)
+ * - opentopodata.org (ter-alteco): Reto-nur (network-only)
  * - Nekonata: Reto kun kaŝmemor-retropaŝo
  */
 
-const CACHE_NAME = 'gova-v3.6';
+const CACHE_NAME = 'gova-v3.7';
 
 const STATIC_ASSETS = [
   './',
@@ -17,6 +17,7 @@ const STATIC_ASSETS = [
   './css/main.css',
   './css/history.css',
   './js/coords.js',
+  './js/gestures.js',
   './js/app.js',
   './js/gps.js',
   './js/units.js',
@@ -40,7 +41,6 @@ const STATIC_ASSETS = [
 
 // URLoj kiuj neniam estas kaŝmemorataj (retaj servoj)
 const NETWORK_ONLY_PATTERNS = [
-  'nominatim.openstreetmap.org',
   'api.opentopodata.org',
 ];
 
@@ -103,7 +103,7 @@ self.addEventListener('fetch', (event) => {
         return cached;
       }
 
-      // Ne kaŝmemorита — provu la reton
+      // Ne kaŝmemorita — provu la reton
       return fetch(event.request).then((response) => {
         if (response && response.status === 200) {
           const cloned = response.clone();

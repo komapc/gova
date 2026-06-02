@@ -36,6 +36,8 @@ exec('js/units.js');
 exec('js/storage.js');
 exec('js/history.js');
 exec('js/saved-points.js');
+exec('js/coords.js');
+exec('js/gps.js');
 
 // Intercept process.exit so all suites run even if one fails
 let overallFailed = 0;
@@ -46,5 +48,7 @@ execWrapped('tests/units.test.js');
 execWrapped('tests/storage.test.js');
 execWrapped('tests/history.test.js');
 execWrapped('tests/saved-points.test.js');
+execWrapped('tests/coords.test.js');
+execWrapped('tests/gps.test.js');
 
 process.exit(overallFailed);

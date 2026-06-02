@@ -95,21 +95,6 @@ test('setLastAccuracy kaj getLastAccuracy funkcias kune', () => {
   assert.equal(Storage.getLastAccuracy(), 15.7);
 });
 
-test('getLastLocation redonas null kiam ne agordita', () => {
-  assert.strictEqual(Storage.getLastLocation(), null);
-});
-
-test('setLastLocation kaj getLastLocation funkcias kune', () => {
-  Storage.setLastLocation('Parizo');
-  assert.equal(Storage.getLastLocation(), 'Parizo');
-});
-
-test('clearLastLocation forigas lokon', () => {
-  Storage.setLastLocation('Berlino');
-  Storage.clearLastLocation();
-  assert.strictEqual(Storage.getLastLocation(), null);
-});
-
 test('getBaseHeight redonas null kiam ne agordita', () => {
   assert.strictEqual(Storage.getBaseHeight(), null);
 });

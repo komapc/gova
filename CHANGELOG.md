@@ -1,5 +1,37 @@
 # Gova — Ŝanĝ-Protokolo
 
+## [v3.7.0] - 2026-06-02
+
+### 🐞 Cim-Riparoj
+- **ITM-koordinatoj korektitaj:** la norda koordinato (northing) estis
+  malĝusta je ~3,5 milionoj da metroj pro erara falsa-norda parametro
+  (`-2885516.9488` → `626907.39`, EPSG:2039). La orienta koordinato jam
+  estis ĝusta. Nun la natura origino mapas ekzakte al (219529.584,
+  626907.39), kaj israelaj urboj donas realmondajn ITM-valorojn.
+
+### ✨ Plibonigoj
+- **Barometra aŭto-kalibrado:** la barometro nun kalibriĝas kontraŭ la
+  ter-MSL de opentopodata anstataŭ uzi fiksan 1013.25 hPa (kio povis erari
+  je ±100m). La barometro regas la montron nur kiam ĝi havas validan
+  absolutan ankron; re-ankras ĉiun 5 min kontraŭ veter-drivo.
+- **Vera ofline-ter-alteco:** la alteco-kaŝmemoro nun persistas en
+  `localStorage` (antaŭe nur en RAM, perdita ĉe reŝargo) kaj estas
+  konsultata ANTAŬ la ofline-gardilo, do la PWA montras ter-altecon ofline.
+
+### 🔧 Teknikaj Plibonigoj
+- **Nova modulo `js/gestures.js`:** la tuŝ-/musa stat-maŝino estas eltirita
+  el `app.js` (~120 linioj malpli) malantaŭ semantika revoko-API.
+- **Forigita morta kodo:** nuzataj `Storage.*LastLocation`-funkcioj kaj la
+  Nominatim reto-nur-ŝablono (neniam uzataj).
+- **Riparitaj komentoj:** korektitaj eraraj "Open-Elevation"-referencoj
+  (estas opentopodata) kaj cirilaj literoj en `sw.js`.
+- Service Worker ĝisdatigita al `gova-v3.7`.
+
+### 🧪 Testoj
+- `tests/coords.test.js` — 7 testoj por la ITM-konvertado (ankras sur la
+  origin→(E0,N0)-invarianto + realmondaj urboj).
+- `tests/gps.test.js` — 6 testoj por la puraj barometraj funkcioj.
+
 ## [v3.0.0] - 2026-03-02
 
 ### ✨ Novaj Funkcioj

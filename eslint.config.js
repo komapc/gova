@@ -22,6 +22,7 @@ export default [
         History: 'readonly',
         SavedPoints: 'readonly',
         Coords: 'readonly',
+        Gestures: 'readonly',
       },
     },
     rules: {
