@@ -7,7 +7,6 @@ const Storage = (() => {
     UNIT: 'gova_unit',
     LAST_ALT: 'gova_last_altitude',
     LAST_ACCURACY: 'gova_last_accuracy',
-    LAST_LOCATION: 'gova_last_location_name',
     BASE_HEIGHT: 'gova_base_height',
     SHOW_COORDS: 'gova_show_coords',
   };
@@ -80,22 +79,6 @@ const Storage = (() => {
     safeSet(KEYS.LAST_ACCURACY, meters);
   }
 
-  // --- Lasta Loknomo ---
-
-  /** @returns {string|null} */
-  function getLastLocation() {
-    return safeGet(KEYS.LAST_LOCATION);
-  }
-
-  /** @param {string} name */
-  function setLastLocation(name) {
-    safeSet(KEYS.LAST_LOCATION, name);
-  }
-
-  function clearLastLocation() {
-    safeRemove(KEYS.LAST_LOCATION);
-  }
-
   // --- Baza Alteco (metroj) ---
 
   /** @returns {number|null} */
@@ -138,9 +121,6 @@ const Storage = (() => {
     setLastAlt,
     getLastAccuracy,
     setLastAccuracy,
-    getLastLocation,
-    setLastLocation,
-    clearLastLocation,
     getBaseHeight,
     setBaseHeight,
     clearBaseHeight,

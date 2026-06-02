@@ -55,8 +55,8 @@ const Coords = (() => {
   const ITM_LAM0 = (35 + 12/60 + 16.261/3600) * DEG;
   const ITM_PHI0 = (31 + 44/60 +  3.817/3600) * DEG;
   const ITM_K0   = 1.0000067;
-  const ITM_E0   = 219529.584;
-  const ITM_N0   = -2885516.9488;
+  const ITM_E0   = 219529.584;  // EPSG:2039 false easting
+  const ITM_N0   = 626907.39;   // EPSG:2039 false northing
 
   function toITM(lat, lon) {
     return _tm(lat, lon, GRS80_A, GRS80_E2, ITM_K0, ITM_LAM0, ITM_PHI0, ITM_E0, ITM_N0);

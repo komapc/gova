@@ -54,22 +54,10 @@
 
   // --- Stato ---
   let currentUnit = Storage.getUnit();
-  let currentScreen = 0; 
+  let currentScreen = 0;
   let isRefreshing = false;
-  
-  let touchStartX = 0;
-  let touchStartY = 0;
-  let touchStartTime = 0;
-  let isPulling = false;
-  let isSwiping = false;
-  let isSwipingDown = false;
-  let isMouseDown = false;
 
-  let longPressTimer = null;
-  const LONG_PRESS_DURATION = 500;
   const DEBOUNCE_REFRESH = 2000;
-  const PULL_THRESHOLD = 80;
-  const SWIPE_THRESHOLD = 50;
   let lastRefreshTime = 0;
   let lastGpsAlt = null;
   let lastElevations = { srtm: null, aster: null, zen: null };
@@ -129,10 +117,17 @@
     }
   }
 
+  // La barometro rajtas regi la montron nur kiam ĝi havas validan absolutan
+  // ankron (kalibrita kontraŭ ter-MSL). Alie ĝia kruda valoro uzas la normon
+  // 1013.25 hPa kaj povas erari je ±100m — do ni retropaŝas al MSL/GPS.
+  function _effectiveBaroAlt() {
+    return (lastBaroAlt !== null && GPS.isBarometerCalibrated()) ? lastBaroAlt : null;
+  }
+
   // --- Montri altecon ---
   function _updateAltitudeDisplay(meters, accuracyMeters, animate = true) {
     const baseHeight = Storage.getBaseHeight();
-    const rawAlt = lastBaroAlt ?? meters;
+    const rawAlt = _effectiveBaroAlt() ?? meters;
     
     if (rawAlt === null) return;
 
@@ -253,13 +248,22 @@
     // Uzi horizontalan precizecon kiel alternativon
     lastAccuracy = coords.altitudeAccuracy || coords.accuracy;
 
+    // Kalibri la barometron al ter-MSL (NE al kruda GPS-alteco, kiu estas
+    // elipsoida). Tio donas al la barometro ĝustan absolutan ankron.
+    const terrainMsl = lastElevations.zen ?? lastElevations.srtm ?? lastElevations.aster;
+    if (lastBaroAlt !== null && terrainMsl !== null && GPS.needsCalibration()) {
+      // Post-kalibrade la barometro legas ĝuste la ter-referencon, do ni
+      // sinkronigas lastBaroAlt tuj (alie ĝi restus malfreŝa unu ciklon).
+      if (GPS.calibrateBarometer(terrainMsl)) lastBaroAlt = terrainMsl;
+    }
+
     if (lastGpsAlt === null && (lastElevations.zen === null) && lastBaroAlt === null) return;
 
     _updateAltitudeDisplay(lastGpsAlt, lastAccuracy, true);
     _updateCoordsDisplay();
     _setStatus('locked', lastElevations.srtm !== null ? `${I18n.get('locked')} + MSL` : I18n.get('locked'));
 
-    const finalAlt = lastBaroAlt ?? lastElevations.zen ?? lastElevations.srtm ?? lastGpsAlt;
+    const finalAlt = _effectiveBaroAlt() ?? lastElevations.zen ?? lastElevations.srtm ?? lastGpsAlt;
     if (finalAlt !== null && finalAlt !== undefined) {
       Storage.setLastAlt(finalAlt);
       if (lastAccuracy !== null) Storage.setLastAccuracy(lastAccuracy);
@@ -332,100 +336,32 @@
   }
 
   // --- Gesta Administrado ---
-  function _handleTouchStart(e) {
-    if (!e.touches) {
-      isMouseDown = true;
+  function _showPullIndicator() {
+    if (elPullIndicator) {
+      elPullIndicator.classList.remove('hidden');
+      elPullIndicator.classList.add('visible');
     }
-    touchStartX = e.touches ? e.touches[0].clientX : e.clientX;
-    touchStartY = e.touches ? e.touches[0].clientY : e.clientY;
-    touchStartTime = Date.now();
-    isPulling = false;
-    isSwiping = false;
-    isSwipingDown = false;
+  }
 
-    longPressTimer = setTimeout(() => {
-      if (!isSwiping && !isPulling && !isSwipingDown) {
+  function _setupGestures() {
+    Gestures.init(elMain, {
+      onTap: _manualRefresh,
+      onLongPress: () => {
         _openSettings();
         if (navigator.vibrate) navigator.vibrate(50);
-      }
-    }, LONG_PRESS_DURATION);
-  }
-
-  function _handleTouchMove(e) {
-    if (!e.touches && !isMouseDown) return;
-    
-    const currentX = e.touches ? e.touches[0].clientX : e.clientX;
-    const currentY = e.touches ? e.touches[0].clientY : e.clientY;
-    const deltaX = currentX - touchStartX;
-    const deltaY = currentY - touchStartY;
-
-    if (!isPulling && Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 15) {
-      isSwiping = true;
-      clearTimeout(longPressTimer);
-    }
-
-    if (!isSwiping && elSettingsOverlay && elSettingsOverlay.classList.contains('hidden') && !isRefreshing) {
-      if (deltaY > 10 && touchStartY < 100) {
-        isPulling = true;
-        isSwipingDown = false;
-        clearTimeout(longPressTimer);
-        if (elPullIndicator) {
-          elPullIndicator.classList.remove('hidden');
-          elPullIndicator.classList.add('visible');
-          elPullIndicator.classList.toggle('pulling', deltaY >= PULL_THRESHOLD);
-        }
-      } else if (deltaY > 15 && Math.abs(deltaY) > Math.abs(deltaX)) {
-        if (!isSwipingDown) {
-          isSwipingDown = true;
-          clearTimeout(longPressTimer);
-          if (elPullIndicator) {
-            elPullIndicator.classList.remove('hidden');
-            elPullIndicator.classList.add('visible');
-          }
-        }
-        if (elPullIndicator) {
-          elPullIndicator.classList.toggle('pulling', deltaY >= SWIPE_THRESHOLD);
-        }
-      }
-    }
-  }
-
-  function _handleTouchEnd(e) {
-    if (!e.changedTouches) isMouseDown = false;
-    const touchDuration = Date.now() - touchStartTime;
-    const currentX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
-    const deltaX = currentX - touchStartX;
-    
-    clearTimeout(longPressTimer);
-    
-    if (isPulling) {
-      const currentY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
-      if (currentY - touchStartY >= PULL_THRESHOLD) _triggerPullRefresh();
-      else _hidePullIndicator();
-      isPulling = false;
-      return;
-    }
-
-    if (isSwiping) {
-      if (Math.abs(deltaX) >= SWIPE_THRESHOLD) {
-        _setScreen(deltaX > 0 ? 0 : 1);
-      }
-      isSwiping = false;
-      return;
-    }
-
-    if (isSwipingDown) {
-      const currentY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
-      if (currentY - touchStartY >= SWIPE_THRESHOLD) {
-        _triggerPullRefresh();
-      } else {
-        _hidePullIndicator();
-      }
-      isSwipingDown = false;
-      return;
-    }
-
-    if (touchDuration < LONG_PRESS_DURATION) _manualRefresh();
+      },
+      onSwipe: (dir) => _setScreen(dir === 'right' ? 0 : 1),
+      onPullStart: _showPullIndicator,
+      onPullMove: (passed) => {
+        if (elPullIndicator) elPullIndicator.classList.toggle('pulling', passed);
+      },
+      onPullRelease: (triggered) => {
+        if (triggered) _triggerPullRefresh();
+        else _hidePullIndicator();
+      },
+    }, {
+      canPull: () => !isRefreshing && !!elSettingsOverlay && elSettingsOverlay.classList.contains('hidden'),
+    });
   }
 
   function _updateSettingsUI() {
@@ -486,16 +422,7 @@
   }
 
   // --- Eventoj ---
-  if (elMain) {
-    elMain.addEventListener('touchstart', _handleTouchStart, { passive: true });
-    elMain.addEventListener('touchend', _handleTouchEnd, { passive: true });
-    elMain.addEventListener('touchmove', _handleTouchMove, { passive: true });
-    elMain.addEventListener('mousedown', _handleTouchStart);
-    elMain.addEventListener('mousemove', _handleTouchMove);
-    elMain.addEventListener('mouseup', _handleTouchEnd);
-    elMain.addEventListener('mouseleave', _handleTouchEnd);
-    elMain.addEventListener('contextmenu', (e) => e.preventDefault());
-  }
+  if (elMain) _setupGestures();
   
   // Lingvo-butonoj
   document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -509,7 +436,7 @@
   if (elUnitM) elUnitM.onclick = () => { currentUnit = 'm'; Storage.setUnit('m'); _refreshDisplayedValues(); _updateSettingsUI(); _broadcastUnit('m'); };
   if (elUnitFt) elUnitFt.onclick = () => { currentUnit = 'ft'; Storage.setUnit('ft'); _refreshDisplayedValues(); _updateSettingsUI(); _broadcastUnit('ft'); };
   if (elBtnSetBase) elBtnSetBase.onclick = () => {
-    const alt = lastBaroAlt ?? lastGpsAlt ?? Storage.getLastAlt();
+    const alt = _effectiveBaroAlt() ?? lastGpsAlt ?? Storage.getLastAlt();
     if (alt) { 
       Storage.setBaseHeight(alt); 
       _updateSettingsUI(); 
@@ -539,7 +466,7 @@
   }
 
   if (elBtnSavePoint) elBtnSavePoint.onclick = () => {
-    const currentAlt = lastBaroAlt ?? lastGpsAlt ?? Storage.getLastAlt();
+    const currentAlt = _effectiveBaroAlt() ?? lastGpsAlt ?? Storage.getLastAlt();
     if (currentAlt === null) return _showToast(I18n.get('toastNoGps'));
     const history = window.History ? window.History.getAll() : [];
     if (!history || history.length === 0) return _showToast(I18n.get('toastNoLoc'));
