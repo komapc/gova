@@ -1,6 +1,6 @@
 # Privateca Politiko de Gova
 
-Laste ĝisdatigita: Marto 2026
+Laste ĝisdatigita: Junio 2026
 
 Gova estas aplikaĵo por monitori altecon. Ĉi tiu dokumento klarigas kiel ni traktas viajn datumojn.
 
@@ -13,7 +13,7 @@ Gova kolektas la jenajn datumojn por sia kerna funkciado:
 Ĉiuj datumoj estas procesitaj **loke sur via aparato**. 
 - Ni **ne** sendas viajn lok-datumojn al niaj serviloj.
 - Ni **ne** konservas vian personan historion ekster via propra telefono.
-- La sola fojo kiam la apo komunikas kun la reto estas por fari asinkronan serĉon de MSL-alteco (Geoid-korekto) ĉe la libera API `open-elevation.com`. Ĉi tiu peto estas anonima.
+- La sola fojo kiam la apo komunikas kun la reto estas por fari asinkronan serĉon de ter-/MSL-alteco ĉe la libera publika API `opentopodata.org`. Nur la koordinatoj (latitudo/longitudo) estas senditaj; la peto estas anonima kaj ne enhavas identigilojn.
 
 ## 3. Kundivido kun Tria Partioj
 Ni **ne** dividas, vendas aŭ malkaŝas viajn datumojn al iu ajn kompanio aŭ tria partio.

@@ -5,14 +5,14 @@ plugins {
 
 android {
     namespace 'com.komapc.gova'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.komapc.gova"
         minSdk 24
-        targetSdk 34
-        versionCode 3
-        versionName "3.2.0"
+        targetSdk 35
+        versionCode 30
+        versionName "3.7.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -22,11 +22,15 @@ android {
 
     signingConfigs {
         release {
-            if (project.file("../gova-release.keystore").exists()) {
-                storeFile file("../gova-release.keystore")
-                storePassword "govapassword"
-                keyAlias "gova"
-                keyPassword "govapassword"
+            // Credentials come from env vars (CI secrets) or Gradle properties
+            // (e.g. ~/.gradle/gradle.properties or local.properties). NEVER hardcode.
+            def keystorePath = System.getenv("GOVA_KEYSTORE_PATH") ?: "../gova-release.keystore"
+            def keystoreFile = file(keystorePath)
+            if (keystoreFile.exists()) {
+                storeFile keystoreFile
+                storePassword System.getenv("GOVA_KEYSTORE_PASSWORD") ?: (project.findProperty("GOVA_KEYSTORE_PASSWORD") ?: "")
+                keyAlias System.getenv("GOVA_KEY_ALIAS") ?: (project.findProperty("GOVA_KEY_ALIAS") ?: "gova")
+                keyPassword System.getenv("GOVA_KEY_PASSWORD") ?: (project.findProperty("GOVA_KEY_PASSWORD") ?: "")
             }
         }
     }
