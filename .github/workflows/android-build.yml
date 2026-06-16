@@ -27,17 +27,25 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
       with:
-        gradle-version: 8.5
+        gradle-version: 8.7
         cache-disabled: true # Temporarily disabled to bypass GitHub cache service 400 errors
 
     - name: Generate Gradle Wrapper
-      run: gradle wrapper --gradle-version 8.5
+      run: gradle wrapper --gradle-version 8.7
 
-    - name: Generate Release Keystore
-      run: |
-        keytool -genkey -v -keystore gova-release.keystore -alias gova -keyalg RSA -keysize 2048 -validity 10000 -storepass "govapassword" -keypass "govapassword" -dname "CN=Koma PC, OU=Gova, O=Gova, L=City, ST=State, C=US"
-        
+    # The upload key MUST stay constant across builds, or Google Play will
+    # reject updates. Store the keystore (base64) and passwords as repo
+    # secrets — never regenerate it in CI.
+    - name: Decode Release Keystore
+      env:
+        GOVA_KEYSTORE_BASE64: ${{ secrets.GOVA_KEYSTORE_BASE64 }}
+      run: echo "$GOVA_KEYSTORE_BASE64" | base64 -d > gova-release.keystore
+
     - name: Build Release AAB
+      env:
+        GOVA_KEYSTORE_PASSWORD: ${{ secrets.GOVA_KEYSTORE_PASSWORD }}
+        GOVA_KEY_ALIAS: ${{ secrets.GOVA_KEY_ALIAS }}
+        GOVA_KEY_PASSWORD: ${{ secrets.GOVA_KEY_PASSWORD }}
       run: ./gradlew bundleRelease --no-daemon
       
     - name: Upload AAB Artifact

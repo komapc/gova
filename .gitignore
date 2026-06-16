@@ -26,7 +26,9 @@ yarn-error.log*
 *.pem
 *.key
 *.jks
+*.keystore
 gova-release.jks
+gova-release.keystore
 
 # Android konstrua eligo
 android/app/build/
