@@ -14,7 +14,9 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
 import android.os.Vibrator
+import android.os.VibratorManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -204,8 +206,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                         isRefreshing = true
                     },
                     onLongPress = {
-                        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                        vibrator.vibrate(50)
+                        vibrate(context, 50)
                         isSettingsOpen = true
                     }
                 )
@@ -276,10 +277,6 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
             // SETTINGS MODAL
             if (isSettingsOpen) {
                 SettingsSheet(
-                    gpsAltitude = gpsAltitude,
-                    mslAltitude = mslAltitude,
-                    teroAltitude = terrainElevations.zen ?: terrainElevations.srtm ?: terrainElevations.aster,
-                    baroAltitude = baroAltitude.value,
                     baseHeight = baseHeight,
                     useFeet = useFeet,
                     onClose = { isSettingsOpen = false },
@@ -391,12 +388,23 @@ fun InfoGrid(gps: Double?, msl: Double?, terrain: TerrainElevations, baro: Doubl
     }
 }
 
+private fun vibrate(context: Context, durationMs: Long) {
+    val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+    } else {
+        @Suppress("DEPRECATION")
+        context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        vibrator.vibrate(VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE))
+    } else {
+        @Suppress("DEPRECATION")
+        vibrator.vibrate(durationMs)
+    }
+}
+
 @Composable
 fun SettingsSheet(
-    gpsAltitude: Double?,
-    mslAltitude: Double?,
-    teroAltitude: Double?,
-    baroAltitude: Double?,
     baseHeight: Double?,
     useFeet: Boolean,
     onClose: () -> Unit,
