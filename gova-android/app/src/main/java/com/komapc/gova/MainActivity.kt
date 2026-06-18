@@ -105,6 +105,11 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
     var satelliteCount by remember { mutableStateOf(0) }
     
     var lastNetworkFetchTime by remember { mutableStateOf(0L) }
+    // Online terrain-elevation lookup (S.TERO) is opt-in and OFF by default:
+    // it is the only feature that sends location off-device. Persisted so the
+    // user's choice survives restarts.
+    val prefs = remember { context.getSharedPreferences("gova_prefs", Context.MODE_PRIVATE) }
+    var teroEnabled by remember { mutableStateOf(prefs.getBoolean("tero_enabled", false)) }
     var baseHeight by remember { mutableStateOf<Double?>(null) }
     var isRefreshing by remember { mutableStateOf(false) }
     var isSettingsOpen by remember { mutableStateOf(false) }
@@ -176,8 +181,8 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                     }
                 }
                 
-                // Fetch ground elevation (TERO) — tries multiple providers
-                if (System.currentTimeMillis() - lastNetworkFetchTime > 60000) {
+                // Fetch ground elevation (TERO) — opt-in only; sends location off-device
+                if (teroEnabled && System.currentTimeMillis() - lastNetworkFetchTime > 60000) {
                     lastNetworkFetchTime = System.currentTimeMillis()
                     coroutineScope.launch {
                         val result = withContext(Dispatchers.IO) {
@@ -279,8 +284,15 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                 SettingsSheet(
                     baseHeight = baseHeight,
                     useFeet = useFeet,
+                    teroEnabled = teroEnabled,
                     onClose = { isSettingsOpen = false },
                     onToggleUnits = { useFeet = !useFeet },
+                    onToggleTero = {
+                        teroEnabled = !teroEnabled
+                        prefs.edit().putBoolean("tero_enabled", teroEnabled).apply()
+                        // When turned off, drop any cached terrain values so S.TERO clears.
+                        if (!teroEnabled) terrainElevations = TerrainElevations()
+                    },
                     onSetBase = { baseHeight = terrainElevations.zen ?: terrainElevations.srtm ?: terrainElevations.aster ?: mslAltitude ?: baroAltitude.value ?: gpsAltitude },
                     onClearBase = { baseHeight = null }
                 )
@@ -407,8 +419,10 @@ private fun vibrate(context: Context, durationMs: Long) {
 fun SettingsSheet(
     baseHeight: Double?,
     useFeet: Boolean,
+    teroEnabled: Boolean,
     onClose: () -> Unit,
     onToggleUnits: () -> Unit,
+    onToggleTero: () -> Unit,
     onSetBase: () -> Unit,
     onClearBase: () -> Unit
 ) {
@@ -451,6 +465,27 @@ fun SettingsSheet(
                     Text(stringResource(if (useFeet) R.string.unit_feet else R.string.unit_meters), color = Color.White)
                     Switch(checked = useFeet, onCheckedChange = { onToggleUnits() })
                 }
+
+                Divider(color = Color.Gray.copy(alpha = 0.2f), modifier = Modifier.padding(vertical = 12.dp))
+
+                // Online terrain elevation (S.TERO) — opt-in; only feature that sends location
+                Text(stringResource(R.string.tero_label), color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(stringResource(R.string.tero_switch_label), color = Color.White)
+                    Switch(checked = teroEnabled, onCheckedChange = { onToggleTero() })
+                }
+                Text(
+                    stringResource(R.string.tero_privacy_note),
+                    color = Color.White.copy(alpha = 0.5f),
+                    fontSize = 11.sp,
+                    lineHeight = 16.sp
+                )
 
                 Divider(color = Color.Gray.copy(alpha = 0.2f), modifier = Modifier.padding(vertical = 12.dp))
 
