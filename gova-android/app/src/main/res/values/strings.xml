@@ -6,6 +6,9 @@
     <string name="units_label">UNUOJ</string>
     <string name="unit_meters">Metroj (m)</string>
     <string name="unit_feet">Futoj (ft)</string>
+    <string name="tero_label">RETA TER-ALTECO (S.TERO)</string>
+    <string name="tero_switch_label">S.TERO</string>
+    <string name="tero_privacy_note">Malŝaltita defaŭlte. Se vi ŝaltas ĝin, la apo sendas viajn koordinatojn al la publika servo opentopodata.org por kalkuli alton super la grundo. Dum ĝi estas malŝaltita, neniuj datumoj forlasas vian aparaton.</string>
     <string name="base_height_label">BAZA ALTECO</string>
     <string name="set_base_btn">FIKSI BAZON</string>
     <string name="clear_base_btn">FORIGI</string>
