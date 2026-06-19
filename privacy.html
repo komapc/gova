@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="eo">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2563EB" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://komapc.github.io/gova/privacy.html" />
+  <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
+  <title>Privateca Politiko — Gova</title>
+  <style>
+    :root { --blue: #2563EB; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background: #f7f8fa;
+      margin: 0;
+      padding: 2rem 1rem;
+    }
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 2rem 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+    h1 { color: var(--blue); font-size: 1.8rem; margin-top: 0; }
+    h2 { font-size: 1.2rem; margin-top: 2rem; }
+    .updated { color: #666; font-size: .9rem; margin-top: -.5rem; }
+    a { color: var(--blue); }
+    ul { padding-left: 1.2rem; }
+    code { background: #eef1f5; padding: .1rem .35rem; border-radius: 4px; font-size: .9em; }
+    footer { margin-top: 2.5rem; font-size: .85rem; color: #888; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Privateca Politiko de Gova</h1>
+    <p class="updated">Laste ĝisdatigita: Junio 2026</p>
+
+    <p>Gova estas aplikaĵo por monitori altecon. Ĉi tiu dokumento klarigas kiel ni traktas viajn datumojn.</p>
+
+    <h2>1. Kolekto de Datumoj</h2>
+    <p>Gova kolektas la jenajn datumojn por sia kerna funkciado:</p>
+    <ul>
+      <li><strong>Preciza Loko (GPS):</strong> Ni bezonas vian lokon por kalkuli vian altecon.</li>
+      <li><strong>Sensilo-Datumoj (Barometro):</strong> Ni uzas la aparataran barometron por mezuri aerpremon.</li>
+    </ul>
+
+    <h2>2. Uzo de Datumoj</h2>
+    <p>Ĉiuj datumoj estas procesitaj <strong>loke sur via aparato</strong>.</p>
+    <ul>
+      <li>Ni <strong>ne</strong> sendas viajn lok-datumojn al niaj serviloj.</li>
+      <li>Ni <strong>ne</strong> konservas vian personan historion ekster via propra telefono.</li>
+      <li>La sola fojo kiam la apo komunikas kun la reto estas por fari asinkronan serĉon de ter-/MSL-alteco ĉe la libera publika API <code>opentopodata.org</code>. Nur la koordinatoj (latitudo/longitudo) estas senditaj; la peto estas anonima kaj ne enhavas identigilojn.</li>
+    </ul>
+
+    <h2>3. Kundivido kun Tria Partioj</h2>
+    <p>Ni <strong>ne</strong> dividas, vendas aŭ malkaŝas viajn datumojn al iu ajn kompanio aŭ tria partio.</p>
+
+    <h2>4. Viaj Permesoj</h2>
+    <p>Vi povas iam ajn revoki permeson al la GPS-datumoj en viaj Android-agordoj. Tamen, la apo ne povos montri vian altecon sen ili.</p>
+
+    <h2>5. Kontakto</h2>
+    <p>Se vi havas demandojn, vi povas kontakti la programiston per la GitHub-paĝo de la projekto: <a href="https://github.com/komapc/gova">github.com/komapc/gova</a></p>
+
+    <footer>© 2026 Gova · <a href="https://komapc.github.io/gova/">Reen al la apo</a></footer>
+  </main>
+</body>
+</html>
