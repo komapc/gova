@@ -10,14 +10,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     defaults:
       run:
         working-directory: ./gova-android
 
+    env:
+      # Surfaced as env so the publish step can self-skip until the secret
+      # is configured (you can't reference secrets directly in a step `if`).
+      PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -33,6 +38,11 @@ jobs:
     - name: Generate Gradle Wrapper
       run: gradle wrapper --gradle-version 8.7
 
+    # Unique, always-increasing versionCode for every build (1000 + run
+    # number keeps it safely above the manually-used codes 30/31).
+    - name: Compute versionCode
+      run: echo "GOVA_VERSION_CODE=$((1000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
+
     # The upload key MUST stay constant across builds, or Google Play will
     # reject updates. Store the keystore (base64) and passwords as repo
     # secrets — never regenerate it in CI.
@@ -47,10 +57,24 @@ jobs:
         GOVA_KEY_ALIAS: ${{ secrets.GOVA_KEY_ALIAS }}
         GOVA_KEY_PASSWORD: ${{ secrets.GOVA_KEY_PASSWORD }}
       run: ./gradlew bundleRelease --no-daemon
-      
+
     - name: Upload AAB Artifact
       uses: actions/upload-artifact@v4
       with:
         name: gova-release-aab
         path: gova-android/app/build/outputs/bundle/release/app-release.aab
         retention-days: 7
+
+    # --- Auto-publish to Google Play (Internal testing) ---
+    # Runs ONLY on merges/pushes to main, never on PRs. Requires the
+    # PLAY_SERVICE_ACCOUNT_JSON secret and a first manual upload on the
+    # Internal testing track (the API can only update an existing track).
+    - name: Publish to Play (Internal testing)
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.PLAY_SERVICE_ACCOUNT_JSON != ''
+      uses: r0adkll/upload-google-play@v1
+      with:
+        serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        packageName: com.komapc.gova
+        releaseFiles: gova-android/app/build/outputs/bundle/release/app-release.aab
+        track: internal
+        status: completed
