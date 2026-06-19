@@ -14,7 +14,8 @@ android {
         // versionCode can be overridden by CI (GOVA_VERSION_CODE) so each
         // build pushed to Play gets a unique, increasing code automatically.
         // Falls back to 31 for local/manual builds.
-        versionCode (System.getenv("GOVA_VERSION_CODE") ?: project.findProperty("GOVA_VERSION_CODE") ?: "31").toInteger()
+        def govaVersionCode = (System.getenv("GOVA_VERSION_CODE") ?: project.findProperty("GOVA_VERSION_CODE") ?: "31").toString().toInteger()
+        versionCode govaVersionCode
         versionName "3.7.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

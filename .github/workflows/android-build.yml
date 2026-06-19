@@ -23,6 +23,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    # Unique, always-increasing versionCode for every build (1000 + run
+    # number keeps it safely above the manually-used codes 30/31).
+    - name: Compute versionCode
+      run: echo "GOVA_VERSION_CODE=$((1000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -37,11 +42,6 @@ jobs:
 
     - name: Generate Gradle Wrapper
       run: gradle wrapper --gradle-version 8.7
-
-    # Unique, always-increasing versionCode for every build (1000 + run
-    # number keeps it safely above the manually-used codes 30/31).
-    - name: Compute versionCode
-      run: echo "GOVA_VERSION_CODE=$((1000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
 
     # The upload key MUST stay constant across builds, or Google Play will
     # reject updates. Store the keystore (base64) and passwords as repo
