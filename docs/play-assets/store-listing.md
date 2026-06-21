@@ -24,16 +24,15 @@ Gova combines several sources to show your altitude accurately:
 • GPS altitude — your height straight from satellites.
 • MSL (geoid) altitude — height above mean sea level.
 • Barometric altitude — uses your device's pressure sensor, with manual calibration for extra precision.
-• Terrain elevation — looks up ground height from the free public opentopodata.org service.
+• Terrain elevation — optional online lookup of ground height from the free public opentopodata.org service.
 
 Features:
 • Real-time altitude, updated as you move.
 • Meters or feet — your choice.
 • Set a custom base height to measure height above a reference point.
 • Barometric calibration for accurate readings.
-• Offline cache so it keeps working without a connection.
+• Works offline — GPS and barometric altitude need no connection.
 • Simple gesture controls — long-press for settings.
-• ITM (Israeli Transverse Mercator / Reshet Hadasha) coordinate support.
 
 Privacy first: everything is processed on your device. Gova never stores your data — anywhere. There are no servers, no accounts, and no history is kept. The only network request happens if you enable the optional terrain feature: an anonymous, encrypted coordinate lookup to opentopodata.org for ground elevation.
 
@@ -64,16 +63,15 @@ Gova kombinas plurajn fontojn por montri vian altecon precize:
 • GPS-alteco — via alteco rekte de satelitoj.
 • MSL-alteco (geoido) — alteco super la meza marnivelo.
 • Barometra alteco — uzas la prem-sensilon de via aparato, kun mana kalibrado por pli da precizeco.
-• Ter-alteco — serĉas la grundan altecon ĉe la senpaga publika servo opentopodata.org.
+• Ter-alteco — nedeviga reta serĉo de la grunda alteco ĉe la senpaga publika servo opentopodata.org.
 
 Ebloj:
 • Alteco en reala tempo, ĝisdatigata dum vi moviĝas.
 • Metroj aŭ futoj — laŭ via elekto.
 • Fiksu propran bazan altecon por mezuri alton super referenca punkto.
 • Barometra kalibrado por precizaj mezuroj.
-• Eksterreta kaŝmemoro, do ĝi funkcias eĉ sen konekto.
+• Funkcias eksterrete — GPS kaj barometra alteco ne bezonas konekton.
 • Simplaj gest-regiloj — longa premo malfermas la agordojn.
-• Subteno de ITM-koordinatoj (Reshet Hadasha).
 
 Privateco unue: ĉio estas procesata loke en via aparato. Gova neniam konservas viajn datumojn — nenie. Ne estas serviloj, ne estas kontoj, kaj neniu historio estas konservata. La sola ret-peto okazas se vi ŝaltas la nedevigan ter-funkcion: anonima, ĉifrita koordinat-serĉo al opentopodata.org por la grunda alteco.
 
