@@ -35,9 +35,9 @@ Features:
 • Simple gesture controls — long-press for settings.
 • ITM (Israeli Transverse Mercator / Reshet Hadasha) coordinate support.
 
-Privacy first: everything is processed on your device. Gova never stores your location history or shares your data. The only network request is an anonymous coordinate lookup to opentopodata.org for ground elevation.
+Privacy first: everything is processed on your device. Gova never stores your data — anywhere. There are no servers, no accounts, and no history is kept. The only network request happens if you enable the optional terrain feature: an anonymous, encrypted coordinate lookup to opentopodata.org for ground elevation.
 
-The interface is in Esperanto — clean, minimal, and easy to read at a glance.
+The interface is clean, minimal, and easy to read at a glance — available in English, Esperanto, and more.
 
 Perfect for hiking, cycling, flying, drone work, or simply satisfying your curiosity about how high you are.
 ```
@@ -75,9 +75,9 @@ Ebloj:
 • Simplaj gest-regiloj — longa premo malfermas la agordojn.
 • Subteno de ITM-koordinatoj (Reshet Hadasha).
 
-Privateco unue: ĉio estas procesata loke en via aparato. Gova neniam konservas vian lok-historion nek dividas viajn datumojn. La sola ret-peto estas anonima koordinat-serĉo al opentopodata.org por la grunda alteco.
+Privateco unue: ĉio estas procesata loke en via aparato. Gova neniam konservas viajn datumojn — nenie. Ne estas serviloj, ne estas kontoj, kaj neniu historio estas konservata. La sola ret-peto okazas se vi ŝaltas la nedevigan ter-funkcion: anonima, ĉifrita koordinat-serĉo al opentopodata.org por la grunda alteco.
 
-La interfaco estas en Esperanto — pura, minimuma, kaj facile legebla je unu rigardo.
+La interfaco estas pura, minimuma, kaj facile legebla je unu rigardo — disponebla en Esperanto, la angla, kaj pli.
 
 Perfekta por migrado, biciklado, flugado, drone-laboro, aŭ simple por kontentigi vian scivolon pri via alteco.
 ```

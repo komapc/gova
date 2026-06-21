@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="eo">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,7 +7,7 @@
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://komapc.github.io/gova/privacy.html" />
   <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
-  <title>Privateca Politiko — Gova</title>
+  <title>Privacy Policy — Gova</title>
   <style>
     :root { --blue: #2563EB; }
     * { box-sizing: border-box; }
@@ -30,6 +30,7 @@
     h1 { color: var(--blue); font-size: 1.8rem; margin-top: 0; }
     h2 { font-size: 1.2rem; margin-top: 2rem; }
     .updated { color: #666; font-size: .9rem; margin-top: -.5rem; }
+    .lede { font-size: 1.05rem; }
     a { color: var(--blue); }
     ul { padding-left: 1.2rem; }
     code { background: #eef1f5; padding: .1rem .35rem; border-radius: 4px; font-size: .9em; }
@@ -38,36 +39,45 @@
 </head>
 <body>
   <main>
-    <h1>Privateca Politiko de Gova</h1>
-    <p class="updated">Laste ĝisdatigita: Junio 2026</p>
+    <h1>Gova Privacy Policy</h1>
+    <p class="updated">Last updated: June 2026</p>
 
-    <p>Gova estas aplikaĵo por monitori altecon. Ĉi tiu dokumento klarigas kiel ni traktas viajn datumojn.</p>
+    <p class="lede">Gova is an altitude-monitoring app. This document explains how it handles your data. The short version: <strong>Gova never stores your data — anywhere.</strong></p>
 
-    <h2>1. Kolekto de Datumoj</h2>
-    <p>Gova kolektas la jenajn datumojn por sia kerna funkciado:</p>
+    <h2>1. Data We Access</h2>
+    <p>For its core function, Gova accesses:</p>
     <ul>
-      <li><strong>Preciza Loko (GPS):</strong> Ni bezonas vian lokon por kalkuli vian altecon.</li>
-      <li><strong>Sensilo-Datumoj (Barometro):</strong> Ni uzas la aparataran barometron por mezuri aerpremon.</li>
+      <li><strong>Precise location (GPS):</strong> needed to calculate your altitude.</li>
+      <li><strong>Sensor data (barometer):</strong> used to measure air pressure.</li>
     </ul>
 
-    <h2>2. Uzo de Datumoj</h2>
-    <p>Ĉiuj datumoj estas procesitaj <strong>loke sur via aparato</strong>.</p>
+    <h2>2. We Never Store Your Data</h2>
+    <p>All data is processed <strong>locally on your device, in real time</strong>.</p>
     <ul>
-      <li>Ni <strong>ne</strong> sendas viajn lok-datumojn al niaj serviloj.</li>
-      <li>Ni <strong>ne</strong> konservas vian personan historion ekster via propra telefono.</li>
-      <li>La sola fojo kiam la apo komunikas kun la reto estas por fari asinkronan serĉon de ter-/MSL-alteco ĉe la libera publika API <code>opentopodata.org</code>. Nur la koordinatoj (latitudo/longitudo) estas senditaj; la peto estas anonima kaj ne enhavas identigilojn.</li>
+      <li>We have <strong>no servers</strong> — there is nowhere for your data to be stored.</li>
+      <li>Gova keeps <strong>no history or log</strong> of your location or altitude, not even on your own device.</li>
+      <li>We <strong>never</strong> store, sell, or share your personal data with anyone.</li>
+      <li>The only thing saved on your device is a single on/off setting for the optional online-elevation feature (see below). No location or personal data is ever saved.</li>
     </ul>
 
-    <h2>3. Kundivido kun Tria Partioj</h2>
-    <p>Ni <strong>ne</strong> dividas, vendas aŭ malkaŝas viajn datumojn al iu ajn kompanio aŭ tria partio.</p>
+    <h2>3. The One Network Request (optional, off by default)</h2>
+    <p>Gova works fully offline. If — and only if — you turn on the optional <strong>Online Terrain Elevation (S.TERO)</strong> feature, the app sends your <strong>coordinates (latitude/longitude)</strong> to the free public service <code>opentopodata.org</code> over an encrypted (HTTPS) connection to look up the ground elevation at your position.</p>
+    <ul>
+      <li>The request is <strong>anonymous</strong> — it contains no identifiers and no account.</li>
+      <li>The coordinates are used for that single real-time lookup and are <strong>not stored</strong> by us.</li>
+      <li>While the feature is off, <strong>no data ever leaves your device.</strong></li>
+    </ul>
 
-    <h2>4. Viaj Permesoj</h2>
-    <p>Vi povas iam ajn revoki permeson al la GPS-datumoj en viaj Android-agordoj. Tamen, la apo ne povos montri vian altecon sen ili.</p>
+    <h2>4. Third Parties</h2>
+    <p>We do <strong>not</strong> share, sell, or disclose your data to any company or third party.</p>
 
-    <h2>5. Kontakto</h2>
-    <p>Se vi havas demandojn, vi povas kontakti la programiston per la GitHub-paĝo de la projekto: <a href="https://github.com/komapc/gova">github.com/komapc/gova</a></p>
+    <h2>5. Your Permissions</h2>
+    <p>You can revoke the GPS permission at any time in your Android settings. The app simply won't be able to show your altitude without it.</p>
 
-    <footer>© 2026 Gova · <a href="https://komapc.github.io/gova/">Reen al la apo</a></footer>
+    <h2>6. Contact</h2>
+    <p>Questions? Reach the developer via the project's GitHub page: <a href="https://github.com/komapc/gova">github.com/komapc/gova</a></p>
+
+    <footer>© 2026 Gova · <a href="https://komapc.github.io/gova/">Back to the app</a></footer>
   </main>
 </body>
 </html>
