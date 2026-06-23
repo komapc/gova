@@ -16,7 +16,7 @@
     <string name="about_desc">Gova ir atvērtā pirmkoda rīks augstuma uzraudzībai.</string>
     <string name="precision_desc">Precizitāte: GPS pamatā ir WGS84. MSL izmanto Geoīda modeli. GROUND ir augstums virs zemes. BARO izmanto spiedienu.</string>
     <string name="close_btn">AIZVĒRT</string>
-    <string name="version_info">v3.7.1 (2026. gada jūnijs)</string>
+    <string name="version_info">v3.7.2 (2026. gada jūnijs)</string>
     <string name="disclaimer">Uzmanību: Augstuma dati ir balstīti uz GPS/Barometru un var nebūt pilnīgi precīzi.</string>
     <string name="relative_label">Δ RELATĪVAIS</string>
     <string name="sat_label">SAT</string>

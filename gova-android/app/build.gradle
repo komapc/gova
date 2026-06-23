@@ -16,7 +16,7 @@ android {
         // Falls back to 31 for local/manual builds.
         def govaVersionCode = (System.getenv("GOVA_VERSION_CODE") ?: project.findProperty("GOVA_VERSION_CODE") ?: "31").toString().toInteger()
         versionCode govaVersionCode
-        versionName "3.7.1"
+        versionName "3.7.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
