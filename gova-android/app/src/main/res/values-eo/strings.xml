@@ -16,7 +16,7 @@
     <string name="about_desc">Gova estas malfermkoda ilo por monitori altecon.</string>
     <string name="precision_desc">Precizeco: GPS baziĝas sur WGS84. MSL uzas Geoid-modelon. GROUND estas via alteco super la tereno. BARO uzas aerpremon.</string>
     <string name="close_btn">FERMI</string>
-    <string name="version_info">v3.7.1 (Junio 2026)</string>
+    <string name="version_info">v3.7.2 (Junio 2026)</string>
     <string name="disclaimer">Atento: Alteco-datumoj baziĝas sur GPS/Barometro kaj eble ne estas tute precizaj.</string>
     <string name="relative_label">Δ RELATIVA</string>
     <string name="sat_label">SAT</string>
