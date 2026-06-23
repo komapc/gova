@@ -4,6 +4,13 @@ The `android-build.yml` workflow can upload each `main` build straight to the
 **Internal testing** track. To enable it you need a **Google Play service
 account** — a robot Google account that CI uses to call the Play Developer API.
 
+> **Reusing this for another app.** This setup is app-agnostic — only a few
+> values change. Wherever you see `gova`, `Gova`, or `com.komapc.gova` below,
+> substitute your own app name and `applicationId`. The same service account
+> can publish multiple apps from one Play developer account: just grant it
+> **App permissions** on each app (step 2). Each repo needs its own
+> `PLAY_SERVICE_ACCOUNT_JSON` secret (the JSON can be the same one).
+
 ## What is a service account?
 A service account is a non-human Google identity with its own credentials (a
 JSON key file). Instead of logging in as you, GitHub Actions authenticates as
@@ -39,10 +46,26 @@ Or via CLI:
 gh secret set PLAY_SERVICE_ACCOUNT_JSON < /path/to/service-account.json
 ```
 
-## Important prerequisite
-The Play API can only **update** a track that already has a build. So you must
-do the **first manual upload** to Internal testing once (which you're doing
-now). After that, every merge to `main` auto-publishes the new build.
+## Important prerequisite: seed the track once
+The Play API can only act on an app that already has at least one release on a
+track. So the **very first** build has to be uploaded by a path that creates
+the release, not just updates it. Two options:
+
+1. **Manual:** upload an AAB in Play Console → Internal testing → Create release.
+2. **Scripted (no Console upload):** call the Play Developer API directly with
+   the same service account — `edits.insert` → `bundles.upload` →
+   `tracks.update(track=internal)` → `edits.commit`. This works for the first
+   release too; the "first upload must be manual" belief is wrong. (Gova's
+   first internal release was seeded this way.)
+
+Either way, after the track has one release, **every merge to `main`
+auto-publishes** the new build via the `r0adkll/upload-google-play` step.
+
+Two gotchas that cause a first-run 403:
+- The **Google Play Android Developer API** must be enabled in the service
+  account's **GCP project** (not just the Play side).
+- The service account's **App permission must be applied/saved** in Play
+  Console → Users and permissions before it can publish.
 
 ## How it behaves
 - **Every PR / push**: builds a signed AAB with a unique `versionCode`

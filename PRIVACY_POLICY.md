@@ -17,7 +17,7 @@ All data is processed **locally on your device, in real time**.
 - The only thing saved on your device is a single on/off setting for the optional online-elevation feature (see below). No location or personal data is ever saved.
 
 ## 3. The One Network Request (optional, off by default)
-Gova works fully offline. If — and only if — you turn on the optional **Online Terrain Elevation (S.TERO)** feature, the app sends your **coordinates (latitude/longitude)** to the free public service `opentopodata.org` over an encrypted (HTTPS) connection to look up the ground elevation at your position.
+Gova works fully offline. If — and only if — you turn on the optional **Online Terrain Elevation** feature (the **GROUND** reading), the app sends your **coordinates (latitude/longitude)** to the free public service `opentopodata.org` over an encrypted (HTTPS) connection to look up the ground elevation at your position.
 - The request is **anonymous** — it contains no identifiers and no account.
 - The coordinates are used for that single real-time lookup and are **not stored** by us.
 - While the feature is off, **no data ever leaves your device.**

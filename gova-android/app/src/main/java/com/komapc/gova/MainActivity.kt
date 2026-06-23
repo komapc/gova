@@ -105,7 +105,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
     var satelliteCount by remember { mutableStateOf(0) }
     
     var lastNetworkFetchTime by remember { mutableStateOf(0L) }
-    // Online terrain-elevation lookup (S.TERO) is opt-in and OFF by default:
+    // Online terrain-elevation lookup (GROUND) is opt-in and OFF by default:
     // it is the only feature that sends location off-device. Persisted so the
     // user's choice survives restarts.
     val prefs = remember { context.getSharedPreferences("gova_prefs", Context.MODE_PRIVATE) }
@@ -181,7 +181,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                     }
                 }
                 
-                // Fetch ground elevation (TERO) — opt-in only; sends location off-device
+                // Fetch ground elevation (GROUND) — opt-in only; sends location off-device
                 if (teroEnabled && System.currentTimeMillis() - lastNetworkFetchTime > 60000) {
                     lastNetworkFetchTime = System.currentTimeMillis()
                     coroutineScope.launch {
@@ -290,7 +290,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                     onToggleTero = {
                         teroEnabled = !teroEnabled
                         prefs.edit().putBoolean("tero_enabled", teroEnabled).apply()
-                        // When turned off, drop any cached terrain values so S.TERO clears.
+                        // When turned off, drop any cached terrain values so GROUND clears.
                         if (!teroEnabled) terrainElevations = TerrainElevations()
                     },
                     onSetBase = { baseHeight = terrainElevations.zen ?: terrainElevations.srtm ?: terrainElevations.aster ?: mslAltitude ?: baroAltitude.value ?: gpsAltitude },
@@ -343,7 +343,7 @@ fun AltitudeDisplay(gps: Double?, msl: Double?, baro: Double?, base: Double?, is
 
 @Composable
 fun InfoGrid(gps: Double?, msl: Double?, terrain: TerrainElevations, baro: Double?, sats: Int, hAcc: Float?, vAcc: Float?, useFeet: Boolean) {
-    // S.TERO calculation (GPS or MSL altitude above ground level)
+    // GROUND calculation (GPS or MSL altitude above ground level)
     val bestGround = terrain.zen ?: terrain.srtm ?: terrain.aster
     val agl = if (bestGround != null) {
         val currentAlt = gps ?: msl
@@ -354,7 +354,7 @@ fun InfoGrid(gps: Double?, msl: Double?, terrain: TerrainElevations, baro: Doubl
 
     // Layout: Two rows for better space usage
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        // Row 1: GPS, BARO, S.TERO, SATS
+        // Row 1: GPS, BARO, GROUND, SATS
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -363,7 +363,7 @@ fun InfoGrid(gps: Double?, msl: Double?, terrain: TerrainElevations, baro: Doubl
             if (baro != null) {
                 InfoItem("BARO", baro, null, useFeet)
             }
-            InfoItem("S.TERO", agl, null, useFeet)
+            InfoItem("GROUND", agl, null, useFeet)
             InfoItem(stringResource(R.string.sat_label), sats.toDouble(), null, false, isInt = true)
         }
         
@@ -468,7 +468,7 @@ fun SettingsSheet(
 
                 Divider(color = Color.Gray.copy(alpha = 0.2f), modifier = Modifier.padding(vertical = 12.dp))
 
-                // Online terrain elevation (S.TERO) — opt-in; only feature that sends location
+                // Online terrain elevation (GROUND) — opt-in; only feature that sends location
                 Text(stringResource(R.string.tero_label), color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 Row(
                     modifier = Modifier
