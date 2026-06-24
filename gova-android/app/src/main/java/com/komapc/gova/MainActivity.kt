@@ -351,10 +351,16 @@ fun AltitudeDisplay(gps: Double?, msl: Double?, baro: Double?, base: Double?, is
 
 @Composable
 fun InfoGrid(gps: Double?, msl: Double?, terrain: TerrainElevations, baro: Double?, sats: Int, hAcc: Float?, vAcc: Float?, useFeet: Boolean) {
-    // GROUND calculation (GPS or MSL altitude above ground level)
+    // GROUND = current altitude above the terrain. The terrain elevations from
+    // opentopodata are referenced to mean sea level (the geoid), so we must use
+    // the geoid-corrected MSL altitude here, NOT the raw WGS84-ellipsoidal GPS
+    // altitude. Mixing the two adds the geoid undulation N as a constant error
+    // (≈ +20–30 m in Scandinavia — the "GROUND makes no sense in Sweden" bug).
+    // Prefer MSL (API 34+ native geoid model); fall back to GPS only when the
+    // device can't supply MSL, where GROUND is necessarily approximate.
     val bestGround = terrain.zen ?: terrain.srtm ?: terrain.aster
     val agl = if (bestGround != null) {
-        val currentAlt = gps ?: msl
+        val currentAlt = msl ?: gps
         if (currentAlt != null) {
             maxOf(0.0, currentAlt - bestGround)
         } else null
