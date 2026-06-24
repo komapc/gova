@@ -3,7 +3,6 @@ package com.komapc.gova
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -152,20 +151,16 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                 } catch (e: SecurityException) {}
             }
 
-            // Start background service
-            val intent = Intent(context, LocationService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
-
             startLocationUpdates(fusedLocationClient) { location ->
                 val raw = location.altitude
                 smoothedAltitude = if (smoothedAltitude == null) raw else smoothedAltitude!! + smoothingFactor * (raw - smoothedAltitude!!)
                 
                 gpsAltitude = smoothedAltitude
                 hAccuracy = location.accuracy
+
+                // Keep the home-screen widget in sync while the app is open
+                // (no background location service — updates only in foreground).
+                AltitudeWidget.updateAllWidgets(context, "${String.format("%.1f", smoothedAltitude ?: raw)}m")
                 
                 // Get Vertical Accuracy if available (Android 8.0+)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -193,11 +188,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                 }
             }
         } else {
-            val permissionsToRequest = mutableListOf(Manifest.permission.ACCESS_FINE_LOCATION)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
-            }
-            launcher.launch(permissionsToRequest.toTypedArray())
+            launcher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))
         }
     }
 
