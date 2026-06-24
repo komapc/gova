@@ -15,7 +15,10 @@ const ctx = vm.createContext({
     setItem: (k, v) => { _store[k] = String(v); },
     removeItem: k => { delete _store[k]; },
     clear: () => { _store = {}; }
-  }
+  },
+  // geoid.js decodes its base64 grid via atob (a browser global)
+  atob: typeof atob === 'function' ? atob : (s => Buffer.from(s, 'base64').toString('binary')),
+  Uint8Array, DataView, Int16Array
 });
 ctx.global = ctx;
 
@@ -38,6 +41,7 @@ exec('js/history.js');
 exec('js/saved-points.js');
 exec('js/coords.js');
 exec('js/gps.js');
+exec('js/geoid.js');
 
 // Intercept process.exit so all suites run even if one fails
 let overallFailed = 0;
@@ -50,5 +54,6 @@ execWrapped('tests/history.test.js');
 execWrapped('tests/saved-points.test.js');
 execWrapped('tests/coords.test.js');
 execWrapped('tests/gps.test.js');
+execWrapped('tests/geoid.test.js');
 
 process.exit(overallFailed);
