@@ -205,17 +205,23 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                 )
             }
             .pointerInput(Unit) {
-                // Swipe up to open settings (replaces long-press).
+                // Swipe up to open settings (replaces long-press). Fire as soon
+                // as the upward travel crosses the threshold, mid-gesture, so a
+                // quick short flick works — not only a slow, deliberate drag
+                // that's checked on finger-lift.
+                val threshold = 36.dp.toPx()
                 var dragDy = 0f
+                var fired = false
                 detectVerticalDragGestures(
-                    onDragStart = { dragDy = 0f },
-                    onDragEnd = {
-                        if (dragDy < -80f) {
+                    onDragStart = { dragDy = 0f; fired = false },
+                    onVerticalDrag = { _, delta ->
+                        dragDy += delta
+                        if (!fired && dragDy < -threshold) {
+                            fired = true
                             vibrate(context, 50)
                             isSettingsOpen = true
                         }
-                    },
-                    onVerticalDrag = { _, delta -> dragDy += delta }
+                    }
                 )
             },
         color = Color(0xFF0A0A0A)
