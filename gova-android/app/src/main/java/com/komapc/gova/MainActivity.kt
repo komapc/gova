@@ -23,6 +23,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -200,11 +201,21 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                     onTap = {
                         currentViewMode = if (currentViewMode == ViewMode.MINIMAL) ViewMode.INFORMATIVE else ViewMode.MINIMAL
                         isRefreshing = true
-                    },
-                    onLongPress = {
-                        vibrate(context, 50)
-                        isSettingsOpen = true
                     }
+                )
+            }
+            .pointerInput(Unit) {
+                // Swipe up to open settings (replaces long-press).
+                var dragDy = 0f
+                detectVerticalDragGestures(
+                    onDragStart = { dragDy = 0f },
+                    onDragEnd = {
+                        if (dragDy < -80f) {
+                            vibrate(context, 50)
+                            isSettingsOpen = true
+                        }
+                    },
+                    onVerticalDrag = { _, delta -> dragDy += delta }
                 )
             },
         color = Color(0xFF0A0A0A)
@@ -354,22 +365,26 @@ fun InfoGrid(gps: Double?, msl: Double?, terrain: TerrainElevations, baro: Doubl
             if (baro != null) {
                 InfoItem("BARO", baro, null, useFeet)
             }
-            InfoItem("GROUND", agl, null, useFeet)
+            if (agl != null) {
+                InfoItem("GROUND", agl, null, useFeet)
+            }
             InfoItem(stringResource(R.string.sat_label), sats.toDouble(), null, false, isInt = true)
         }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Row 2: SRTM, ASTER, ZEN
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            InfoItem("SRTM", terrain.srtm, null, useFeet)
-            InfoItem("ASTER", terrain.aster, null, useFeet)
-            InfoItem("ZEN", terrain.zen, null, useFeet)
+
+        // Row 2: SRTM, ASTER, ZEN — only when terrain lookup returned data.
+        val hasTerrain = terrain.srtm != null || terrain.aster != null || terrain.zen != null
+        if (hasTerrain) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                if (terrain.srtm != null) InfoItem("SRTM", terrain.srtm, null, useFeet)
+                if (terrain.aster != null) InfoItem("ASTER", terrain.aster, null, useFeet)
+                if (terrain.zen != null) InfoItem("ZEN", terrain.zen, null, useFeet)
+            }
         }
-        
+
         Spacer(modifier = Modifier.height(24.dp))
         
         // Accuracy Text

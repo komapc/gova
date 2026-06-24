@@ -47,7 +47,6 @@
   const elValAgl = document.querySelector('.val-agl');
   const elValBaro = document.querySelector('.val-baro');
   const elValSign = document.querySelector('.val-sign');
-  const elItemBaro = document.querySelector('.item-baro');
 
   const elCoordsPanel = document.getElementById('coords-panel');
   const elValITM = document.getElementById('val-itm');
@@ -182,34 +181,31 @@
       if (elValAcc) elValAcc.textContent = `±${Math.round(accuracyMeters)}m`;
     }
 
-    // Ter-fontoj
-    if (elValSrtm && lastElevations.srtm !== null) {
-      const f = Units.formatAltitude(lastElevations.srtm, currentUnit, false);
-      elValSrtm.textContent = `${f.value} ${f.unit}`;
-    }
-    if (elValAster && lastElevations.aster !== null) {
-      const f = Units.formatAltitude(lastElevations.aster, currentUnit, false);
-      elValAster.textContent = `${f.value} ${f.unit}`;
-    }
-    if (elValZen && lastElevations.zen !== null) {
-      const f = Units.formatAltitude(lastElevations.zen, currentUnit, false);
-      elValZen.textContent = `${f.value} ${f.unit}`;
-    }
-
-    if (elValAgl && lastGpsAlt !== null) {
-      const groundAlt = lastElevations.zen ?? lastElevations.srtm ?? lastElevations.aster;
-      if (groundAlt !== null) {
-        const aglAlt = Math.max(0, lastGpsAlt - groundAlt);
-        const aglFmt = Units.formatAltitude(aglAlt, currentUnit, false);
-        elValAgl.textContent = `${aglFmt.value} ${aglFmt.unit}`;
+    // Detala krado: plenigu valoron kaj kaŝu malplenajn kampojn (#1 UI/UX).
+    const _setField = (el, value) => {
+      if (!el) return;
+      const has = value !== null && value !== undefined;
+      if (has) {
+        const f = Units.formatAltitude(value, currentUnit, false);
+        el.textContent = `${f.value} ${f.unit}`;
       }
-    }
+      el.closest('.info-item')?.classList.toggle('hidden', !has);
+    };
 
-    if (elValBaro && lastBaroAlt !== null) {
-      const baroFmt = Units.formatAltitude(lastBaroAlt, currentUnit, false);
-      elValBaro.textContent = `${baroFmt.value} ${baroFmt.unit}`;
-      if (elItemBaro) elItemBaro.classList.remove('hidden');
-    }
+    // Ter-fontoj
+    _setField(elValSrtm, lastElevations.srtm);
+    _setField(elValAster, lastElevations.aster);
+    _setField(elValZen, lastElevations.zen);
+
+    // GROUND (alteco super la tereno)
+    const groundAlt = lastElevations.zen ?? lastElevations.srtm ?? lastElevations.aster;
+    const aglAlt = (lastGpsAlt !== null && groundAlt !== null && groundAlt !== undefined)
+      ? Math.max(0, lastGpsAlt - groundAlt)
+      : null;
+    _setField(elValAgl, aglAlt);
+
+    // Barometro
+    _setField(elValBaro, lastBaroAlt);
   }
 
   function _setStatus(state, text = '') {
