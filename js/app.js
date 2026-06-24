@@ -58,7 +58,8 @@
 
   const DEBOUNCE_REFRESH = 2000;
   let lastRefreshTime = 0;
-  let lastGpsAlt = null;
+  let lastGpsAlt = null;   // raw GPS altitude — WGS84 ellipsoidal (as the browser reports it)
+  let lastMslAlt = null;   // geoid-corrected mean-sea-level altitude (lastGpsAlt - N)
   let lastElevations = { srtm: null, aster: null, zen: null };
   let lastBaroAlt = null;
   let lastAccuracy = null;
@@ -197,10 +198,12 @@
     _setField(elValAster, lastElevations.aster);
     _setField(elValZen, lastElevations.zen);
 
-    // GROUND (alteco super la tereno)
+    // GROUND (alteco super la tereno). La terfontoj estas MSL-referencaj, do ni
+    // uzas la geoid-korektitan MSL-altecon (NE la krudan elipsoidan GPS), alie
+    // la geoid-undulacio N aldoniĝas kiel konstanta eraro (~36 m en Svedio).
     const groundAlt = lastElevations.zen ?? lastElevations.srtm ?? lastElevations.aster;
-    const aglAlt = (lastGpsAlt !== null && groundAlt !== null && groundAlt !== undefined)
-      ? Math.max(0, lastGpsAlt - groundAlt)
+    const aglAlt = (lastMslAlt !== null && lastMslAlt !== undefined && groundAlt !== null && groundAlt !== undefined)
+      ? Math.max(0, lastMslAlt - groundAlt)
       : null;
     _setField(elValAgl, aglAlt);
 
@@ -239,6 +242,14 @@
     lastGpsAlt = coords.altitude;
     lastLat = coords.latitude;
     lastLon = coords.longitude;
+    // Browsers report altitude relative to the WGS84 ellipsoid, but terrain
+    // elevations (and what users expect as "altitude") are mean-sea-level. Cancel
+    // the geoid undulation N so MSL altitude and GROUND are correct everywhere
+    // (the ~36 m "GROUND makes no sense in Sweden" bug). Falls back to the raw
+    // value if the geoid model or coordinates are unavailable.
+    lastMslAlt = (lastGpsAlt !== null && lastLat !== null && typeof Geoid !== 'undefined')
+      ? lastGpsAlt - Geoid.meanSeaLevel(lastLat, lastLon)
+      : lastGpsAlt;
     lastElevations = elevations || lastElevations;
     lastBaroAlt = baroAlt || lastBaroAlt;
     // Uzi horizontalan precizecon kiel alternativon
@@ -255,11 +266,11 @@
 
     if (lastGpsAlt === null && (lastElevations.zen === null) && lastBaroAlt === null) return;
 
-    _updateAltitudeDisplay(lastGpsAlt, lastAccuracy, true);
+    _updateAltitudeDisplay(lastMslAlt, lastAccuracy, true);
     _updateCoordsDisplay();
     _setStatus('locked', lastElevations.srtm !== null ? `${I18n.get('locked')} + MSL` : I18n.get('locked'));
 
-    const finalAlt = _effectiveBaroAlt() ?? lastElevations.zen ?? lastElevations.srtm ?? lastGpsAlt;
+    const finalAlt = _effectiveBaroAlt() ?? lastElevations.zen ?? lastElevations.srtm ?? lastMslAlt;
     if (finalAlt !== null && finalAlt !== undefined) {
       Storage.setLastAlt(finalAlt);
       if (lastAccuracy !== null) Storage.setLastAccuracy(lastAccuracy);

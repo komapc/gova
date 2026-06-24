@@ -23,6 +23,7 @@ export default [
         SavedPoints: 'readonly',
         Coords: 'readonly',
         Gestures: 'readonly',
+        Geoid: 'readonly',
       },
     },
     rules: {
