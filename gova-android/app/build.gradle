@@ -11,12 +11,17 @@ android {
         applicationId "com.komapc.gova"
         minSdk 24
         targetSdk 35
-        // versionCode can be overridden by CI (GOVA_VERSION_CODE) so each
-        // build pushed to Play gets a unique, increasing code automatically.
-        // Falls back to 31 for local/manual builds.
+        // Both versionCode and the versionName patch are driven by CI from the
+        // workflow run number, so every build auto-increments and stays in
+        // lockstep — no manual bump per PR:
+        //   versionCode = 1000 + run_number   (e.g. 1089)
+        //   versionName = 3.7.<run_number>    (e.g. 3.7.89)
+        // The "3.7" base is the marketing major.minor — bump it by hand here
+        // for a real minor/major release. Both fall back for local builds.
         def govaVersionCode = (System.getenv("GOVA_VERSION_CODE") ?: project.findProperty("GOVA_VERSION_CODE") ?: "31").toString().toInteger()
+        def govaVersionPatch = (System.getenv("GOVA_VERSION_PATCH") ?: project.findProperty("GOVA_VERSION_PATCH") ?: "0").toString()
         versionCode govaVersionCode
-        versionName "3.7.2"
+        versionName "3.7.${govaVersionPatch}"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -55,6 +60,7 @@ android {
     }
     buildFeatures {
         compose true
+        buildConfig true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.5.1'

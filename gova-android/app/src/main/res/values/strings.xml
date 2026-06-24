@@ -16,7 +16,6 @@
     <string name="about_desc">Gova is an open-source tool for monitoring altitude.</string>
     <string name="precision_desc">Precision: GPS is based on WGS84. MSL uses a geoid model. GROUND is your height above the terrain. BARO uses air pressure.</string>
     <string name="close_btn">CLOSE</string>
-    <string name="version_info">v3.7.2 (June 2026)</string>
     <string name="disclaimer">Note: Altitude data is based on GPS/barometer and may not be fully accurate.</string>
     <string name="relative_label">Δ RELATIVE</string>
     <string name="sat_label">SAT</string>
