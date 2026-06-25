@@ -59,6 +59,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        Geoid.load(applicationContext)  // EGM96 grid for ellipsoidal->MSL correction
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         pressureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE)
 
@@ -177,12 +178,18 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                     }
                 }
                 
-                // Try to get MSL natively (Android 14+ / API 34)
-                if (Build.VERSION.SDK_INT >= 34 /* Build.VERSION_CODES.UPSIDE_DOWN_CAKE */) {
-                    if (location.hasMslAltitude()) {
-                        mslAltitude = location.mslAltitudeMeters
-                    }
-                }
+                // Convert ellipsoidal GPS altitude to mean-sea-level (MSL).
+                // Prefer the device's native MSL (API 34+, EGM2008) when present;
+                // otherwise subtract the EGM96 geoid undulation N from the embedded
+                // grid so the correction always applies (most phones never report
+                // a native MSL altitude). Without this the headline and GROUND leak
+                // N as a constant error — ~+23 m in Stockholm, ~+36 m in Goteborg.
+                val nativeMsl = if (Build.VERSION.SDK_INT >= 34 /* UPSIDE_DOWN_CAKE */ && location.hasMslAltitude()) {
+                    location.mslAltitudeMeters
+                } else null
+                mslAltitude = nativeMsl
+                    ?: Geoid.meanSeaLevel(location.latitude, location.longitude)
+                        ?.let { n -> (smoothedAltitude ?: raw) - n }
                 
                 // Fetch ground elevation (GROUND) — opt-in only; sends location off-device
                 if (teroEnabled && System.currentTimeMillis() - lastNetworkFetchTime > 60000) {
@@ -352,7 +359,9 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
 
 @Composable
 fun AltitudeDisplay(gps: Double?, msl: Double?, baro: Double?, base: Double?, isRefreshing: Boolean, useFeet: Boolean, alwaysShowMsl: Boolean = false) {
-    val currentAlt = gps ?: msl ?: baro ?: 0.0
+    // Prefer geoid-corrected MSL over raw ellipsoidal GPS for the headline, so
+    // the big number matches real (sea-level-referenced) altitude. See Geoid.kt.
+    val currentAlt = msl ?: gps ?: baro ?: 0.0
     val rawValue = if (gps != null || msl != null || baro != null) {
         if (base != null && !alwaysShowMsl) currentAlt - base else currentAlt
     } else null
