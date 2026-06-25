@@ -103,7 +103,12 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
     var hAccuracy by remember { mutableStateOf<Float?>(null) }
     var vAccuracy by remember { mutableStateOf<Float?>(null) }
     var satelliteCount by remember { mutableStateOf(0) }
-    
+    // Last known coordinates, kept so a manual refresh (long-press) or turning
+    // the terrain switch on can re-fetch GROUND immediately, without waiting for
+    // the next location callback.
+    var lastLat by remember { mutableStateOf<Double?>(null) }
+    var lastLon by remember { mutableStateOf<Double?>(null) }
+
     var lastNetworkFetchTime by remember { mutableStateOf(0L) }
     // Online terrain-elevation lookup (GROUND) is opt-in and OFF by default:
     // it is the only feature that sends location off-device. Persisted so the
@@ -158,6 +163,8 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                 
                 gpsAltitude = smoothedAltitude
                 hAccuracy = location.accuracy
+                lastLat = location.latitude
+                lastLon = location.longitude
 
                 // Keep the home-screen widget in sync while the app is open
                 // (no background location service — updates only in foreground).
@@ -193,6 +200,22 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
         }
     }
 
+    // Force an immediate data refresh: re-fetch GROUND/terrain for the last known
+    // location (bypassing the 60s throttle) and show the refresh feedback. Used by
+    // the long-press gesture and when the terrain switch is turned on.
+    val forceRefresh: () -> Unit = {
+        isRefreshing = true
+        val la = lastLat
+        val lo = lastLon
+        if (teroEnabled && la != null && lo != null) {
+            lastNetworkFetchTime = System.currentTimeMillis()
+            coroutineScope.launch {
+                val result = withContext(Dispatchers.IO) { fetchElevations(la, lo) }
+                terrainElevations = result
+            }
+        }
+    }
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -201,6 +224,11 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                     onTap = {
                         currentViewMode = if (currentViewMode == ViewMode.MINIMAL) ViewMode.INFORMATIVE else ViewMode.MINIMAL
                         isRefreshing = true
+                    },
+                    onLongPress = {
+                        // Long-press anywhere = manually refresh the data now.
+                        vibrate(context, 50)
+                        forceRefresh()
                     }
                 )
             }
@@ -298,8 +326,14 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                     onToggleTero = {
                         teroEnabled = !teroEnabled
                         prefs.edit().putBoolean("tero_enabled", teroEnabled).apply()
-                        // When turned off, drop any cached terrain values so GROUND clears.
-                        if (!teroEnabled) terrainElevations = TerrainElevations()
+                        if (teroEnabled) {
+                            // Turned on: fetch terrain now so GROUND appears immediately
+                            // instead of waiting for the next throttled location update.
+                            forceRefresh()
+                        } else {
+                            // Turned off: drop any cached terrain values so GROUND clears.
+                            terrainElevations = TerrainElevations()
+                        }
                     },
                     onSetBase = { baseHeight = terrainElevations.zen ?: terrainElevations.srtm ?: terrainElevations.aster ?: mslAltitude ?: baroAltitude.value ?: gpsAltitude },
                     onClearBase = { baseHeight = null }
