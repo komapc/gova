@@ -29,6 +29,12 @@ yarn-error.log*
 *.keystore
 gova-release.jks
 gova-release.keystore
+# Google Play service-account keys — keep these LOCAL, NEVER commit.
+# Canonical store is ~/.secrets/gova-play-ci.json (outside the repo).
+*service-account*.json
+*serviceaccount*.json
+*-play-ci.json
+gova-5001*.json
 
 # Android konstrua eligo
 android/app/build/
