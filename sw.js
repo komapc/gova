@@ -7,7 +7,7 @@
  * - Nekonata: Reto kun kaŝmemor-retropaŝo
  */
 
-const CACHE_NAME = 'gova-v3.13';
+const CACHE_NAME = 'gova-v3.14';
 
 const STATIC_ASSETS = [
   './',
@@ -44,6 +44,7 @@ const STATIC_ASSETS = [
 // URLoj kiuj neniam estas kaŝmemorataj (retaj servoj)
 const NETWORK_ONLY_PATTERNS = [
   'api.opentopodata.org',
+  'api.open-meteo.com',
 ];
 
 // --- Instali: antaŭkaŝmemori statikajn dosierojn ---

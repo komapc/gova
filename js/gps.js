@@ -208,20 +208,22 @@ const GPS = (() => {
 
     const results = { srtm: null, aster: null, zen: null };
     try {
+      // opentopodata.org stopped sending CORS headers, so browser fetches were
+      // blocked and terrain never loaded in the web app. open-meteo is
+      // CORS-enabled, key-free and generous (~10k/day). It serves a single DEM
+      // (Copernicus GLO-90); we store it in `zen` because that is the preferred
+      // terrain source downstream (GROUND + cross-section read zen first).
       const resp = await fetch(
-        `https://api.opentopodata.org/v1/srtm30m,aster30m,mapzen?locations=${lat},${lon}`,
+        `https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`,
         { signal: AbortSignal.timeout(10000) }
       );
       if (resp.ok) {
         const data = await resp.json();
-        if (data.status === 'OK' && data.results) {
-          results.srtm = data.results[0]?.elevation ?? null;
-          results.aster = data.results[1]?.elevation ?? null;
-          results.zen = data.results[2]?.elevation ?? null;
-        }
+        const elev = Array.isArray(data.elevation) ? data.elevation[0] : null;
+        results.zen = (typeof elev === 'number') ? elev : null;
       }
     } catch (e) {
-      console.warn('[GPS] Malsukcesis peti plurajn altecojn:', e);
+      console.warn('[GPS] Terrain elevation request failed:', e);
       return cached ? cached.data : empty;
     }
 
