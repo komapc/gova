@@ -257,18 +257,43 @@
       <span class="xs-val">${valStr}</span></div>`;
   }
 
+  // 2-noda raskladka (Vi + Maro) kiam tereno ankoraŭ ne disponeblas
+  function _xsLayoutPair(you) {
+    const sea = 0;
+    let vmax = Math.max(you, sea), vmin = Math.min(you, sea);
+    if (vmax === vmin) { vmax += 1; vmin -= 1; }
+    const span = XS_BOT - XS_TOP;
+    const pct = (v) => XS_TOP + (vmax - v) / (vmax - vmin) * span;
+    let youP = pct(you), seaP = pct(sea);
+    if (Math.abs(youP - seaP) < XS_MINGAP) {
+      if (youP <= seaP) seaP = Math.min(XS_BOT, youP + XS_MINGAP);
+      else seaP = Math.max(XS_TOP, youP - XS_MINGAP);
+    }
+    return { youP, seaP };
+  }
+
   function _updateCrossSection() {
     if (!elXsScene) return;
     const you = smoothedAlt;
+    if (you === null || you === undefined) { elXsScene.innerHTML = ''; return; }
     const ground = lastElevations.zen ?? lastElevations.srtm ?? lastElevations.aster;
-    if (you === null || you === undefined || ground === null || ground === undefined) {
-      elXsScene.innerHTML = '';
-      return;
-    }
     const unit = Units.formatAltitude(0, currentUnit, false).unit;
-    const L = _xsLayout(you, ground);
 
     if (elXsCaption) elXsCaption.textContent = you < 0 ? I18n.get('belowSeaCap') : I18n.get('aboveSeaCap');
+
+    // Tereno ankoraŭ ne ŝarĝita → montri nur Vi + Maro (sen tero-bendo / sen "super tero").
+    if (ground === null || ground === undefined) {
+      const P = _xsLayoutPair(you);
+      elXsScene.style.setProperty('--grd', '101%'); // kaŝi la ter-bendon
+      let h = '<div class="xs-sky"></div><div class="xs-axis"></div>';
+      h += _xsNode('xs-you', P.youP, I18n.get('youLabel'), I18n.get('youSub'), `${_xsFmt(you)} ${unit}`);
+      h += _xsNode('xs-sea', P.seaP, I18n.get('seaLabel'), I18n.get('seaSub'), `0 ${unit}`);
+      h += `<div class="xs-hint">${I18n.get('terrainLoading')}</div>`;
+      elXsScene.innerHTML = h;
+      return;
+    }
+
+    const L = _xsLayout(you, ground);
 
     elXsScene.style.setProperty('--grd', L.grdPct.toFixed(1) + '%');
     let html = '<div class="xs-sky"></div><div class="xs-earth"></div>'

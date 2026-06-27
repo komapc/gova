@@ -264,6 +264,8 @@ body {
 .xs-brace-tag { position: absolute; left: 64px; transform: translateY(-50%); white-space: nowrap; }
 .xs-brace-tag b { color: var(--xs-gap); font-size: 0.72rem; font-weight: 800; }
 .xs-brace-tag span { font-family: var(--font-mono); color: var(--xs-gap); font-weight: 700; margin-left: 0.4rem; }
+.xs-hint { position: absolute; left: 0; right: 0; bottom: 0.9rem; text-align: center;
+           font-size: 0.72rem; color: var(--color-text-secondary); opacity: 0.7; }
 
 /* --- Pagination Dots --- */
 .pagination-dots {
