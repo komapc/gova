@@ -99,7 +99,7 @@ body {
 
 .screens-container {
   display: flex;
-  width: 200vw;
+  width: 300vw;
   height: 100%;
   transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -110,6 +110,10 @@ body {
 
 .screens-container[data-current-screen="1"] {
   transform: translateX(-100vw);
+}
+
+.screens-container[data-current-screen="2"] {
+  transform: translateX(-200vw);
 }
 
 .screen {
@@ -198,6 +202,68 @@ body {
 .info-item.hidden {
   display: none;
 }
+
+/* --- Tra-tranĉo / Cross-section (Ekrano 3) --- */
+.crosssection-screen .altitude-display {
+  margin-bottom: 0.25rem;
+}
+.xs-caption {
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  opacity: 0.7;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.xs-scene {
+  position: relative;
+  width: min(380px, 90vw);
+  height: clamp(240px, 40vh, 320px);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  --xs-ground: var(--color-warning);
+  --xs-gap: var(--color-success);
+}
+.xs-sky   { position: absolute; left: 0; right: 0; top: 0; height: var(--grd);
+            background: linear-gradient(rgba(56,189,248,0.02), rgba(56,189,248,0.12)); }
+.xs-earth { position: absolute; left: 0; right: 0; top: var(--grd); bottom: 0;
+            background: linear-gradient(rgba(245,158,11,0.05), rgba(245,158,11,0.16)); }
+.xs-surface-line { position: absolute; left: 0; right: 0; top: var(--grd); height: 1px;
+            background: var(--xs-ground); opacity: 0.5; }
+.xs-axis  { position: absolute; top: 6%; bottom: 4%; left: 34px; width: 2px;
+            background: rgba(128,128,128,0.35); border-radius: 2px; }
+
+.xs-node { position: absolute; left: 0; right: 16px; display: flex; align-items: center;
+           transform: translateY(-50%); }
+.xs-node .xs-dot { position: absolute; left: 34px; transform: translateX(-50%);
+           width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--color-surface); }
+.xs-node .xs-txt { margin-left: 56px; display: flex; flex-direction: column; gap: 1px; }
+.xs-node .xs-txt b { font-size: 0.92rem; font-weight: 700; }
+.xs-node .xs-txt small { font-size: 0.68rem; color: var(--color-text-secondary); }
+.xs-node .xs-val { margin-left: auto; font-family: var(--font-mono); font-size: 1.2rem;
+           font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.xs-you .xs-dot { background: var(--color-accent);
+           box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 20%, transparent); }
+.xs-you .xs-val { color: var(--color-accent); }
+.xs-grd .xs-dot { background: var(--xs-ground); }
+.xs-grd .xs-val, .xs-grd .xs-txt b { color: var(--xs-ground); }
+.xs-sea .xs-dot { background: #38BDF8; }
+.xs-sea .xs-txt b, .xs-sea .xs-val { color: var(--color-text-secondary); font-weight: 600; }
+.xs-on  .xs-dot { background: linear-gradient(135deg, var(--color-accent) 50%, var(--xs-ground) 50%);
+           box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 16%, transparent); }
+.xs-on  .xs-val { color: var(--color-accent); }
+
+.xs-brace { position: absolute; left: 34px; width: 24px; transform: translateX(-1px);
+           border-left: 2px dashed var(--xs-gap); border-top: 2px dashed var(--xs-gap);
+           border-bottom: 2px dashed var(--xs-gap); }
+.xs-brace-tag { position: absolute; left: 64px; transform: translateY(-50%); white-space: nowrap; }
+.xs-brace-tag b { color: var(--xs-gap); font-size: 0.72rem; font-weight: 800; }
+.xs-brace-tag span { font-family: var(--font-mono); color: var(--xs-gap); font-weight: 700; margin-left: 0.4rem; }
 
 /* --- Pagination Dots --- */
 .pagination-dots {

@@ -13,6 +13,9 @@
   // Ĉefaj altecoj sur ambaŭ ekranoj
   const elAltMin = document.getElementById('alt-val-min');
   const elAltInf = document.getElementById('alt-val-inf');
+  const elAltXs = document.getElementById('alt-val-xs');
+  const elXsScene = document.getElementById('xs-scene');
+  const elXsCaption = document.getElementById('xs-caption');
   const elAltUnits = document.querySelectorAll('.altitude-unit');
   
   const elStatusIndicator = document.getElementById('status-indicator');
@@ -153,6 +156,8 @@
       elAltMin.textContent = mslFormatted.value;
     }
 
+    if (elAltXs) elAltXs.textContent = mslFormatted.value;
+
     if (elAltInf) {
       if (animate) {
         elAltInf.classList.add('updating');
@@ -209,6 +214,78 @@
 
     // Barometro
     _setField(elValBaro, lastBaroAlt);
+
+    _updateCrossSection();
+  }
+
+  // --- Tra-tranĉo (Ekrano 3): Vi → Tero → Maro sur unu akso ---
+  const XS_TOP = 9, XS_BOT = 93, XS_MINGAP = 15; // aks-marĝenoj kaj min. interspaco (%)
+
+  function _xsLayout(you, ground) {
+    const sea = 0;
+    const agl = Math.max(0, you - ground);
+    const merged = agl < 2; // staras sur la tero → kunfandi Vi+Tero
+    const vals = merged ? [you, sea] : [you, ground, sea];
+    let vmax = Math.max(...vals), vmin = Math.min(...vals);
+    if (vmax === vmin) { vmax += 1; vmin -= 1; }
+    const span = XS_BOT - XS_TOP;
+    const ideal = (v) => XS_TOP + (vmax - v) / (vmax - vmin) * span;
+    const nodes = (merged
+      ? [{ k: 'you', v: you }, { k: 'sea', v: sea }]
+      : [{ k: 'you', v: you }, { k: 'grd', v: ground }, { k: 'sea', v: sea }]
+    ).map((n) => ({ ...n, ideal: ideal(n.v) })).sort((a, b) => a.ideal - b.ideal);
+    // kontraŭ-kolizio: disigi najbarojn ĝis XS_MINGAP sen rompi la ordon
+    nodes.forEach((n, i) => { n.pct = i ? Math.max(n.ideal, nodes[i - 1].pct + XS_MINGAP) : n.ideal; });
+    const over = nodes[nodes.length - 1].pct - XS_BOT;
+    if (over > 0) nodes.forEach((n) => { n.pct -= over; });
+    if (nodes[0].pct < XS_TOP) {
+      nodes[0].pct = XS_TOP;
+      for (let i = 1; i < nodes.length; i++) nodes[i].pct = Math.max(nodes[i].pct, nodes[i - 1].pct + XS_MINGAP);
+    }
+    const P = {}; nodes.forEach((n) => { P[n.k] = n.pct; });
+    return { agl, merged, P, grdPct: merged ? P.you : P.grd };
+  }
+
+  function _xsFmt(v) {
+    return Units.formatAltitude(v, currentUnit, false).value;
+  }
+
+  function _xsNode(cls, topPct, title, sub, valStr) {
+    return `<div class="xs-node ${cls}" style="top:${topPct.toFixed(1)}%;">
+      <span class="xs-dot"></span>
+      <span class="xs-txt"><b>${title}</b><small>${sub}</small></span>
+      <span class="xs-val">${valStr}</span></div>`;
+  }
+
+  function _updateCrossSection() {
+    if (!elXsScene) return;
+    const you = smoothedAlt;
+    const ground = lastElevations.zen ?? lastElevations.srtm ?? lastElevations.aster;
+    if (you === null || you === undefined || ground === null || ground === undefined) {
+      elXsScene.innerHTML = '';
+      return;
+    }
+    const unit = Units.formatAltitude(0, currentUnit, false).unit;
+    const L = _xsLayout(you, ground);
+
+    if (elXsCaption) elXsCaption.textContent = you < 0 ? I18n.get('belowSeaCap') : I18n.get('aboveSeaCap');
+
+    elXsScene.style.setProperty('--grd', L.grdPct.toFixed(1) + '%');
+    let html = '<div class="xs-sky"></div><div class="xs-earth"></div>'
+      + '<div class="xs-surface-line"></div><div class="xs-axis"></div>';
+
+    if (L.merged) {
+      html += _xsNode('xs-on', L.P.you, I18n.get('youLabel'), I18n.get('onGroundSub'), `${_xsFmt(you)} ${unit}`);
+    } else {
+      html += _xsNode('xs-you', L.P.you, I18n.get('youLabel'), I18n.get('youSub'), `${_xsFmt(you)} ${unit}`);
+      const t = L.P.you, g = L.P.grd, h = g - t;
+      html += `<div class="xs-brace" style="top:${t.toFixed(1)}%; height:${h.toFixed(1)}%;"></div>`;
+      html += `<div class="xs-brace-tag" style="top:${((t + g) / 2).toFixed(1)}%;">`
+        + `<b>${I18n.get('aboveGroundLabel')}</b><span>${_xsFmt(L.agl)} ${unit}</span></div>`;
+      html += _xsNode('xs-grd', g, I18n.get('groundLabel'), I18n.get('groundSub'), `${_xsFmt(ground)} ${unit}`);
+    }
+    html += _xsNode('xs-sea', L.P.sea, I18n.get('seaLabel'), I18n.get('seaSub'), `0 ${unit}`);
+    elXsScene.innerHTML = html;
   }
 
   function _setStatus(state, text = '') {
@@ -336,8 +413,9 @@
     if (elSettingsOverlay) elSettingsOverlay.classList.add('hidden');
   }
 
+  const SCREEN_COUNT = 3;
   function _setScreen(index) {
-    currentScreen = index;
+    currentScreen = Math.max(0, Math.min(SCREEN_COUNT - 1, index));
     if (elScreensContainer) elScreensContainer.dataset.currentScreen = currentScreen;
     elDots.forEach((dot, i) => dot.classList.toggle('active', i === currentScreen));
   }
@@ -357,7 +435,7 @@
         _openSettings();
         if (navigator.vibrate) navigator.vibrate(50);
       },
-      onSwipe: (dir) => _setScreen(dir === 'right' ? 0 : 1),
+      onSwipe: (dir) => _setScreen(currentScreen + (dir === 'right' ? -1 : 1)),
       onPullStart: _showPullIndicator,
       onPullMove: (passed) => {
         if (elPullIndicator) elPullIndicator.classList.toggle('pulling', passed);
@@ -525,8 +603,8 @@
 
   document.onkeydown = (e) => {
     if (e.key === 'Escape') _closeSettings();
-    if (e.key === 'ArrowRight') _setScreen(1);
-    if (e.key === 'ArrowLeft') _setScreen(0);
+    if (e.key === 'ArrowRight') _setScreen(currentScreen + 1);
+    if (e.key === 'ArrowLeft') _setScreen(currentScreen - 1);
     if (e.key === 's' && elSettingsOverlay && elSettingsOverlay.classList.contains('hidden')) _openSettings();
     if (e.key === ' ' && elSettingsOverlay && elSettingsOverlay.classList.contains('hidden')) { e.preventDefault(); _manualRefresh(); }
   };
