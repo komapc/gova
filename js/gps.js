@@ -143,7 +143,7 @@ const GPS = (() => {
   const _elevationCache = new Map();
   const ELEVATION_CACHE_TTL_MS = 60 * 60 * 1000; // 1 horo
   const ELEVATION_CACHE_MAX = 200;
-  const ELEVATION_CACHE_KEY = 'gova_elev_cache';
+  const ELEVATION_CACHE_KEY = 'gova_elev_cache_v2'; // v2: drop opentopodata-era entries
   let _lastElevationCallTs = 0;
   const ELEVATION_MIN_INTERVAL_MS = 1500; // ≤1 peto/1.5s
 
@@ -227,12 +227,18 @@ const GPS = (() => {
       return cached ? cached.data : empty;
     }
 
-    _elevationCache.set(key, { ts: Date.now(), data: results });
-    if (_elevationCache.size > ELEVATION_CACHE_MAX) {
-      const firstKey = _elevationCache.keys().next().value;
-      _elevationCache.delete(firstKey);
+    // Only cache real data. Caching an all-null result (transient failure,
+    // no-data tile) would poison this location for a full hour and leave the
+    // cross-section stuck on "terrain loading".
+    const hasData = results.zen !== null || results.srtm !== null || results.aster !== null;
+    if (hasData) {
+      _elevationCache.set(key, { ts: Date.now(), data: results });
+      if (_elevationCache.size > ELEVATION_CACHE_MAX) {
+        const firstKey = _elevationCache.keys().next().value;
+        _elevationCache.delete(firstKey);
+      }
+      _persistElevationCache();
     }
-    _persistElevationCache();
     return results;
   }
 
