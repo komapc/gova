@@ -19,6 +19,7 @@
   const elAltUnits = document.querySelectorAll('.altitude-unit');
   
   const elStatusIndicator = document.getElementById('status-indicator');
+  const elFixFresh = document.getElementById('fix-fresh');
   const elPullIndicator = document.getElementById('pull-indicator');
 
   const elSettingsOverlay = document.getElementById('settings-overlay');
@@ -66,6 +67,8 @@
   let lastElevations = { srtm: null, aster: null, zen: null };
   let lastBaroAlt = null;
   let lastAccuracy = null;
+  let lastFixTs = null;     // position.timestamp de la lasta fikso
+  let lastNewFixMs = null;  // kiam ni laste vidis NOVAN fikson (Date.now)
   let wakeLock = null;
   let smoothedAlt = null;
   const SMOOTHING_FACTOR = 0.3;
@@ -313,6 +316,26 @@
     elXsScene.innerHTML = html;
   }
 
+  // --- Fikso-freŝeco: ĉu la alteco estas viva aŭ "frostiĝinta" ---
+  const FIX_LIVE_MAX_MS = 8000; // pli juna ol tio = viva (≈ maximumAge + marĝeno)
+
+  function _fmtAge(ms) {
+    const s = Math.round(ms / 1000);
+    if (s < 60) return `${s}s`;
+    const m = Math.round(s / 60);
+    if (m < 60) return `${m}m`;
+    return `${Math.round(m / 60)}h`;
+  }
+
+  function _updateFixFreshness() {
+    if (!elFixFresh) return;
+    if (lastNewFixMs === null) { elFixFresh.textContent = ''; elFixFresh.dataset.state = ''; return; }
+    const age = Date.now() - lastNewFixMs;
+    const live = age <= FIX_LIVE_MAX_MS;
+    elFixFresh.dataset.state = live ? 'live' : 'stale';
+    elFixFresh.textContent = live ? `● ${I18n.get('fixLive')}` : `● ${_fmtAge(age)}`;
+  }
+
   function _setStatus(state, text = '') {
     if (elStatusIndicator) elStatusIndicator.dataset.state = state;
     if (elStatusDot) elStatusDot.dataset.state = state;
@@ -341,6 +364,12 @@
   // --- GPS-Sukceso ---
   async function _onGpsSuccess(position, elevations, baroAlt) {
     const coords = position.coords;
+    // Fikso-freŝeco: nur kiam position.timestamp ŝanĝiĝas, temas pri NOVA fikso.
+    // Se la telefono redonas kaŝmemoritan/retan pozicion, la stampo ne moviĝas,
+    // do la indikilo montros kreskantan aĝon ("frostiĝinta").
+    const ts = position.timestamp || Date.now();
+    if (ts !== lastFixTs) { lastFixTs = ts; lastNewFixMs = Date.now(); }
+    _updateFixFreshness();
     lastGpsAlt = coords.altitude;
     lastLat = coords.latitude;
     lastLon = coords.longitude;
@@ -525,6 +554,9 @@
         GPS.startBarometer(_onBaroUpdate);
         GPS.startAutoRefresh(_onGpsSuccess, _onGpsError, 5000);
       }
+      // Ĝisdatigu la fikso-freŝecon ĉiusekunde, por ke la aĝo grimpu videble
+      // kiam la GPS frostiĝas (ekz. endome).
+      setInterval(_updateFixFreshness, 1000);
       _requestWakeLock();
     } catch (e) {
       console.error('Eraro dum inicializado:', e);
