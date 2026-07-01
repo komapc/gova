@@ -197,6 +197,12 @@ const GPS = (() => {
       return cached.data;
     }
 
+    // Sekureco/privateco: la peto sendas la lokon al ekstera servo, do respektu
+    // la uzant-konsenton. Kaŝmemoritaj (lokaj) valoroj restas serveblaj.
+    if (typeof Storage !== 'undefined' && !Storage.getTerrainConsent()) {
+      return cached ? cached.data : empty;
+    }
+
     if (!navigator.onLine) return cached ? cached.data : empty;
 
     // Trafik-limigo

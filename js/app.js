@@ -381,8 +381,8 @@
     lastMslAlt = (lastGpsAlt !== null && lastLat !== null && typeof Geoid !== 'undefined')
       ? lastGpsAlt - Geoid.meanSeaLevel(lastLat, lastLon)
       : lastGpsAlt;
-    lastElevations = elevations || lastElevations;
-    lastBaroAlt = baroAlt || lastBaroAlt;
+    lastElevations = elevations ?? lastElevations;
+    lastBaroAlt = baroAlt ?? lastBaroAlt; // ?? not || so a legit 0 m reading is kept
     // Uzi horizontalan precizecon kiel alternativon
     lastAccuracy = coords.altitudeAccuracy || coords.accuracy;
 
@@ -401,7 +401,11 @@
     _updateCoordsDisplay();
     _setStatus('locked', lastElevations.srtm !== null ? `${I18n.get('locked')} + MSL` : I18n.get('locked'));
 
-    const finalAlt = _effectiveBaroAlt() ?? lastElevations.zen ?? lastElevations.srtm ?? lastMslAlt;
+    // Record the SAME altitude we display (calibrated baro, else GPS-MSL) so
+    // History/Storage match the headline. Terrain elevation is a last-resort
+    // fallback only for devices that report no GPS altitude — it is ground
+    // level, not the user's altitude, so it must not override a real MSL fix.
+    const finalAlt = _effectiveBaroAlt() ?? lastMslAlt ?? lastElevations.zen ?? lastElevations.srtm;
     if (finalAlt !== null && finalAlt !== undefined) {
       Storage.setLastAlt(finalAlt);
       if (lastAccuracy !== null) Storage.setLastAccuracy(lastAccuracy);
@@ -579,8 +583,8 @@
   if (elUnitFt) elUnitFt.onclick = () => { currentUnit = 'ft'; Storage.setUnit('ft'); _refreshDisplayedValues(); _updateSettingsUI(); _broadcastUnit('ft'); };
   if (elBtnSetBase) elBtnSetBase.onclick = () => {
     const alt = _effectiveBaroAlt() ?? lastGpsAlt ?? Storage.getLastAlt();
-    if (alt) { 
-      Storage.setBaseHeight(alt); 
+    if (alt !== null && alt !== undefined) { // allow setting a base at exactly 0 m
+      Storage.setBaseHeight(alt);
       _updateSettingsUI(); 
       _refreshDisplayedValues(); 
       _showToast(I18n.get('toastBaseSet')); 
@@ -647,6 +651,15 @@
     };
   }
   
+  const elToggleTerrain = document.getElementById('toggle-terrain');
+  if (elToggleTerrain) {
+    elToggleTerrain.checked = Storage.getTerrainConsent();
+    elToggleTerrain.onchange = () => {
+      Storage.setTerrainConsent(elToggleTerrain.checked);
+      if (elToggleTerrain.checked) _manualRefresh(); // fetch terrain immediately on opt-in
+    };
+  }
+
   const elToggleCoords = document.getElementById('toggle-coords');
   if (elToggleCoords) {
     elToggleCoords.checked = Storage.getShowCoords();

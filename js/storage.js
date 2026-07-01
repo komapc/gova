@@ -9,6 +9,7 @@ const Storage = (() => {
     LAST_ACCURACY: 'gova_last_accuracy',
     BASE_HEIGHT: 'gova_base_height',
     SHOW_COORDS: 'gova_show_coords',
+    TERRAIN_CONSENT: 'gova_terrain_consent',
   };
 
   function safeGet(key, fallback = null) {
@@ -114,6 +115,20 @@ const Storage = (() => {
     else safeRemove(KEYS.SHOW_COORDS);
   }
 
+  // --- Ter-alteca konsento ---
+  // Peti ter-altecon sendas la lokon al ekstera servo. Defaŭlte ŝaltita
+  // (la funkcio GROUND/tra-tranĉo bezonas ĝin), sed la uzanto povas malŝalti.
+
+  /** @returns {boolean} */
+  function getTerrainConsent() {
+    return safeGet(KEYS.TERRAIN_CONSENT, '1') !== '0';
+  }
+
+  /** @param {boolean} on */
+  function setTerrainConsent(on) {
+    safeSet(KEYS.TERRAIN_CONSENT, on ? '1' : '0');
+  }
+
   return {
     getUnit,
     setUnit,
@@ -127,5 +142,7 @@ const Storage = (() => {
     hasBaseHeight,
     getShowCoords,
     setShowCoords,
+    getTerrainConsent,
+    setTerrainConsent,
   };
 })();
