@@ -5,6 +5,12 @@
  *
  * Input: WGS84 latitude/longitude (decimal degrees)
  * Output: { x: easting, y: northing } in integer metres
+ *
+ * NOTE: the Redfearn projection is applied directly to WGS84 coordinates on the
+ * GRS80 ellipsoid, WITHOUT a WGS84 -> Israel 1993/IG05 datum transform. In
+ * practice the grid-datum offset is small (sub-metre to a few metres), so this
+ * is fine for locating yourself but is not survey-grade. Only ITM is provided
+ * (not the legacy ICS / Cassini-Soldner grid).
  */
 
 const Coords = (() => {
