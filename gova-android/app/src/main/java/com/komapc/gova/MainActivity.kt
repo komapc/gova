@@ -82,14 +82,57 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent?) {
         if (event?.sensor?.type == Sensor.TYPE_PRESSURE) {
-            val pressure = event.values[0]
-            // Standard formula for altitude from pressure (P0 = 1013.25 hPa)
-            val altitude = 44330 * (1 - (pressure / 1013.25f).pow(1 / 5.255f))
-            _baroAltitude.value = altitude.toDouble()
+            // Route through BaroCalibrator so the altitude is anchored to a known
+            // MSL reference instead of the raw 1013.25 hPa assumption (which drifts
+            // ±100 m with weather). Mirrors the web app's gps.js calibration.
+            _baroAltitude.value = BaroCalibrator.onPressure(event.values[0].toDouble())
         }
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+}
+
+/**
+ * Barometric-pressure → altitude with sea-level-pressure calibration.
+ *
+ * A raw reading assumes the standard sea-level pressure of 1013.25 hPa, but real
+ * sea-level pressure drifts with weather by tens of hPa — a ±100 m absolute error.
+ * We anchor P0 to a known MSL altitude and re-anchor every few minutes, mirroring
+ * the web app's gps.js calibration. The web anchors to terrain elevation (more
+ * accurate than GPS); native lacks an always-on terrain source (it is opt-in and
+ * usually off), so we anchor to the geoid-corrected MSL altitude instead — still
+ * far better than the uncalibrated 1013.25 assumption.
+ */
+object BaroCalibrator {
+    private const val STANDARD_SEA_LEVEL_HPA = 1013.25
+    private const val CAL_REFRESH_MS = 5 * 60 * 1000L
+
+    private var seaLevelPressure = STANDARD_SEA_LEVEL_HPA
+    private var lastPressureHpa: Double? = null
+    private var calibrated = false
+    private var lastCalibrationTs = 0L
+
+    private fun pressureToAltitude(pressureHpa: Double, p0: Double = seaLevelPressure): Double =
+        44330.0 * (1 - (pressureHpa / p0).pow(1 / 5.255))
+
+    /** Records the latest pressure and returns the (calibrated) altitude. */
+    fun onPressure(pressureHpa: Double): Double {
+        lastPressureHpa = pressureHpa
+        return pressureToAltitude(pressureHpa)
+    }
+
+    fun needsCalibration(): Boolean =
+        !calibrated || (System.currentTimeMillis() - lastCalibrationTs > CAL_REFRESH_MS)
+
+    /** Anchors P0 so the current pressure maps to [knownMslMeters]. */
+    fun calibrate(knownMslMeters: Double): Boolean {
+        val p = lastPressureHpa ?: return false
+        if (knownMslMeters.isNaN()) return false
+        seaLevelPressure = p / (1 - knownMslMeters / 44330.0).pow(5.255)
+        calibrated = true
+        lastCalibrationTs = System.currentTimeMillis()
+        return true
+    }
 }
 
 enum class ViewMode { MINIMAL, INFORMATIVE }
@@ -187,10 +230,16 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                 val nativeMsl = if (Build.VERSION.SDK_INT >= 34 /* UPSIDE_DOWN_CAKE */ && location.hasMslAltitude()) {
                     location.mslAltitudeMeters
                 } else null
-                mslAltitude = nativeMsl
+                val newMsl = nativeMsl
                     ?: Geoid.meanSeaLevel(location.latitude, location.longitude)
                         ?.let { n -> (smoothedAltitude ?: raw) - n }
-                
+                mslAltitude = newMsl
+
+                // Anchor the barometer's sea-level-pressure reference to the current
+                // MSL altitude so BARO is absolute, not off by the weather-driven
+                // ±100 m. Re-anchors every few minutes (see BaroCalibrator).
+                newMsl?.let { if (BaroCalibrator.needsCalibration()) BaroCalibrator.calibrate(it) }
+
                 // Fetch ground elevation (GROUND) — opt-in only; sends location off-device
                 if (teroEnabled && System.currentTimeMillis() - lastNetworkFetchTime > 60000) {
                     lastNetworkFetchTime = System.currentTimeMillis()
@@ -527,7 +576,7 @@ fun SettingsSheet(
                     Switch(checked = useFeet, onCheckedChange = { onToggleUnits() })
                 }
 
-                Divider(color = Color.Gray.copy(alpha = 0.2f), modifier = Modifier.padding(vertical = 12.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.Gray.copy(alpha = 0.2f))
 
                 // Online terrain elevation (GROUND) — opt-in; only feature that sends location
                 Text(stringResource(R.string.tero_label), color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
@@ -548,7 +597,7 @@ fun SettingsSheet(
                     lineHeight = 16.sp
                 )
 
-                Divider(color = Color.Gray.copy(alpha = 0.2f), modifier = Modifier.padding(vertical = 12.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.Gray.copy(alpha = 0.2f))
 
                 // Base Height Section
                 Text(stringResource(R.string.base_height_label), color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
@@ -575,7 +624,7 @@ fun SettingsSheet(
                     }
                 }
 
-                Divider(color = Color.Gray.copy(alpha = 0.2f), modifier = Modifier.padding(vertical = 12.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.Gray.copy(alpha = 0.2f))
 
                 // About Section
                 Text(stringResource(R.string.about_label), color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
