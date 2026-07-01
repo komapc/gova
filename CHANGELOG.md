@@ -1,5 +1,48 @@
 # Gova — Ŝanĝ-Protokolo
 
+## [v3.11.0] - 2026-07-01
+
+### 🔒 Sekureco
+- **XSS-riparo:** konservitaj punkto-nomoj (redakteblaj de la uzanto) nun
+  estas eskapitaj antaŭ enmeto per `innerHTML` en `points.html`.
+- **Ter-alteca konsento:** la reta ter-serĉo (kiu sendas la lokon eksteren)
+  nun estas **elektebla kaj defaŭlte malŝaltita** — kongrue kun la privateca
+  politiko kaj la denaska app. Nova baskulilo en Agordoj → Privateco.
+- **CSP:** aldonita `Content-Security-Policy` `<meta>` al ĉiuj paĝoj (por
+  GitHub Pages, kiu ne povas agordi kap-liniojn); la enliniaj skriptoj de
+  `points.html` kaj `about.html` estas eltiritaj al eksteraj dosieroj por ke
+  `script-src` restu strikta. Riparita `connect-src` en `vercel.json`
+  (`open-meteo.com` anstataŭ la malaktuala `opentopodata`, kiu blokis la
+  ter-serĉon ĉe Vercel).
+
+### 🐞 Cim-Riparoj
+- `??` anstataŭ `||` por ke valida legaĵo de 0 m ne perdiĝu; eblas nun agordi
+  bazan altecon ĉe ekzakte 0 m; History/Storage nun registras la SAMAN
+  altecon kiun montras la ĉefnumero.
+- **Android barometra kalibrado:** nova `BaroCalibrator` ankras P0 al la
+  geoide-korektita MSL-alteco (re-ankras ĉiun 5 min) anstataŭ la fiksa
+  1013.25 hPa (±100 m eraro) — sama logiko kiel la reta `gps.js`.
+
+### ✨ Plibonigoj
+- **Alireblo:** `aria-live` sur la altec-montriloj por ke ekranlegiloj
+  anoncu ŝanĝojn.
+- **ITM-etikedo:** korektita al "ITM" (ICS neniam estis realigita);
+  dokumentita ke la projekcio preterlasas la WGS84→Israel-1993 datum-ŝovon.
+- **PWA-ekrankopioj:** `manifest.json` `screenshots[]` plenigita por pli
+  riĉa instal-invito.
+- Privateca politiko reskribita por precizeco (surloka konservado, open-meteo,
+  elektebla analizo).
+
+### 📦 Pakaĵoj kaj Ilaro
+- Reto: ESLint `9→10`, globals `15→17`.
+- Android: Kotlin `1.9.0→1.9.25`, Compose-kompililo `1.5.1→1.5.15`, Compose
+  BOM `2023.08→2024.06`, core-ktx `1.13.1`, lifecycle `2.8.7`,
+  activity-compose `1.9.3`, play-services-location `21.3.0`; `Divider` →
+  `HorizontalDivider`.
+- CI: GitHub-agoj ĝisdatigitaj al node24-aj ĉefversioj (forigita la node20
+  malrekomend-averto); `npm install` → `npm ci`, Node 18→20.
+- Service Worker ĝisdatigita al `gova-v3.18`.
+
 ## [v3.7.0] - 2026-06-02
 
 ### 🐞 Cim-Riparoj

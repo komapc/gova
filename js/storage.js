@@ -116,12 +116,13 @@ const Storage = (() => {
   }
 
   // --- Ter-alteca konsento ---
-  // Peti ter-altecon sendas la lokon al ekstera servo. Defaŭlte ŝaltita
-  // (la funkcio GROUND/tra-tranĉo bezonas ĝin), sed la uzanto povas malŝalti.
+  // Peti ter-altecon sendas la lokon al ekstera servo, do ĝi estas ELEKTEBLA
+  // kaj DEFAŬLTE MALŜALTITA — kongrue kun la privateca politiko kaj la
+  // denaska app. La uzanto devas eksplicite ŝalti ĝin en la agordoj.
 
   /** @returns {boolean} */
   function getTerrainConsent() {
-    return safeGet(KEYS.TERRAIN_CONSENT, '1') !== '0';
+    return safeGet(KEYS.TERRAIN_CONSENT) === '1';
   }
 
   /** @param {boolean} on */

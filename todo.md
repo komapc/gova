@@ -20,7 +20,7 @@
 ## 🌐 PWA Enhancements
 - [ ] **Installability**
     - [ ] Add "Install" button in settings
-    - [ ] Add screenshots to `manifest.json`
+    - [x] Add screenshots to `manifest.json`
     - [ ] Improve icon set (maskable icons)
 - [ ] **Offline Mode**
     - [x] Cache Open-Elevation API responses (Persistent)

@@ -41,41 +41,44 @@
 <body>
   <main>
     <h1>Gova Privacy Policy</h1>
-    <p class="updated">Last updated: June 2026</p>
+    <p class="updated">Last updated: July 2026</p>
 
-    <p class="lede">Gova is an altitude-monitoring app. This document explains how it handles your data. The short version: <strong>Gova never stores your data — anywhere.</strong></p>
+    <p class="lede">Gova is an altitude-monitoring app. This document explains how it handles your data. The short version: <strong>Gova runs entirely on your device. It has no servers and no accounts, and nothing leaves your device unless you explicitly turn on an optional feature.</strong></p>
 
     <h2>1. Data We Access</h2>
     <p>For its core function, Gova accesses:</p>
     <ul>
       <li><strong>Precise location (GPS):</strong> needed to calculate your altitude.</li>
-      <li><strong>Sensor data (barometer):</strong> used to measure air pressure.</li>
+      <li><strong>Sensor data (barometer):</strong> used to measure air pressure (on devices that have one).</li>
     </ul>
 
-    <h2>2. We Never Store Your Data</h2>
-    <p>All data is processed <strong>locally on your device, in real time</strong>.</p>
+    <h2>2. On-Device Storage</h2>
+    <p>So the app can work offline and remember your readings, Gova saves some data <strong>locally on your own device</strong> (in your browser's storage on the web, or app storage on Android). This includes:</p>
     <ul>
-      <li>We have <strong>no servers</strong> — there is nowhere for your data to be stored.</li>
-      <li>Gova keeps <strong>no history or log</strong> of your location or altitude, not even on your own device.</li>
-      <li>We <strong>never</strong> store, sell, or share your personal data with anyone.</li>
-      <li>The only thing saved on your device is a single on/off setting for the optional online-elevation feature (see below). No location or personal data is ever saved.</li>
+      <li>your <strong>altitude history</strong> (up to ~1000 recent readings) and the <strong>points you save</strong>;</li>
+      <li>today's highest/lowest reading and your optional <strong>base altitude</strong>;</li>
+      <li>your <strong>preferences</strong> (units, theme, language, coordinate display) and the on/off consent toggles for the optional features below.</li>
     </ul>
+    <p>This data <strong>stays on your device</strong>. We have <strong>no servers</strong>, so it is never uploaded to us, and we never sell or share it. You can erase all of it at any time by clearing the site's data (web) or uninstalling the app (Android). <em>(The Android app stores less than the website — it keeps only your settings and base altitude, and no altitude history.)</em></p>
 
-    <h2>3. The One Network Request (optional, off by default)</h2>
-    <p>Gova works fully offline. If — and only if — you turn on the optional <strong>Online Terrain Elevation</strong> feature (the <strong>GROUND</strong> reading), the app sends your <strong>coordinates (latitude/longitude)</strong> to the free public service <code>opentopodata.org</code> over an encrypted (HTTPS) connection to look up the ground elevation at your position.</p>
+    <h2>3. Optional: Online Terrain Elevation (GROUND) — off by default</h2>
+    <p>Gova works fully offline. If — and only if — you turn on the optional <strong>Online Terrain Elevation</strong> feature (the <strong>GROUND</strong> reading), the app sends your <strong>coordinates (latitude/longitude)</strong> over an encrypted (HTTPS) connection to a free public elevation service to look up the ground elevation at your position: on the <strong>web</strong> app the service is <code>open-meteo.com</code>, and in the <strong>Android</strong> app it is <code>opentopodata.org</code>.</p>
     <ul>
       <li>The request is <strong>anonymous</strong> — it contains no identifiers and no account.</li>
       <li>The coordinates are used for that single real-time lookup and are <strong>not stored</strong> by us.</li>
-      <li>While the feature is off, <strong>no data ever leaves your device.</strong></li>
+      <li>This feature is <strong>off by default</strong>; while it is off, <strong>no location data ever leaves your device.</strong></li>
     </ul>
 
-    <h2>4. Third Parties</h2>
-    <p>We do <strong>not</strong> share, sell, or disclose your data to any company or third party.</p>
+    <h2>4. Optional: Anonymous Analytics (web only) — off by default</h2>
+    <p>The website can load <strong>Google Analytics</strong>, but <strong>only if you opt in</strong> in Settings — and never when your browser sends a Do-Not-Track signal. When enabled, it loads Google's <code>gtag</code> script and sends anonymous usage statistics to Google. It is <strong>off by default</strong>, and the Android app contains no analytics at all.</p>
 
-    <h2>5. Your Permissions</h2>
-    <p>You can revoke the GPS permission at any time in your Android settings. The app simply won't be able to show your altitude without it.</p>
+    <h2>5. Third Parties</h2>
+    <p>We do <strong>not</strong> sell or disclose your data. The only third parties that ever receive anything are the <strong>elevation service</strong> (Section 3) and <strong>Google Analytics</strong> (Section 4) — and only when <em>you</em> have explicitly enabled those optional features.</p>
 
-    <h2>6. Contact</h2>
+    <h2>6. Your Permissions</h2>
+    <p>You can revoke the GPS permission at any time in your browser or Android settings. The app simply won't be able to show your altitude without it.</p>
+
+    <h2>7. Contact</h2>
     <p>Questions? Reach the developer via the project's GitHub page: <a href="https://github.com/komapc/gova">github.com/komapc/gova</a></p>
 
     <footer>© 2026 Gova · <a href="https://komapc.github.io/gova/">Back to the app</a></footer>

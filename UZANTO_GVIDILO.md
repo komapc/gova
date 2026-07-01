@@ -87,6 +87,25 @@ En la agordoj-menuo, vi vidas:
 - **Stato**: Serĉas GPS... / GPS ŝlosita / GPS-eraro
 - **Precizeco**: Kiom preciza estas la mezuro (ekz. ±5 m)
 
+### Ret-tera Alteco (GROUND)
+
+Elektebla funkcio kiu montras vian altecon **super la tereno**. Ĝi bezonas
+retan serĉon, do ĝi **sendas viajn koordinatojn** al senpaga publika servo
+(`open-meteo.com` en la reta app). Pro tio ĝi estas **defaŭlte malŝaltita** —
+ŝaltu ĝin mem en Agordoj → Privateco. Dum ĝi estas malŝaltita, neniu loko
+forlasas vian aparaton.
+
+### Koordinatoj
+
+Baskulilo por montri viajn koordinatojn (ITM) sur la ĉefekrano. Konservita
+loke; neniam sendata.
+
+### Privateco
+
+- **Ret-tera alteco**: vidu supre — defaŭlte for.
+- **Anonima uzo-statistiko (Google Analytics)**: defaŭlte for, kaj neniam
+  ŝarĝata se via retumilo sendas «Do-Not-Track». Nur la reta app.
+
 ## Vidaj Indikiloj
 
 ### Stato-Punkto (supre-dekstre)
