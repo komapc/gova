@@ -13,8 +13,8 @@
     "serve:alt": "php -S localhost:8000"
   },
   "devDependencies": {
-    "eslint": "^9.0.0",
-    "globals": "^15.0.0"
+    "eslint": "^10.0.0",
+    "globals": "^17.0.0"
   },
   "keywords": ["gps", "altitude", "pwa", "esperanto"],
   "author": "",

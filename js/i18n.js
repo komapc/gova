@@ -86,6 +86,7 @@ const I18n = (() => {
       analyticsLabel: 'Anonymous usage statistics (Google Analytics)',
       dntActive: 'Do-Not-Track active — analytics disabled.',
       coordsLabel: 'Coordinates',
+      terrainConsentLabel: 'Online terrain elevation (sends location)',
     },
     eo: {
       subtitle: 'Alteco-Monitorilo',
@@ -161,6 +162,7 @@ const I18n = (() => {
       analyticsLabel: 'Anonima uzo-statistiko (Google Analytics)',
       dntActive: 'Do-Not-Track aktiva — statistiko malŝaltita ĉiel.',
       coordsLabel: 'Koordinatoj',
+      terrainConsentLabel: 'Reta ter-alteco (sendas lokon)',
     },
     lv: {
       subtitle: 'Augstuma mērītājs',
@@ -236,6 +238,7 @@ const I18n = (() => {
       analyticsLabel: 'Anonīma lietošanas statistika (Google Analytics)',
       dntActive: 'Do-Not-Track aktīvs — statistika vienmēr izslēgta.',
       coordsLabel: 'Koordinātes',
+      terrainConsentLabel: 'Tiešsaistes reljefa augstums (sūta atrašanās vietu)',
     },
     be: {
       subtitle: 'Манітор вышыні',
@@ -311,6 +314,7 @@ const I18n = (() => {
       analyticsLabel: 'Ананімная статыстыка выкарыстання (Google Analytics)',
       dntActive: 'Do-Not-Track актыўны — статыстыка заўсёды адключаная.',
       coordsLabel: 'Каардынаты',
+      terrainConsentLabel: 'Сеткавая вышыня рэльефу (адпраўляе месцазнаходжанне)',
     },
     tp: {
       subtitle: 'ilo pi suli sewi',
@@ -386,6 +390,7 @@ const I18n = (() => {
       analyticsLabel: 'sona pi pali ilo (Google Analytics)',
       dntActive: 'Do-Not-Track li lon — sona li weka tan tenpo ale.',
       coordsLabel: 'ma tomo',
+      terrainConsentLabel: 'sona ma (li pana e ma sina)',
     }
   };
 

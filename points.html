@@ -121,6 +121,14 @@
 
       let currentUnit = Storage.getUnit();
 
+      // Point names are user-editable (rename prompt) and rendered via innerHTML,
+      // so escape them to prevent stored HTML/script injection into the page.
+      function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, (c) => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+        }[c]));
+      }
+
       function renderPoints() {
         const points = SavedPoints.getAll();
         
@@ -144,7 +152,7 @@
           return `
             <div class="point-card" data-id="${point.id}">
               <div class="point-info">
-                <div class="point-name">${point.name}</div>
+                <div class="point-name">${escapeHtml(point.name)}</div>
                 <div class="point-meta">${date} | ${point.latitude.toFixed(4)}, ${point.longitude.toFixed(4)}</div>
               </div>
               <div class="point-altitude">${formatted.value} ${formatted.unit}</div>
