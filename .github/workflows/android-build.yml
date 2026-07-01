@@ -21,7 +21,7 @@ jobs:
       PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     # Unique, always-increasing version for every build, driven by the run
     # number: versionCode = 1000 + run (safely above old manual codes 30/31),
@@ -32,13 +32,13 @@ jobs:
         echo "GOVA_VERSION_PATCH=$GITHUB_RUN_NUMBER" >> "$GITHUB_ENV"
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
 
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
+      uses: gradle/actions/setup-gradle@v6
       with:
         gradle-version: 8.7
         cache-disabled: true # Temporarily disabled to bypass GitHub cache service 400 errors
@@ -62,7 +62,7 @@ jobs:
       run: ./gradlew bundleRelease --no-daemon
 
     - name: Upload AAB Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: gova-release-aab
         path: gova-android/app/build/outputs/bundle/release/app-release.aab
