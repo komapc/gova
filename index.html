@@ -2,6 +2,7 @@
 <html lang="eo">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; connect-src 'self' https://*.google-analytics.com https://api.open-meteo.com; img-src 'self' data: https://*.google-analytics.com; style-src 'self' 'unsafe-inline'; font-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'" />
   <meta name="msvalidate.01" content="CAFA7BE0D5D83695993D635831499022" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#2563EB" />
@@ -81,7 +82,7 @@
       <!-- EKRANO 1: MINIMALA -->
       <section class="screen minimal-screen">
         <div class="altitude-display">
-          <span id="alt-val-min" class="altitude-value">—</span>
+          <span id="alt-val-min" class="altitude-value" role="status" aria-live="polite" aria-label="Alteco">—</span>
           <span class="altitude-unit">m</span>
         </div>
       </section>
@@ -89,7 +90,7 @@
       <!-- EKRANO 2: INFORMATIVA -->
       <section class="screen informative-screen">
         <div class="altitude-display">
-          <span id="alt-val-inf" class="altitude-value">—</span>
+          <span id="alt-val-inf" class="altitude-value" role="status" aria-live="polite" aria-label="Alteco">—</span>
           <span class="altitude-unit">m</span>
         </div>
         
@@ -268,7 +269,7 @@
       <div class="settings-section">
         <label class="settings-label" data-i18n="coordsLabel">Koordinatoj</label>
         <div class="privacy-row">
-          <span class="info-text">ITM / ICS</span>
+          <span class="info-text">ITM</span>
           <label class="toggle-switch">
             <input type="checkbox" id="toggle-coords" />
             <span class="toggle-slider" aria-hidden="true"></span>
