@@ -63,7 +63,11 @@
       "purpose": "maskable"
     }
   ],
-  "screenshots": [],
+  "screenshots": [
+    { "src": "docs/play-assets/screenshot-1.png", "sizes": "1080x2340", "type": "image/png", "form_factor": "narrow" },
+    { "src": "docs/play-assets/screenshot-2.png", "sizes": "1080x2340", "type": "image/png", "form_factor": "narrow" },
+    { "src": "docs/play-assets/screenshot-3.png", "sizes": "1080x2340", "type": "image/png", "form_factor": "narrow" }
+  ],
   "categories": ["utilities", "sports", "travel"],
   "lang": "eo",
   "shortcuts": [
