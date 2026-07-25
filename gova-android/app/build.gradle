@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace 'com.komapc.gova'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.komapc.gova"
         minSdk 24
-        targetSdk 35
+        targetSdk 36
         // Both versionCode and the versionName patch are driven by CI from the
         // workflow run number, so every build auto-increments and stays in
         // lockstep — no manual bump per PR:
