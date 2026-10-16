@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://komapc.github.io/gova/</loc>
+    <loc>https://gova.lipu.dev/</loc>
     <lastmod>2026-06-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://komapc.github.io/gova/about.html</loc>
+    <loc>https://gova.lipu.dev/about.html</loc>
     <lastmod>2026-06-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://komapc.github.io/gova/history.html</loc>
+    <loc>https://gova.lipu.dev/history.html</loc>
     <lastmod>2026-06-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://komapc.github.io/gova/points.html</loc>
+    <loc>https://gova.lipu.dev/points.html</loc>
     <lastmod>2026-06-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://komapc.github.io/gova/privacy.html</loc>
+    <loc>https://gova.lipu.dev/privacy.html</loc>
     <lastmod>2026-06-25</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
