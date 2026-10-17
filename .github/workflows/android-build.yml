@@ -1,11 +1,27 @@
 name: Build Android App Bundle (AAB)
 
+# Native Android app only: web-only changes (index.html, js/, css/...) must not
+# build an AAB or publish a new Play internal release.
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - "gova-android/**"
+      - ".github/workflows/android-build.yml"
   pull_request:
     branches: [ "main" ]
+    paths:
+      - "gova-android/**"
+      - ".github/workflows/android-build.yml"
   workflow_dispatch: # Permesas mane lanĉi la konstruon el GitHub
+
+# Never cancel a push build (it may be publishing); cancel superseded PR builds.
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 jobs:
   build:
