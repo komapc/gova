@@ -111,7 +111,7 @@
       var c = document.createElement('div');
       c.className = 'card';
       var ico = document.createElement('div'); ico.className = 'ico'; ico.textContent = f[0];
-      var h = document.createElement('h3'); h.textContent = f[1];
+      var h = document.createElement('h2'); h.textContent = f[1];
       var p = document.createElement('p'); p.textContent = f[2];
       c.appendChild(ico); c.appendChild(h); c.appendChild(p);
       grid.appendChild(c);

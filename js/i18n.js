@@ -38,6 +38,7 @@ const I18n = (() => {
       viewPoints: '📍 View All Points',
       about: 'About Gova',
       aboutDesc: 'Gova is an open-source altitude monitoring tool.',
+      introLede: 'Gova shows your altitude — by GPS, barometer, geoid-corrected sea level, and real terrain — and asks for nothing in return. No ads. No accounts. No tracking. No servers. Just your height, done right.',
       precisionDesc: 'Accuracy: GPS is WGS84. MSL uses Geoid model. GROUND is terrain. BARO uses air pressure.',
       github: 'GitHub Project ↗',
       aboutPage: 'More about Gova →',
@@ -114,6 +115,7 @@ const I18n = (() => {
       viewPoints: '📍 Vidi Ĉiujn Punktojn',
       about: 'Pri Gova',
       aboutDesc: 'Gova estas malfermkoda ilo por monitori altecon.',
+      introLede: 'Gova montras vian altecon — per GPS, barometro, geoide-korektita marnivelo, kaj vera tereno — kaj petas nenion interŝanĝe. Neniuj reklamoj. Neniuj kontoj. Neniu spurado. Neniuj serviloj. Nur via alteco, ĝuste farita.',
       precisionDesc: 'Precizeco: GPS baziĝas sur WGS84. MSL uzas Geoid-modelon. GROUND estas grundo. BARO uzas aerpremon.',
       github: 'GitHub Projekto ↗',
       aboutPage: 'Pli pri Gova →',
@@ -190,6 +192,7 @@ const I18n = (() => {
       viewPoints: '📍 Skatīt visus punktus',
       about: 'Par Gova',
       aboutDesc: 'Gova ir atvērtā pirmkoda augstuma mērītājs.',
+      introLede: 'Gova rāda tavu augstumu — ar GPS, barometru, ģeoīda koriģētu jūras līmeni un reālu reljefu — un neprasa neko pretī. Nekādu reklāmu. Nekādu kontu. Nekādas izsekošanas. Nekādu serveru. Tikai tavs augstums, izdarīts pareizi.',
       precisionDesc: 'Precizitāte: GPS pamatā ir WGS84. MSL izmanto Geoīda modeli. GROUND ir augstums virs zemes. BARO izmanto spiedienu.',
       github: 'GitHub Projekts ↗',
       aboutPage: 'Vairāk par Gova →',
@@ -266,6 +269,7 @@ const I18n = (() => {
       viewPoints: '📍 Глядзець усе пункты',
       about: 'Пра Gova',
       aboutDesc: 'Gova — гэта інструмент з адкрытым зыходным кодам для маніторынгу вышыні.',
+      introLede: 'Gova паказвае вашу вышыню — праз GPS, барометр, скарэкціраваны геоідам марскі ўзровень і рэальны рэльеф — і нічога не просіць узамен. Ніякай рэкламы. Ніякіх акаўнтаў. Ніякага сачэння. Ніякіх сервераў. Толькі ваша вышыня, зробленая правільна.',
       precisionDesc: 'Дакладнасць: GPS на аснове WGS84. MSL выкарыстоўвае мадэль геоіда. GROUND — гэта вышыня над зямлёй. BARO выкарыстоўвае ціск.',
       github: 'GitHub Праект ↗',
       aboutPage: 'Больш пра Gova →',
@@ -342,6 +346,7 @@ const I18n = (() => {
       viewPoints: '📍 o lukin e suli ale',
       about: 'tan Gova',
       aboutDesc: 'Gova li ilo pi suli sewi li ilo pi ken ale.',
+      introLede: 'ilo Gova li toki e sewi sina — kepeken ilo sewi (GPS), kepeken kon (barometer), kepeken telo suli, kepeken ma. ona li wile ala e mani sina. esun ala li lon. jan ala li lukin e sina. sewi sina taso li lon.',
       precisionDesc: 'ilo GPS li lukin e sewi. ilo GROUND li lukin e ma anpa. ilo BARO li lukin e kon.',
       github: 'lipu GitHub ↗',
       aboutPage: 'sona mute pi ilo Gova →',
@@ -449,6 +454,7 @@ const I18n = (() => {
       btn.classList.toggle('active', btn.dataset.lang === currentLang);
     });
 
+    document.documentElement.lang = currentLang === 'tp' ? 'tok' : currentLang;
     document.body.dir = 'ltr';
   }
 
