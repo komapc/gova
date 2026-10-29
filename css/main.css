@@ -1111,3 +1111,52 @@ body {
   font-weight: 600;
   color: var(--color-text-primary);
 }
+
+/* === KOMPAKTA ENKONDUKO (hejmpaĝo, supre) === */
+body.home {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.app-intro {
+  flex: 0 0 auto;
+  /* dekstra spaco por la agordo-butono kaj stato-indikiloj */
+  padding: max(env(safe-area-inset-top), 0.75rem) 4.5rem 0.25rem 1rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+}
+
+.app-intro-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.app-intro-text {
+  margin-top: 0.15rem;
+  max-width: 60ch;
+}
+
+.app-intro-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.9rem;
+  margin-top: 0.2rem;
+}
+
+.app-intro-links a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.app-intro-links a:hover,
+.app-intro-links a:focus-visible {
+  text-decoration: underline;
+}
+
+.app-intro + .fullscreen-tap-area {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+}
