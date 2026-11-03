@@ -416,7 +416,7 @@
 
   function _onBaroUpdate(alt) {
     lastBaroAlt = alt;
-    _updateAltitudeDisplay(lastGpsAlt, lastAccuracy, false);
+    _updateAltitudeDisplay(lastMslAlt, lastAccuracy, false);
   }
 
   function _onGpsError(err) {
@@ -582,7 +582,7 @@
   if (elUnitM) elUnitM.onclick = () => { currentUnit = 'm'; Storage.setUnit('m'); _refreshDisplayedValues(); _updateSettingsUI(); _broadcastUnit('m'); };
   if (elUnitFt) elUnitFt.onclick = () => { currentUnit = 'ft'; Storage.setUnit('ft'); _refreshDisplayedValues(); _updateSettingsUI(); _broadcastUnit('ft'); };
   if (elBtnSetBase) elBtnSetBase.onclick = () => {
-    const alt = _effectiveBaroAlt() ?? lastGpsAlt ?? Storage.getLastAlt();
+    const alt = _effectiveBaroAlt() ?? lastMslAlt ?? Storage.getLastAlt();
     if (alt !== null && alt !== undefined) { // allow setting a base at exactly 0 m
       Storage.setBaseHeight(alt);
       _updateSettingsUI(); 
@@ -612,12 +612,10 @@
   }
 
   if (elBtnSavePoint) elBtnSavePoint.onclick = () => {
-    const currentAlt = _effectiveBaroAlt() ?? lastGpsAlt ?? Storage.getLastAlt();
+    const currentAlt = _effectiveBaroAlt() ?? lastMslAlt ?? Storage.getLastAlt();
     if (currentAlt === null) return _showToast(I18n.get('toastNoGps'));
-    const history = window.History ? window.History.getAll() : [];
-    if (!history || history.length === 0) return _showToast(I18n.get('toastNoLoc'));
-    const lastEntry = history[history.length - 1];
-    const point = SavedPoints.save(currentAlt, lastEntry.latitude, lastEntry.longitude);
+    if (lastLat === null) return _showToast(I18n.get('toastNoLoc'));
+    const point = SavedPoints.save(currentAlt, lastLat, lastLon);
     if (point) {
       _showToast(I18n.get('toastSaved'));
       _updateSavedPointsUI();
