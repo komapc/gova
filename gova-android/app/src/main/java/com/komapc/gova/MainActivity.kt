@@ -169,17 +169,16 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
 
     var hasPermission by remember {
         mutableStateOf(
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
+            LOCATION_PERMISSIONS.any {
+                ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+            }
         )
     }
 
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        hasPermission = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+        hasPermission = LOCATION_PERMISSIONS.any { permissions[it] == true }
     }
 
     LaunchedEffect(hasPermission) {
@@ -202,6 +201,9 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
             }
 
             startLocationUpdates(fusedLocationClient) { location ->
+                // Without altitude (common with approximate location) altitude reads 0.0,
+                // which would pull the smoothing, MSL and barometer towards sea level.
+                if (!location.hasAltitude()) return@startLocationUpdates
                 val raw = location.altitude
                 smoothedAltitude = if (smoothedAltitude == null) raw else smoothedAltitude!! + smoothingFactor * (raw - smoothedAltitude!!)
                 
@@ -252,7 +254,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                 }
             }
         } else {
-            launcher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))
+            launcher.launch(LOCATION_PERMISSIONS)
         }
     }
 
@@ -745,6 +747,12 @@ fun fetchElevations(lat: Double, lon: Double): TerrainElevations {
 
     return TerrainElevations(srtm, aster, zen)
 }
+
+// Android 12+ ignores a request for FINE alone, and the user may grant only COARSE.
+private val LOCATION_PERMISSIONS = arrayOf(
+    Manifest.permission.ACCESS_FINE_LOCATION,
+    Manifest.permission.ACCESS_COARSE_LOCATION
+)
 
 @SuppressLint("MissingPermission")
 fun startLocationUpdates(
