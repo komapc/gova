@@ -8,7 +8,7 @@
 
 const Analytics = (() => {
   const KEY = 'gova_analytics_consent'; // '1' = opted in, anything else = off
-  const GA_ID = 'G-E1VVXHTP77';
+  const GA_ID = 'G-27FQEP38X5';
   let _loaded = false;
 
   function dntEnabled() {
