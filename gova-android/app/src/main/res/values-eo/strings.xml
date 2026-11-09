@@ -21,4 +21,5 @@
     <string name="sat_label">SAT</string>
     <string name="accuracy_format">Precizeco: H ±%1$s%2$s | V ±%3$s%4$s</string>
     <string name="status_searching">Serĉas...</string>
+    <string name="status_no_altitude">Neniu alteco en ĉi tiu fikso. Permesu precizan lokon por vidi altecon.</string>
 </resources>
