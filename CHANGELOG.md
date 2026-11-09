@@ -1,5 +1,29 @@
 # Gova — Ŝanĝ-Protokolo
 
+## [v3.12.0] - 2026-11-10
+
+### 🐞 Cim-Riparoj
+- **Historio tenas 7 tagojn:** GPS-bruo igis preskaŭ ĉiun fikson "signifa",
+  do la 1000-era limo tenis nur ~1-8 h kaj la 24h/7d-vidoj neniam pleniĝis.
+  Nun, kiam la limo estas atingita, malnovaj eroj estas maldensigitaj (la
+  plej novaj 300 en plena rezolucio, ĝis 24 h po 1 ero/5 min, pli malnovaj po
+  1 ero/30 min) — 7 tagoj eniras la saman limon de 1000 eroj.
+- **Service Worker:** malsukcesa antaŭkaŝmemorigo nun malsukcesigas la
+  instalon (antaŭe la nova SW aktiviĝis kaj forigis la malnovan kaŝmemoron,
+  rompante la ofline-reĝimon); dosieroj estas ŝargataj kun
+  `{cache: 'reload'}`; riparita la ofline-retropaŝo al `index.html` (la
+  `||` inter du promesoj neniam atingis la duan). Kaŝmemoro → `gova-v3.23`.
+- **Konservi punkton:** ne plu uzas la konservitan altecon de antaŭa
+  sesio/loko kun la nunaj koordinatoj — sen nuna fikso montriĝas la
+  "neniu GPS" mesaĝo.
+- **Konservitaj punktoj:** ĉe la limo de 20 la 21-a punkto estas rifuzita
+  kun mesaĝo (antaŭe la plej malnova silente malaperis); defaŭltaj nomoj
+  kaj ID-oj ne plu ripetiĝas.
+- Konservita alteco de 0 m ne plu estas anstataŭigita per la kruda
+  elipsoida GPS-alteco ĉe unu-ŝanĝo (`??` kaj MSL-retropaŝo).
+- `checkDailyReset` ne plu ĵetas ĉe ĉiu GPS-fikso se localStorage estas
+  blokita.
+
 ## [v3.11.0] - 2026-07-01
 
 ### 🔒 Sekureco

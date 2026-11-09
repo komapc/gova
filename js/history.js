@@ -11,6 +11,22 @@ const History = (() => {
   const MIN_LATLON_DELTA = 0.00005; // ~5m
   const MIN_INTERVAL_MS = 30 * 1000; // 30s mallonga limo
 
+  // Maldensigo: GPS-bruo (±kelkaj m) igas preskaŭ ĉiun 5s-fikson "signifa",
+  // do 1000 eroj tenis nur ~1-8 h — la 24h/7d-vidoj neniam pleniĝis. Kiam la
+  // limo estas atingita, ni maldensigas la malnovajn erojn laŭ aĝo:
+  //   - la plej novaj FULL_RES_KEEP eroj: plena rezolucio
+  //   - pli junaj ol 24 h: 1 ero po 5 min (≤ 288)
+  //   - pli malnovaj: 1 ero po 30 min (≤ 288 por tagoj 2-7)
+  // 300 + 288 + 288 = 876 < 1000, do 7 tagoj ĉiam eniras la limon.
+  // Sitelo = Math.floor(timestamp / larĝo) (fiksaj epokoj), do ripeta
+  // maldensigo estas idempotenta kaj ne erozias malnovajn datumojn.
+  const FULL_RES_KEEP = 300;
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const THIN_TIERS = [
+    { maxAgeMs: DAY_MS, bucketMs: 5 * 60 * 1000 },
+    { maxAgeMs: Infinity, bucketMs: 30 * 60 * 1000 },
+  ];
+
   /**
    * Strukturo de historio-ero:
    * {
@@ -38,6 +54,30 @@ const History = (() => {
   }
 
   /**
+   * Maldensigas la historion (vidu THIN_TIERS). Tenas la unuan eron de ĉiu
+   * sitelo. La plej novaj FULL_RES_KEEP eroj restas netuŝitaj.
+   * @param {Array} history - ordigita laŭ tempo (malnova → nova)
+   * @param {number} now
+   * @returns {Array}
+   */
+  function _thin(history, now) {
+    const splitAt = Math.max(0, history.length - FULL_RES_KEEP);
+    const older = history.slice(0, splitAt);
+    const newest = history.slice(splitAt);
+    const seen = new Set();
+    const kept = [];
+    for (const entry of older) {
+      const age = now - entry.timestamp;
+      const tierIdx = THIN_TIERS.findIndex(t => age < t.maxAgeMs);
+      const bucket = `${tierIdx}:${Math.floor(entry.timestamp / THIN_TIERS[tierIdx].bucketMs)}`;
+      if (seen.has(bucket)) continue;
+      seen.add(bucket);
+      kept.push(entry);
+    }
+    return kept.concat(newest);
+  }
+
+  /**
    * Aldonas novan eron al historio.
    * @param {number} altitude - Alteco en metroj
    * @param {number} accuracy - Precizeco en metroj
@@ -45,7 +85,7 @@ const History = (() => {
    * @param {number} longitude - Longitudo
    */
   function add(altitude, accuracy, latitude, longitude) {
-    const history = getAll();
+    let history = getAll();
 
     const last = history.length ? history[history.length - 1] : null;
     if (last) {
@@ -70,10 +110,16 @@ const History = (() => {
 
     history.push(entry);
 
-    // Limigi al MAX_ENTRIES
-    if (history.length > MAX_ENTRIES) {
-      history.splice(0, history.length - MAX_ENTRIES);
+    // Limigi al MAX_ENTRIES: unue maldensigi, poste (nur se ankoraŭ tro
+    // multaj, t.e. > ~7 tagoj da datumoj) forigi la plej malnovajn.
+    let toSave = history;
+    if (toSave.length > MAX_ENTRIES) {
+      toSave = _thin(toSave, entry.timestamp);
+      if (toSave.length > MAX_ENTRIES) {
+        toSave.splice(0, toSave.length - MAX_ENTRIES);
+      }
     }
+    history = toSave;
 
     try {
       localStorage.setItem(KEY, JSON.stringify(history));

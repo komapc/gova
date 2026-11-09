@@ -7,7 +7,7 @@
  * - Nekonata: Reto kun kaŝmemor-retropaŝo
  */
 
-const CACHE_NAME = 'gova-v3.22';
+const CACHE_NAME = 'gova-v3.23';
 
 const STATIC_ASSETS = [
   './',
@@ -52,11 +52,13 @@ const NETWORK_ONLY_PATTERNS = [
 // --- Instali: antaŭkaŝmemori statikajn dosierojn ---
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS).catch((err) => {
-        console.warn('[SW] Kelkaj dosieroj ne kaŝmemorigeblaj:', err);
-      });
-    }).then(() => self.skipWaiting())
+    // Ne gluti erarojn: se la antaŭkaŝmemorigo malsukcesas, la instalo devas
+    // malsukcesi, alie la nova SW aktiviĝus kaj forigus la malnovan (kompletan)
+    // kaŝmemoron, rompante la ofline-reĝimon. {cache: 'reload'} preterpasas la
+    // HTTP-kaŝmemoron por ke ni ne antaŭkaŝmemorigu malfreŝajn dosierojn.
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.addAll(STATIC_ASSETS.map((u) => new Request(u, { cache: 'reload' })))
+    ).then(() => self.skipWaiting())
   );
 });
 
@@ -70,6 +72,13 @@ self.addEventListener('activate', (event) => {
     ).then(() => self.clients.claim())
   );
 });
+
+function offlineResponse() {
+  return new Response('Ofline — enhavo ne disponebla', {
+    status: 503,
+    statusText: 'Service Unavailable',
+  });
+}
 
 // --- Fetch: respondas al petoj ---
 self.addEventListener('fetch', (event) => {
@@ -120,12 +129,11 @@ self.addEventListener('fetch', (event) => {
       }).catch(() => {
         // Ofline kaj ne kaŝmemorita — provu `index.html` ambaŭ formatojn
         if (url.pathname.endsWith('.html') || url.pathname === '/') {
-          return caches.match('./index.html') || caches.match('/index.html');
+          return caches.match('./index.html')
+            .then((r) => r || caches.match('/index.html'))
+            .then((r) => r || offlineResponse());
         }
-        return new Response('Ofline — enhavo ne disponebla', {
-          status: 503,
-          statusText: 'Service Unavailable',
-        });
+        return offlineResponse();
       });
     })
   );
