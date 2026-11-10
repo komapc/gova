@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="eo" data-ui-lang="eo">
+<head>
+  <meta charset="UTF-8" />
+  <base href="/" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; connect-src 'self' https://*.google-analytics.com https://api.open-meteo.com; img-src 'self' data: https://*.google-analytics.com; style-src 'self' 'unsafe-inline'; font-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'" />
+  <meta name="msvalidate.01" content="CAFA7BE0D5D83695993D635831499022" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#2563EB" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Gova" />
+
+  <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
+  <link rel="icon" type="image/svg+xml" href="icons/logo.svg" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/main.css" />
+
+  <!-- Lingvaj meta-datumoj: generitaj de scripts/build-lang-pages.cjs -->
+  <!-- lang-head -->
+  <link rel="canonical" href="https://gova.lipu.dev/eo/" />
+  <link rel="alternate" hreflang="en" href="https://gova.lipu.dev/" />
+  <link rel="alternate" hreflang="ru" href="https://gova.lipu.dev/ru/" />
+  <link rel="alternate" hreflang="eo" href="https://gova.lipu.dev/eo/" />
+  <link rel="alternate" hreflang="x-default" href="https://gova.lipu.dev/" />
+
+  <!-- Social Media Preview (Open Graph / WhatsApp) -->
+  <meta property="og:title" content="Gova — Alteco-Monitorilo · la plej simpla altimetro" />
+  <meta property="og:description" content="Gova: la plej simpla kaj pura altimetro — senpaga kaj preciza, per GPS, barometro, EGM96-geoido kaj SRTM-tereno; funkcias senrete." />
+  <meta property="og:image" content="https://gova.lipu.dev/icons/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Gova — GPS- kaj barometra altimetro. Sen reklamoj, sen spurado, funkcias senrete." />
+  <meta property="og:url" content="https://gova.lipu.dev/eo/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Gova" />
+  <meta property="og:locale" content="eo" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Gova — Alteco-Monitorilo · la plej simpla altimetro" />
+  <meta name="twitter:description" content="Gova: la plej simpla kaj pura altimetro — senpaga kaj preciza, per GPS, barometro, EGM96-geoido kaj SRTM-tereno; funkcias senrete." />
+  <meta name="twitter:image" content="https://gova.lipu.dev/icons/og-image.png" />
+
+  <meta name="description" content="Gova: la plej simpla kaj pura altimetro — senpaga kaj preciza, per GPS, barometro, EGM96-geoido kaj SRTM-tereno; funkcias senrete." />
+  <title>Gova — Alteco-Monitorilo: GPS- kaj barometra altimetro</title>
+
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Gova",
+    "url": "https://gova.lipu.dev/eo/",
+    "image": "https://gova.lipu.dev/icons/icon-512.png",
+    "operatingSystem": "Web, Android, iOS",
+    "applicationCategory": "UtilitiesApplication",
+    "description": "La plej simpla kaj pura GPS-altimetro — sen reklamoj, sen spurado, sen kontoj, sen serviloj. Senpaga, malfermkoda, funkcias senrete. Alteco per GPS, EGM96-geoido (marnivelo), barometro kaj SRTM-tereno.",
+    "inLanguage": "eo",
+    "isAccessibleForFree": true,
+    "featureList": [
+      "GPS altitude (WGS84)",
+      "Mean-sea-level altitude via EGM96 geoid correction",
+      "Barometric altitude",
+      "Online terrain elevation (SRTM)",
+      "Works fully offline",
+      "No ads, no tracking, no accounts"
+    ],
+    "author": {
+      "@type": "Person",
+      "name": "komapc",
+      "url": "https://github.com/komapc"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+  <!-- /lang-head -->
+</head>
+<body class="home">
+
+  <!-- Kompakta enkonduko (videbla); generita de scripts/build-lang-pages.cjs, i18n.js tradukas ĝin -->
+  <!-- lang-intro -->
+  <header class="app-intro">
+    <h1 class="app-intro-title" data-i18n="introTitle">Gova — Alteco-Monitorilo</h1>
+    <p class="app-intro-text" data-i18n="introLede">Gova montras vian altecon — per GPS, barometro, geoide-korektita marnivelo, kaj vera tereno — kaj petas nenion interŝanĝe.</p>
+    <nav class="app-intro-links" aria-label="Gova">
+      <a href="about.html" data-i18n="about">Pri Gova</a>
+      <a href="history.html" data-i18n="history">Historio</a>
+      <a href="points.html" data-i18n="points">Konservitaj Punktoj</a>
+      <a href="privacy.html" data-i18n="privacy">Privateco</a>
+    </nav>
+    <nav class="app-intro-links" aria-label="Language / Язык / Lingvo">
+      <a href="/" hreflang="en" lang="en" data-set-lang="en">English</a>
+      <a href="/ru/" hreflang="ru" lang="ru" data-set-lang="ru">Русский</a>
+      <a href="/eo/" hreflang="eo" lang="eo" data-set-lang="eo" aria-current="page">Esperanto</a>
+    </nav>
+  </header>
+  <!-- /lang-intro -->
+
+  <!-- Tutekrana tuŝ-areo kun glit-ujo -->
+  <main id="main" class="fullscreen-tap-area" data-i18n-aria="subtitle">
+    <div id="screens-container" class="screens-container" data-current-screen="0">
+      
+      <!-- EKRANO 1: MINIMALA -->
+      <section class="screen minimal-screen">
+        <div class="altitude-display">
+          <span id="alt-val-min" class="altitude-value" role="status" aria-live="polite" data-i18n-aria="altitude" aria-label="Alteco">—</span>
+          <span class="altitude-unit">m</span>
+        </div>
+      </section>
+
+      <!-- EKRANO 2: INFORMATIVA -->
+      <section class="screen informative-screen">
+        <div class="altitude-display">
+          <span id="alt-val-inf" class="altitude-value" role="status" aria-live="polite" data-i18n-aria="altitude" aria-label="Alteco">—</span>
+          <span class="altitude-unit">m</span>
+        </div>
+        
+        <div class="info-grid">
+          <!-- Dinamika Vico (Supre) -->
+          <div class="info-item">
+            <span class="info-label">GPS</span>
+            <span class="val-gps info-value">—</span>
+            <span class="val-acc info-accuracy"></span>
+          </div>
+          <div class="info-item item-baro hidden">
+            <span class="info-label" data-i18n="baroLabel">BARO</span>
+            <span class="val-baro info-value">—</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label" data-i18n="signLabel">SIGN</span>
+            <span class="val-sign info-value">—</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">GROUND</span>
+            <span class="val-agl info-value">—</span>
+          </div>
+
+          <!-- Ter-vico (Malsupre) -->
+          <div class="info-item">
+            <span class="info-label">SRTM</span>
+            <span class="val-srtm info-value">—</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">ASTER</span>
+            <span class="val-aster info-value">—</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">ZEN</span>
+            <span class="val-zen info-value">—</span>
+          </div>
+        </div>
+
+        <div id="coords-panel" class="coords-panel hidden">
+          <div class="coords-row">
+            <span class="coords-label">ITM</span>
+            <span id="val-itm" class="coords-value">—</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- EKRANO 3: TRA-TRANĈO (cross-section: Vi → Tero → Maro) -->
+      <section class="screen crosssection-screen">
+        <div class="altitude-display">
+          <span id="alt-val-xs" class="altitude-value">—</span>
+          <span class="altitude-unit">m</span>
+        </div>
+        <p id="xs-caption" class="xs-caption" data-i18n="aboveSeaCap">alteco super maro</p>
+        <div id="xs-scene" class="xs-scene" style="--grd:50%;" aria-hidden="true"></div>
+      </section>
+
+    </div>
+
+    <!-- Paĝaj Indikiloj (Dots) -->
+    <div class="pagination-dots">
+      <span class="dot active" data-index="0"></span>
+      <span class="dot" data-index="1"></span>
+      <span class="dot" data-index="2"></span>
+    </div>
+
+    <!-- Pull-to-refresh indikilo -->
+    <div id="pull-indicator" class="pull-indicator hidden">
+      <div class="pull-icon">↓</div>
+    </div>
+    
+    <!-- Subtilaj indikiloj -->
+    <div id="status-indicator" class="status-indicator" data-state="searching" aria-hidden="true"></div>
+    <div id="fix-fresh" class="fix-fresh" data-state="" aria-hidden="true"></div>
+    <div id="base-indicator" class="base-indicator hidden" data-i18n-aria="baseHeight">Δ</div>
+
+    <!-- Videbla agordo-butono (alirebleco — alternativo al longpremo) -->
+    <button id="btn-open-settings" class="settings-fab" type="button" data-i18n-aria="about" aria-label="Pri Gova">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </button>
+  </main>
+
+  <!-- Agorda Folio (glitas supren je longpremo) -->
+  <div id="settings-overlay" class="settings-overlay hidden" role="dialog" aria-modal="true" data-i18n-aria="about">
+    <div id="settings-sheet" class="settings-sheet">
+      <div class="settings-handle" aria-hidden="true"></div>
+
+      <div class="brand-header">
+        <img src="icons/logo.svg" alt="Gova" class="settings-logo">
+        <div class="brand-text">
+          <h2 class="settings-title">Gova</h2>
+          <p class="settings-subtitle" data-i18n="subtitle">Alteco-Monitorilo</p>
+        </div>
+      </div>
+
+      <!-- GPS-Stato -->
+      <div class="settings-section">
+        <div class="status-row">
+          <span id="status-dot" class="status-dot" data-state="searching" aria-hidden="true"></span>
+          <span id="status-text" class="status-text" data-i18n="searching">Serĉas GPS...</span>
+        </div>
+        <p id="accuracy-text" class="accuracy-text"></p>
+      </div>
+
+      <!-- Lingvo-Elektilo -->
+      <div class="settings-section">
+        <label class="settings-label">Lingvo / Language</label>
+        <div class="lang-selector" role="group">
+          <button class="lang-btn active" data-lang="eo">EO</button>
+          <button class="lang-btn" data-lang="lv">LV</button>
+          <button class="lang-btn" data-lang="be">BE</button>
+          <button class="lang-btn" data-lang="ru">RU</button>
+          <button class="lang-btn" data-lang="tp">TP</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+        </div>
+      </div>
+
+      <!-- Unuo-Elektilo -->
+      <div class="settings-section">
+        <label class="settings-label" data-i18n="unit">Unuo</label>
+        <div class="unit-selector" role="group">
+          <button id="unit-m" class="unit-btn active" data-unit="m" aria-pressed="true" data-i18n="meters">Metroj</button>
+          <button id="unit-ft" class="unit-btn" data-unit="ft" aria-pressed="false" data-i18n="feet">Futoj</button>
+        </div>
+      </div>
+
+      <!-- Baza Alteco -->
+      <div class="settings-section">
+        <label class="settings-label" data-i18n="baseHeight">Baza Alteco</label>
+        <div class="base-height-controls">
+          <button id="btn-set-base" class="btn-secondary" data-i18n="setBase">Agordi Nunan kiel Bazon</button>
+          <button id="btn-clear-base" class="btn-secondary" disabled data-i18n="clearBase">Forigi Bazon</button>
+          <p id="base-height-info" class="info-text" data-i18n="noBase">Neniu baza alteco agordita</p>
+        </div>
+      </div>
+
+      <!-- Temo -->
+      <div class="settings-section">
+        <label class="settings-label" data-i18n="theme">Temo</label>
+        <div class="theme-selector" role="group">
+          <button id="theme-auto" class="theme-btn active" data-theme="auto" aria-pressed="true" data-i18n="auto">Aŭtomata</button>
+          <button id="theme-light" class="theme-btn" data-theme="light" aria-pressed="false" data-i18n="light">Hela</button>
+          <button id="theme-dark" class="theme-btn" data-theme="dark" aria-pressed="false" data-i18n="dark">Malhela</button>
+        </div>
+      </div>
+
+      <!-- Historio kaj Statistikoj -->
+      <div class="settings-section">
+        <label class="settings-label" data-i18n="history">Historio</label>
+        <a id="btn-view-history" href="history.html" class="btn-secondary" data-i18n="viewHistory">Vidi Historion</a>
+      </div>
+
+      <!-- Konservitaj Punktoj -->
+      <div class="settings-section">
+        <label class="settings-label" data-i18n="points">Konservitaj Punktoj</label>
+        <button id="btn-save-point" class="btn-secondary" data-i18n="savePoint">💾 Konservi Nunan Punkton</button>
+        
+        <div id="today-points" class="today-points">
+          <div class="point-item" id="today-high-point">
+            <span class="point-icon">⬆️</span>
+            <span class="point-label" data-i18n="todayHigh">Hodiaŭa plej alta:</span>
+            <span class="point-value">—</span>
+          </div>
+          <div class="point-item" id="today-low-point">
+            <span class="point-icon">⬇️</span>
+            <span class="point-label" data-i18n="todayLow">Hodiaŭa plej malalta:</span>
+            <span class="point-value">—</span>
+          </div>
+        </div>
+        
+        <a id="btn-view-points" href="points.html" class="btn-secondary">📍 <span data-i18n="viewPoints">📍 Vidi Ĉiujn Punktojn</span> (<span id="points-count">0</span>)</a>
+      </div>
+
+      <!-- Koordinatoj -->
+      <div class="settings-section">
+        <label class="settings-label" data-i18n="coordsLabel">Koordinatoj</label>
+        <div class="privacy-row">
+          <span class="info-text">ITM</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-coords" />
+            <span class="toggle-slider" aria-hidden="true"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Privateco -->
+      <div class="settings-section">
+        <label class="settings-label" data-i18n="privacy">Privateco</label>
+        <div class="privacy-row">
+          <span class="info-text" data-i18n="terrainConsentLabel">Reta ter-alteco (sendas lokon)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-terrain" />
+            <span class="toggle-slider" aria-hidden="true"></span>
+          </label>
+        </div>
+        <div class="privacy-row">
+          <span class="info-text" data-i18n="analyticsLabel">Anonima uzo-statistiko (Google Analytics)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-analytics" />
+            <span class="toggle-slider" aria-hidden="true"></span>
+          </label>
+        </div>
+        <p id="dnt-note" class="info-text hidden" data-i18n="dntActive">Do-Not-Track aktiva — statistiko malŝaltita ĉiel.</p>
+      </div>
+
+      <!-- Pri Gova (About) -->
+      <div class="settings-section">
+        <label class="settings-label" data-i18n="about">Pri Gova</label>
+        <div class="about-card">
+          <p class="info-text" data-i18n="aboutDesc">Gova estas malfermkoda ilo por monitori altecon.</p>
+          <p class="info-text" style="margin-top: 0.5rem;" data-i18n="precisionDesc">
+            Precizeco: GPS baziĝas sur WGS84. MSL uzas Geoid-modelon. GROUND estas grundo. BARO uzas aerpremon.
+          </p>
+          <a href="about.html" class="about-link" data-i18n="aboutPage">Pli pri Gova →</a>
+          <a href="https://github.com/komapc/gova" target="_blank" class="about-link" data-i18n="github">GitHub Projekto ↗</a>
+          <a href="https://lipu.dev/" class="about-link">lipu.dev</a>
+        </div>
+      </div>
+
+      <!-- Instalo -->
+      <div id="install-section" class="settings-section hidden">
+        <label class="settings-label" data-i18n="install">Instali Aplikaĵon</label>
+        <button id="btn-install" class="btn-primary" data-i18n="installBtn">Instali Gova</button>
+        <p class="info-text" data-i18n="installDesc">Instalo eblas por pli rapida aliro kaj offline-uzo</p>
+      </div>
+
+      <!-- Ferma Butono -->
+      <button id="btn-close-settings" class="btn-primary" data-i18n="close">Fermi</button>
+
+      <!-- Versio -->
+      <div class="version-info">v3.11</div>
+
+    </div>
+  </div>
+
+  <!-- Toasto por sciigoj -->
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="js/analytics.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/units.js"></script>
+  <script src="js/history.js"></script>
+  <script src="js/saved-points.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/install.js"></script>
+  <script src="js/gps.js"></script>
+  <script src="js/coords.js"></script>
+  <script src="js/gestures.js"></script>
+  <script src="js/geoid.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/sw-register.js"></script>
+
+</body>
+</html>

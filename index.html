@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="eo">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; connect-src 'self' https://*.google-analytics.com https://api.open-meteo.com; img-src 'self' data: https://*.google-analytics.com; style-src 'self' 'unsafe-inline'; font-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'" />
@@ -11,11 +11,23 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Gova" />
 
+  <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
+  <link rel="icon" type="image/svg+xml" href="icons/logo.svg" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/main.css" />
+
+  <!-- Lingvaj meta-datumoj: generitaj de scripts/build-lang-pages.cjs -->
+  <!-- lang-head -->
   <link rel="canonical" href="https://gova.lipu.dev/" />
+  <link rel="alternate" hreflang="en" href="https://gova.lipu.dev/" />
+  <link rel="alternate" hreflang="ru" href="https://gova.lipu.dev/ru/" />
+  <link rel="alternate" hreflang="eo" href="https://gova.lipu.dev/eo/" />
+  <link rel="alternate" hreflang="x-default" href="https://gova.lipu.dev/" />
 
   <!-- Social Media Preview (Open Graph / WhatsApp) -->
-  <meta property="og:title" content="Gova — Alteco-Monitorilo · Altimeter App (GPS &amp; Barometer)" />
-  <meta property="og:description" content="Preciza altometro per GPS, barometro, marnivela geoido kaj SRTM-tereno. Senpaga PWA, funkcias senrete. GPS &amp; barometric altimeter app." />
+  <meta property="og:title" content="What Is My Altitude? Gova — the cleanest, minimalist GPS altimeter" />
+  <meta property="og:description" content="Gova is the cleanest, most minimalist altimeter app: your altitude above sea level as one big number, from GPS and barometer. Free, no ads, works offline." />
   <meta property="og:image" content="https://gova.lipu.dev/icons/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -23,70 +35,73 @@
   <meta property="og:url" content="https://gova.lipu.dev/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Gova" />
+  <meta property="og:locale" content="en_US" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Gova — Alteco-Monitorilo · Altimeter App (GPS &amp; Barometer)" />
-  <meta name="twitter:description" content="Preciza altometro per GPS, barometro, marnivela geoido kaj SRTM-tereno. Senpaga PWA, funkcias senrete. GPS &amp; barometric altimeter app." />
+  <meta name="twitter:title" content="What Is My Altitude? Gova — the cleanest, minimalist GPS altimeter" />
+  <meta name="twitter:description" content="Gova is the cleanest, most minimalist altimeter app: your altitude above sea level as one big number, from GPS and barometer. Free, no ads, works offline." />
   <meta name="twitter:image" content="https://gova.lipu.dev/icons/og-image.png" />
 
-  <meta name="description" content="Gova: senpaga, preciza altometro per GPS, barometro, EGM96-geoido kaj SRTM-tereno; funkcias senrete. Free GPS &amp; barometric altimeter app." />
-  <meta name="keywords" content="altimeter app, GPS altitude, barometric altimeter, elevation tracker, online altimeter, free altimeter, PWA altimeter, SRTM elevation, MSL altitude, altitude monitor, web altimeter, gova, Esperanto altimeter, altimetro esperanto, Esperanto app, precise altimeter, altitude tracker" />
-
-  <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
-  <link rel="icon" type="image/svg+xml" href="icons/logo.svg" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="css/main.css" />
-  <title>Gova — Alteco-Monitorilo · Altimeter App (GPS &amp; Barometer)</title>
+  <meta name="description" content="Gova is the cleanest, most minimalist altimeter app: your altitude above sea level as one big number, from GPS and barometer. Free, no ads, works offline." />
+  <meta name="keywords" content="altimeter app, GPS altitude, barometric altimeter, elevation tracker, online altimeter, free altimeter, PWA altimeter, SRTM elevation, MSL altitude, altitude monitor, web altimeter, gova, precise altimeter, altitude tracker" />
+  <title>What Is My Altitude? Free GPS &amp; Barometer Altimeter — Gova</title>
 
   <!-- Structured Data (JSON-LD) -->
   <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Gova",
-      "url": "https://gova.lipu.dev/",
-      "image": "https://gova.lipu.dev/icons/icon-512.png",
-      "operatingSystem": "Web, Android, iOS",
-      "applicationCategory": "UtilitiesApplication",
-      "description": "The cleanest GPS altimeter ever — no ads, no tracking, no accounts, no servers. Free, open-source, works offline. Altitude via GPS, EGM96 geoid (MSL), barometer and SRTM terrain.",
-      "inLanguage": ["eo", "en", "lv", "be", "tok"],
-      "isAccessibleForFree": true,
-      "featureList": [
-        "GPS altitude (WGS84)",
-        "Mean-sea-level altitude via EGM96 geoid correction",
-        "Barometric altitude",
-        "Online terrain elevation (SRTM)",
-        "Works fully offline",
-        "No ads, no tracking, no accounts"
-      ],
-      "author": {
-        "@type": "Person",
-        "name": "komapc",
-        "url": "https://github.com/komapc"
-      },
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      }
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Gova",
+    "url": "https://gova.lipu.dev/",
+    "image": "https://gova.lipu.dev/icons/icon-512.png",
+    "operatingSystem": "Web, Android, iOS",
+    "applicationCategory": "UtilitiesApplication",
+    "description": "The cleanest, most minimalist GPS altimeter — no ads, no tracking, no accounts, no servers. Free, open-source, works offline. Altitude above sea level via GPS, EGM96 geoid (MSL), barometer and SRTM terrain.",
+    "inLanguage": "en",
+    "isAccessibleForFree": true,
+    "featureList": [
+      "GPS altitude (WGS84)",
+      "Mean-sea-level altitude via EGM96 geoid correction",
+      "Barometric altitude",
+      "Online terrain elevation (SRTM)",
+      "Works fully offline",
+      "No ads, no tracking, no accounts"
+    ],
+    "author": {
+      "@type": "Person",
+      "name": "komapc",
+      "url": "https://github.com/komapc"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
     }
+  }
   </script>
+  <!-- /lang-head -->
 </head>
 <body class="home">
 
-  <!-- Kompakta enkonduko (videbla); i18n.js tradukas ĝin -->
+  <!-- Kompakta enkonduko (videbla); generita de scripts/build-lang-pages.cjs, i18n.js tradukas ĝin -->
+  <!-- lang-intro -->
   <header class="app-intro">
-    <h1 class="app-intro-title">Gova — <span data-i18n="subtitle">Alteco-Monitorilo</span></h1>
-    <p class="app-intro-text" data-i18n="introLede">Gova montras vian altecon — per GPS, barometro, geoide-korektita marnivelo, kaj vera tereno — kaj petas nenion interŝanĝe.</p>
+    <h1 class="app-intro-title" data-i18n="introTitle">Your altitude above sea level, right now</h1>
+    <p class="app-intro-text" data-i18n="introLede">Gova is the cleanest, most minimalist GPS altimeter: one big number, your altitude above sea level. GPS with geoid correction, barometer and real terrain — free, no ads, no account, works offline.</p>
     <nav class="app-intro-links" aria-label="Gova">
-      <a href="about.html" data-i18n="about">Pri Gova</a>
-      <a href="history.html" data-i18n="history">Historio</a>
-      <a href="points.html" data-i18n="points">Konservitaj Punktoj</a>
-      <a href="privacy.html" data-i18n="privacy">Privateco</a>
+      <a href="about.html" data-i18n="about">About Gova</a>
+      <a href="history.html" data-i18n="history">History</a>
+      <a href="points.html" data-i18n="points">Saved Points</a>
+      <a href="privacy.html" data-i18n="privacy">Privacy</a>
+    </nav>
+    <nav class="app-intro-links" aria-label="Language / Язык / Lingvo">
+      <a href="/" hreflang="en" lang="en" data-set-lang="en" aria-current="page">English</a>
+      <a href="/ru/" hreflang="ru" lang="ru" data-set-lang="ru">Русский</a>
+      <a href="/eo/" hreflang="eo" lang="eo" data-set-lang="eo">Esperanto</a>
     </nav>
   </header>
+  <!-- /lang-intro -->
 
   <!-- Tutekrana tuŝ-areo kun glit-ujo -->
   <main id="main" class="fullscreen-tap-area" data-i18n-aria="subtitle">
@@ -95,7 +110,7 @@
       <!-- EKRANO 1: MINIMALA -->
       <section class="screen minimal-screen">
         <div class="altitude-display">
-          <span id="alt-val-min" class="altitude-value" role="status" aria-live="polite" aria-label="Alteco">—</span>
+          <span id="alt-val-min" class="altitude-value" role="status" aria-live="polite" data-i18n-aria="altitude" aria-label="Altitude">—</span>
           <span class="altitude-unit">m</span>
         </div>
       </section>
@@ -103,7 +118,7 @@
       <!-- EKRANO 2: INFORMATIVA -->
       <section class="screen informative-screen">
         <div class="altitude-display">
-          <span id="alt-val-inf" class="altitude-value" role="status" aria-live="polite" aria-label="Alteco">—</span>
+          <span id="alt-val-inf" class="altitude-value" role="status" aria-live="polite" data-i18n-aria="altitude" aria-label="Altitude">—</span>
           <span class="altitude-unit">m</span>
         </div>
         
@@ -156,7 +171,7 @@
           <span id="alt-val-xs" class="altitude-value">—</span>
           <span class="altitude-unit">m</span>
         </div>
-        <p id="xs-caption" class="xs-caption" data-i18n="aboveSeaCap">alteco super maro</p>
+        <p id="xs-caption" class="xs-caption" data-i18n="aboveSeaCap">height above sea</p>
         <div id="xs-scene" class="xs-scene" style="--grd:50%;" aria-hidden="true"></div>
       </section>
 
@@ -180,7 +195,7 @@
     <div id="base-indicator" class="base-indicator hidden" data-i18n-aria="baseHeight">Δ</div>
 
     <!-- Videbla agordo-butono (alirebleco — alternativo al longpremo) -->
-    <button id="btn-open-settings" class="settings-fab" type="button" data-i18n-aria="about" aria-label="Agordoj">
+    <button id="btn-open-settings" class="settings-fab" type="button" data-i18n-aria="about" aria-label="About Gova">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="3"></circle>
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -197,7 +212,7 @@
         <img src="icons/logo.svg" alt="Gova" class="settings-logo">
         <div class="brand-text">
           <h2 class="settings-title">Gova</h2>
-          <p class="settings-subtitle" data-i18n="subtitle">Alteco-Monitorilo</p>
+          <p class="settings-subtitle" data-i18n="subtitle">Altitude Monitor</p>
         </div>
       </div>
 
@@ -205,7 +220,7 @@
       <div class="settings-section">
         <div class="status-row">
           <span id="status-dot" class="status-dot" data-state="searching" aria-hidden="true"></span>
-          <span id="status-text" class="status-text" data-i18n="searching">Serĉas GPS...</span>
+          <span id="status-text" class="status-text" data-i18n="searching">Searching GPS...</span>
         </div>
         <p id="accuracy-text" class="accuracy-text"></p>
       </div>
@@ -214,73 +229,74 @@
       <div class="settings-section">
         <label class="settings-label">Lingvo / Language</label>
         <div class="lang-selector" role="group">
-          <button class="lang-btn active" data-lang="eo">EO</button>
+          <button class="lang-btn" data-lang="eo">EO</button>
           <button class="lang-btn" data-lang="lv">LV</button>
           <button class="lang-btn" data-lang="be">BE</button>
+          <button class="lang-btn" data-lang="ru">RU</button>
           <button class="lang-btn" data-lang="tp">TP</button>
-          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn active" data-lang="en">EN</button>
         </div>
       </div>
 
       <!-- Unuo-Elektilo -->
       <div class="settings-section">
-        <label class="settings-label" data-i18n="unit">Unuo</label>
+        <label class="settings-label" data-i18n="unit">Unit</label>
         <div class="unit-selector" role="group">
-          <button id="unit-m" class="unit-btn active" data-unit="m" aria-pressed="true" data-i18n="meters">Metroj</button>
-          <button id="unit-ft" class="unit-btn" data-unit="ft" aria-pressed="false" data-i18n="feet">Futoj</button>
+          <button id="unit-m" class="unit-btn active" data-unit="m" aria-pressed="true" data-i18n="meters">Meters</button>
+          <button id="unit-ft" class="unit-btn" data-unit="ft" aria-pressed="false" data-i18n="feet">Feet</button>
         </div>
       </div>
 
       <!-- Baza Alteco -->
       <div class="settings-section">
-        <label class="settings-label" data-i18n="baseHeight">Baza Alteco</label>
+        <label class="settings-label" data-i18n="baseHeight">Base Altitude</label>
         <div class="base-height-controls">
-          <button id="btn-set-base" class="btn-secondary" data-i18n="setBase">Agordi Nunan kiel Bazon</button>
-          <button id="btn-clear-base" class="btn-secondary" disabled data-i18n="clearBase">Forigi Bazon</button>
-          <p id="base-height-info" class="info-text" data-i18n="noBase">Neniu baza alteco agordita</p>
+          <button id="btn-set-base" class="btn-secondary" data-i18n="setBase">Set Current as Base</button>
+          <button id="btn-clear-base" class="btn-secondary" disabled data-i18n="clearBase">Clear Base</button>
+          <p id="base-height-info" class="info-text" data-i18n="noBase">No base altitude set</p>
         </div>
       </div>
 
       <!-- Temo -->
       <div class="settings-section">
-        <label class="settings-label" data-i18n="theme">Temo</label>
+        <label class="settings-label" data-i18n="theme">Theme</label>
         <div class="theme-selector" role="group">
-          <button id="theme-auto" class="theme-btn active" data-theme="auto" aria-pressed="true" data-i18n="auto">Aŭtomata</button>
-          <button id="theme-light" class="theme-btn" data-theme="light" aria-pressed="false" data-i18n="light">Hela</button>
-          <button id="theme-dark" class="theme-btn" data-theme="dark" aria-pressed="false" data-i18n="dark">Malhela</button>
+          <button id="theme-auto" class="theme-btn active" data-theme="auto" aria-pressed="true" data-i18n="auto">Auto</button>
+          <button id="theme-light" class="theme-btn" data-theme="light" aria-pressed="false" data-i18n="light">Light</button>
+          <button id="theme-dark" class="theme-btn" data-theme="dark" aria-pressed="false" data-i18n="dark">Dark</button>
         </div>
       </div>
 
       <!-- Historio kaj Statistikoj -->
       <div class="settings-section">
-        <label class="settings-label" data-i18n="history">Historio</label>
-        <a id="btn-view-history" href="history.html" class="btn-secondary" data-i18n="viewHistory">Vidi Historion</a>
+        <label class="settings-label" data-i18n="history">History</label>
+        <a id="btn-view-history" href="history.html" class="btn-secondary" data-i18n="viewHistory">View History</a>
       </div>
 
       <!-- Konservitaj Punktoj -->
       <div class="settings-section">
-        <label class="settings-label" data-i18n="points">Konservitaj Punktoj</label>
-        <button id="btn-save-point" class="btn-secondary" data-i18n="savePoint">💾 Konservi Nunan Punkton</button>
+        <label class="settings-label" data-i18n="points">Saved Points</label>
+        <button id="btn-save-point" class="btn-secondary" data-i18n="savePoint">💾 Save Current Point</button>
         
         <div id="today-points" class="today-points">
           <div class="point-item" id="today-high-point">
             <span class="point-icon">⬆️</span>
-            <span class="point-label" data-i18n="todayHigh">Hodiaŭa plej alta:</span>
+            <span class="point-label" data-i18n="todayHigh">Today's highest:</span>
             <span class="point-value">—</span>
           </div>
           <div class="point-item" id="today-low-point">
             <span class="point-icon">⬇️</span>
-            <span class="point-label" data-i18n="todayLow">Hodiaŭa plej malalta:</span>
+            <span class="point-label" data-i18n="todayLow">Today's lowest:</span>
             <span class="point-value">—</span>
           </div>
         </div>
         
-        <a id="btn-view-points" href="points.html" class="btn-secondary">📍 <span data-i18n="viewPoints">Vidi Ĉiujn Punktojn</span> (<span id="points-count">0</span>)</a>
+        <a id="btn-view-points" href="points.html" class="btn-secondary">📍 <span data-i18n="viewPoints">📍 View All Points</span> (<span id="points-count">0</span>)</a>
       </div>
 
       <!-- Koordinatoj -->
       <div class="settings-section">
-        <label class="settings-label" data-i18n="coordsLabel">Koordinatoj</label>
+        <label class="settings-label" data-i18n="coordsLabel">Coordinates</label>
         <div class="privacy-row">
           <span class="info-text">ITM</span>
           <label class="toggle-switch">
@@ -292,47 +308,47 @@
 
       <!-- Privateco -->
       <div class="settings-section">
-        <label class="settings-label" data-i18n="privacy">Privateco</label>
+        <label class="settings-label" data-i18n="privacy">Privacy</label>
         <div class="privacy-row">
-          <span class="info-text" data-i18n="terrainConsentLabel">Reta ter-alteco (sendas lokon)</span>
+          <span class="info-text" data-i18n="terrainConsentLabel">Online terrain elevation (sends location)</span>
           <label class="toggle-switch">
             <input type="checkbox" id="toggle-terrain" />
             <span class="toggle-slider" aria-hidden="true"></span>
           </label>
         </div>
         <div class="privacy-row">
-          <span class="info-text" data-i18n="analyticsLabel">Anonima uzo-statistiko (Google Analytics)</span>
+          <span class="info-text" data-i18n="analyticsLabel">Anonymous usage statistics (Google Analytics)</span>
           <label class="toggle-switch">
             <input type="checkbox" id="toggle-analytics" />
             <span class="toggle-slider" aria-hidden="true"></span>
           </label>
         </div>
-        <p id="dnt-note" class="info-text hidden" data-i18n="dntActive">Do-Not-Track aktiva — statistiko malŝaltita ĉiel.</p>
+        <p id="dnt-note" class="info-text hidden" data-i18n="dntActive">Do-Not-Track active — analytics disabled.</p>
       </div>
 
       <!-- Pri Gova (About) -->
       <div class="settings-section">
-        <label class="settings-label" data-i18n="about">Pri Gova</label>
+        <label class="settings-label" data-i18n="about">About Gova</label>
         <div class="about-card">
-          <p class="info-text" data-i18n="aboutDesc">Gova estas malfermkoda ilo por monitori altecon.</p>
+          <p class="info-text" data-i18n="aboutDesc">Gova is an open-source altitude monitoring tool.</p>
           <p class="info-text" style="margin-top: 0.5rem;" data-i18n="precisionDesc">
-            Precizeco: GPS baziĝas sur WGS84. MSL uzas Geoid-modelon. GROUND estas grundo. BARO uzas aerpremon.
+            Accuracy: GPS is WGS84. MSL uses Geoid model. GROUND is terrain. BARO uses air pressure.
           </p>
-          <a href="about.html" class="about-link" data-i18n="aboutPage">Pli pri Gova →</a>
-          <a href="https://github.com/komapc/gova" target="_blank" class="about-link" data-i18n="github">GitHub Projekto ↗</a>
+          <a href="about.html" class="about-link" data-i18n="aboutPage">More about Gova →</a>
+          <a href="https://github.com/komapc/gova" target="_blank" class="about-link" data-i18n="github">GitHub Project ↗</a>
           <a href="https://lipu.dev/" class="about-link">lipu.dev</a>
         </div>
       </div>
 
       <!-- Instalo -->
       <div id="install-section" class="settings-section hidden">
-        <label class="settings-label" data-i18n="install">Instali Aplikaĵon</label>
-        <button id="btn-install" class="btn-primary" data-i18n="installBtn">Instali Gova</button>
-        <p class="info-text" data-i18n="installDesc">Instalu por pli rapida aliro kaj offline-uzo</p>
+        <label class="settings-label" data-i18n="install">Install App</label>
+        <button id="btn-install" class="btn-primary" data-i18n="installBtn">Install Gova</button>
+        <p class="info-text" data-i18n="installDesc">Install for faster access and offline use</p>
       </div>
 
       <!-- Ferma Butono -->
-      <button id="btn-close-settings" class="btn-primary" data-i18n="close">Fermi</button>
+      <button id="btn-close-settings" class="btn-primary" data-i18n="close">Close</button>
 
       <!-- Versio -->
       <div class="version-info">v3.11</div>

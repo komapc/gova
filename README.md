@@ -17,6 +17,10 @@ npm install
 npm test
 ```
 
+The language home pages (`/` English, `/ru/`, `/eo/`) are generated from
+`index.html` and `js/i18n.js`: after editing either, run `npm run build:lang`
+(`npm test` fails if the pages are stale).
+
 See [CHANGELOG.md](CHANGELOG.md) for release history and
 [PRIVACY_POLICY.md](PRIVACY_POLICY.md) for the privacy policy.
 

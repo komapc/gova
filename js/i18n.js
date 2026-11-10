@@ -8,12 +8,15 @@ const I18n = (() => {
     en: 'English',
     lv: 'Latviešu',
     be: 'Беларуская',
+    ru: 'Русский',
     tp: 'Toki Pona',
   };
 
   const STRINGS = {
     en: {
       subtitle: 'Altitude Monitor',
+      introTitle: 'Your altitude above sea level, right now',
+      altitude: 'Altitude',
       searching: 'Searching GPS...',
       locked: 'GPS locked',
       error: 'GPS error',
@@ -38,7 +41,7 @@ const I18n = (() => {
       viewPoints: '📍 View All Points',
       about: 'About Gova',
       aboutDesc: 'Gova is an open-source altitude monitoring tool.',
-      introLede: 'Gova shows your altitude — by GPS, barometer, geoid-corrected sea level, and real terrain — and asks for nothing in return.',
+      introLede: 'Gova is the cleanest, most minimalist GPS altimeter: one big number, your altitude above sea level. GPS with geoid correction, barometer and real terrain — free, no ads, no account, works offline.',
       precisionDesc: 'Accuracy: GPS is WGS84. MSL uses Geoid model. GROUND is terrain. BARO uses air pressure.',
       github: 'GitHub Project ↗',
       aboutPage: 'More about Gova →',
@@ -90,8 +93,90 @@ const I18n = (() => {
       coordsLabel: 'Coordinates',
       terrainConsentLabel: 'Online terrain elevation (sends location)',
     },
+    ru: {
+      subtitle: 'Высотомер',
+      introTitle: 'Ваша высота над уровнем моря — прямо сейчас',
+      altitude: 'Высота',
+      searching: 'Поиск GPS...',
+      locked: 'GPS найден',
+      error: 'Ошибка GPS',
+      unit: 'Единицы',
+      meters: 'Метры',
+      feet: 'Футы',
+      baseHeight: 'Базовая высота',
+      setBase: 'Сделать текущую базовой',
+      clearBase: 'Сбросить базу',
+      noBase: 'Базовая высота не задана',
+      hasBase: 'База: ',
+      theme: 'Тема',
+      auto: 'Авто',
+      light: 'Светлая',
+      dark: 'Тёмная',
+      history: 'История',
+      viewHistory: 'Открыть историю',
+      points: 'Сохранённые точки',
+      savePoint: '💾 Сохранить текущую точку',
+      todayHigh: 'Сегодня выше всего:',
+      todayLow: 'Сегодня ниже всего:',
+      viewPoints: '📍 Все точки',
+      about: 'О Gova',
+      aboutDesc: 'Gova — высотомер с открытым исходным кодом.',
+      introLede: 'Gova — самый простой и чистый высотомер онлайн: одна большая цифра, ваша высота над уровнем моря. GPS с поправкой на геоид, барометр и рельеф местности — бесплатно, без рекламы и регистрации, работает без интернета.',
+      precisionDesc: 'Точность: GPS — высота над эллипсоидом WGS84. MSL — над уровнем моря по модели геоида. GROUND — высота рельефа. BARO — по атмосферному давлению.',
+      github: 'Проект на GitHub ↗',
+      aboutPage: 'Подробнее о Gova →',
+      install: 'Установить приложение',
+      installBtn: 'Установить Gova',
+      installDesc: 'Установите для быстрого доступа и работы офлайн',
+      close: 'Закрыть',
+      versionDate: 'Март 2026',
+      toastNoGps: 'Нет данных GPS',
+      toastNoLoc: 'Нет данных о местоположении',
+      toastSaved: 'Точка сохранена!',
+      toastPointsFull: 'Достигнут предел (20 точек) — сначала удалите одну',
+      toastBaseSet: 'База задана',
+      toastBaseCleared: 'База сброшена',
+      historyTitle: 'История высоты',
+      min: 'Минимум',
+      max: 'Максимум',
+      avg: 'Среднее',
+      range: 'Перепад',
+      noHistory: 'Истории пока нет',
+      historyDesc: 'Данные собираются автоматически, пока вы пользуетесь приложением',
+      exportJson: 'Экспорт JSON',
+      exportCsv: 'Экспорт CSV',
+      clearHistory: 'Очистить историю',
+      cancel: 'Отмена',
+      back: 'Назад',
+      pointsTitle: 'Сохранённые точки',
+      noPoints: 'Сохранённых точек пока нет',
+      deletePoint: 'Удалить',
+      deleteAllPoints: 'Удалить все',
+      signLabel: 'SIGN',
+      satLabel: 'SAT',
+      baroLabel: 'BARO',
+      aboveSeaCap: 'высота над морем',
+      belowSeaCap: 'ниже уровня моря',
+      youLabel: 'Вы',
+      youSub: 'где вы сейчас',
+      groundLabel: 'Земля',
+      groundSub: 'поверхность под вами',
+      seaLabel: 'Море',
+      seaSub: 'нулевой уровень',
+      aboveGroundLabel: 'НАД ЗЕМЛЁЙ',
+      onGroundSub: 'на земле',
+      terrainLoading: 'загрузка рельефа…',
+      fixLive: 'сейчас',
+      privacy: 'Приватность',
+      analyticsLabel: 'Анонимная статистика использования (Google Analytics)',
+      dntActive: 'Включён Do-Not-Track — статистика отключена.',
+      coordsLabel: 'Координаты',
+      terrainConsentLabel: 'Высота рельефа онлайн (отправляет координаты)',
+    },
     eo: {
       subtitle: 'Alteco-Monitorilo',
+      introTitle: 'Gova — Alteco-Monitorilo',
+      altitude: 'Alteco',
       searching: 'Serĉas GPS...',
       locked: 'GPS ŝlosita',
       error: 'GPS-eraro',
@@ -170,6 +255,8 @@ const I18n = (() => {
     },
     lv: {
       subtitle: 'Augstuma mērītājs',
+      introTitle: 'Tavs augstums virs jūras līmeņa — tieši tagad',
+      altitude: 'Augstums',
       searching: 'Meklē GPS...',
       locked: 'GPS atrasts',
       error: 'GPS kļūda',
@@ -248,6 +335,8 @@ const I18n = (() => {
     },
     be: {
       subtitle: 'Манітор вышыні',
+      introTitle: 'Ваша вышыня над узроўнем мора — проста зараз',
+      altitude: 'Вышыня',
       searching: 'Пошук GPS...',
       locked: 'GPS знойдзены',
       error: 'Памылка GPS',
@@ -326,6 +415,8 @@ const I18n = (() => {
     },
     tp: {
       subtitle: 'ilo pi suli sewi',
+      introTitle: 'sewi sina tan telo suli — lon tenpo ni',
+      altitude: 'sewi',
       searching: 'mi alasa e GPS...',
       locked: 'mi jo e GPS',
       error: 'pakala pi GPS',
@@ -404,21 +495,32 @@ const I18n = (() => {
     }
   };
 
-  let currentLang = 'eo';
+  let currentLang = 'en';
 
+  // Lingvo-ordo: (1) konservita elekto de la uzanto; (2) la lingvo deklarita
+  // de la paĝo mem (<html data-ui-lang="ru"> ĉe /ru/, /eo/ — por ke serĉiloj
+  // kaj vizitantoj vidu la paĝon en ĝia lingvo); (3) la retumila lingvo;
+  // (4) la angla (la radika paĝo estas angla, x-default).
   function init() {
-    const savedLang = localStorage.getItem('gova_lang');
+    let savedLang = null;
+    try { savedLang = localStorage.getItem('gova_lang'); } catch { /* blokita */ }
+    const pageLang = document.documentElement.dataset.uiLang;
+    const browserLang = ((navigator.language || '').split('-')[0]); // ekz. 'lv-LV' -> 'lv'
     if (savedLang && STRINGS[savedLang]) {
       currentLang = savedLang;
+    } else if (pageLang && STRINGS[pageLang]) {
+      currentLang = pageLang;
+    } else if (STRINGS[browserLang]) {
+      currentLang = browserLang;
     } else {
-      // Detekti lingvon de la retumilo
-      const browserLang = navigator.language.split('-')[0]; // ekz. 'lv-LV' -> 'lv'
-      if (STRINGS[browserLang]) {
-        currentLang = browserLang;
-      } else {
-        currentLang = 'eo'; // Defaŭlto
-      }
+      currentLang = 'en'; // Defaŭlto
     }
+    // Lingvo-ligiloj (/, /ru/, /eo/) — klako estas eksplicita elekto
+    document.querySelectorAll('a[data-set-lang]').forEach(a => {
+      a.addEventListener('click', () => {
+        try { localStorage.setItem('gova_lang', a.dataset.setLang); } catch { /* blokita */ }
+      });
+    });
     updateUI();
   }
 
@@ -431,7 +533,7 @@ const I18n = (() => {
   }
 
   function get(key) {
-    return STRINGS[currentLang][key] || STRINGS['eo'][key] || key;
+    return STRINGS[currentLang][key] || STRINGS['en'][key] || key;
   }
 
   function updateUI() {
@@ -467,6 +569,7 @@ const I18n = (() => {
     init,
     setLang,
     get,
-    LANGUAGES
+    LANGUAGES,
+    STRINGS
   };
 })();

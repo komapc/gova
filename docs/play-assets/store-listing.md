@@ -11,14 +11,14 @@ Character limits: **Title** ≤30 · **Short description** ≤80 · **Full descr
 Gova — Altimeter
 ```
 
-**Short description** (60 chars)
+**Short description** (72 chars)
 ```
-Precise GPS & barometric altimeter — your altitude in real time.
+The cleanest, minimalist altimeter: your altitude above sea level, live.
 ```
 
 **Full description**
 ```
-Gova is an ultra-simple, precise altimeter. Open it and instantly see how high you are — no clutter, no account, no ads.
+Gova is the cleanest, most minimalist altimeter app. What is my altitude? Open it and instantly see your altitude above sea level as one big number — no clutter, no account, no ads.
 
 Gova combines several sources to show your altitude accurately:
 • GPS altitude — your height straight from satellites.
@@ -78,4 +78,43 @@ Privateco unue: ĉio estas procesata loke en via aparato. Gova neniam konservas 
 La interfaco estas pura, minimuma, kaj facile legebla je unu rigardo — disponebla en Esperanto, la angla, kaj pli.
 
 Perfekta por migrado, biciklado, flugado, drone-laboro, aŭ simple por kontentigi vian scivolon pri via alteco.
+```
+
+---
+
+## Russian (ru-RU)
+
+**App title**
+```
+Gova — Высотомер
+```
+
+**Short description** (67 chars)
+```
+Самый простой высотомер: ваша высота над уровнем моря прямо сейчас.
+```
+
+**Full description**
+```
+Gova — самый простой и чистый высотомер. Откройте его и сразу увидите одну большую цифру — вашу высоту над уровнем моря. Ничего лишнего: без регистрации и без рекламы.
+
+Gova объединяет несколько источников, чтобы показать высоту точно:
+• Высота по GPS — прямо со спутников.
+• Высота над уровнем моря (MSL) — с поправкой на геоид.
+• Барометрическая высота — по датчику давления телефона, с ручной калибровкой для большей точности.
+• Высота рельефа — по желанию, запрос высоты земли к бесплатному открытому сервису opentopodata.org.
+
+Возможности:
+• Высота в реальном времени, обновляется на ходу.
+• Метры или футы — на ваш выбор.
+• Своя базовая высота — чтобы мерить подъём от выбранной точки.
+• Калибровка барометра для точных показаний.
+• Работает без интернета — GPS и барометру связь не нужна.
+• Простое управление жестами — долгое нажатие открывает настройки.
+
+Приватность прежде всего: всё считается на вашем устройстве. Gova нигде не хранит ваши данные. Нет серверов, нет аккаунтов, история не сохраняется. Единственный сетевой запрос — если вы включите необязательную функцию рельефа: анонимный зашифрованный запрос координат к opentopodata.org за высотой земли.
+
+Интерфейс чистый и минималистичный, читается с одного взгляда. Языки: английский, эсперанто, латышский, белорусский.
+
+Для походов, велосипеда, полётов, дронов — или просто чтобы узнать, на какой высоте над уровнем моря вы сейчас.
 ```

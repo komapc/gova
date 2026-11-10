@@ -1,5 +1,24 @@
 # Gova — Ŝanĝ-Protokolo
 
+## [v3.13.0] - 2026-11-10
+
+### 🔎 SEO kaj lingvoj
+- **Lingvaj ĉef-paĝoj:** `/` nun estas angla (x-default; titolo "What Is My
+  Altitude? Free GPS & Barometer Altimeter — Gova"), plus nova rusa `/ru/` kaj
+  Esperanta `/eo/` (la antaŭa Esperanto-teksto). Ĉiu havas propran `lang`,
+  titolon, priskribon, canonical, OG/Twitter, JSON-LD kaj reciprokajn
+  `hreflang`-ligilojn; ankaŭ en `sitemap.xml`. La paĝoj estas generataj el
+  `index.html` + `js/i18n.js` per `npm run build:lang`; `npm test` malsukcesas
+  se ili malfreŝiĝas.
+- **Rusa interfaco:** nova lingvo `ru` en `js/i18n.js` kaj butono RU.
+- **Lingvo-elekto:** konservita elekto > lingvo de la paĝo (`/ru/`, `/eo/`) >
+  retumila lingvo > angla (antaŭe: Esperanto). Klako sur lingvo-ligilo konservas
+  la elekton.
+- `history.html` kaj `points.html`: `noindex`, forigitaj el la sitemap.
+- Service Worker: antaŭkaŝmemorigas `/ru/` kaj `/eo/`; kaŝmemoro → `gova-v3.24`.
+- Play-listigo (`docs/play-assets/store-listing.md`): angla teksto ĝisdatigita,
+  aldonita rusa versio.
+
 ## [v3.12.0] - 2026-11-10
 
 ### 🐞 Cim-Riparoj
