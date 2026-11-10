@@ -29,6 +29,8 @@ jobs:
       run: |
         echo "Checking if all files exist..."
         test -f index.html
+        test -f ru/index.html
+        test -f eo/index.html
         test -f history.html
         test -f js/app.js
         test -f js/history.js

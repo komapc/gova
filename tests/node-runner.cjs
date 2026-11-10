@@ -56,4 +56,13 @@ execWrapped('tests/coords.test.js');
 execWrapped('tests/gps.test.js');
 execWrapped('tests/geoid.test.js');
 
+// Generated language pages (/, /ru/, /eo/) must match index.html + js/i18n.js
+const stale = require('../scripts/build-lang-pages.cjs').check();
+if (stale.length) {
+  console.error(`\n✗ Stale language pages: ${stale.join(', ')} — run: npm run build:lang`);
+  overallFailed = 1;
+} else {
+  console.log('\n✓ Language pages (/, /ru/, /eo/) up to date');
+}
+
 process.exit(overallFailed);

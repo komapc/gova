@@ -7,11 +7,13 @@
  * - Nekonata: Reto kun kaŝmemor-retropaŝo
  */
 
-const CACHE_NAME = 'gova-v3.23';
+const CACHE_NAME = 'gova-v3.24';
 
 const STATIC_ASSETS = [
   './',
   './index.html',
+  './ru/',
+  './eo/',
   './about.html',
   './history.html',
   './points.html',
