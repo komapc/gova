@@ -21,4 +21,5 @@
     <string name="sat_label">САТ</string>
     <string name="accuracy_format">Дакладнасць: H ±%1$s%2$s | V ±%3$s%4$s</string>
     <string name="status_searching">Пошук...</string>
+    <string name="status_no_altitude">У гэтым вызначэнні няма вышыні. Дазвольце дакладнае месцазнаходжанне, каб бачыць вышыню.</string>
 </resources>

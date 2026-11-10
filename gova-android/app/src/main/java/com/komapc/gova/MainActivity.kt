@@ -32,12 +32,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.google.android.gms.location.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -159,21 +162,37 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
     // user's choice survives restarts.
     val prefs = remember { context.getSharedPreferences("gova_prefs", Context.MODE_PRIVATE) }
     var teroEnabled by remember { mutableStateOf(prefs.getBoolean("tero_enabled", false)) }
-    var baseHeight by remember { mutableStateOf<Double?>(null) }
+    // Base height and units are persisted like tero_enabled, so they survive
+    // rotation and restarts.
+    var baseHeight by remember {
+        mutableStateOf(prefs.getString(PREF_BASE_HEIGHT, null)?.toDoubleOrNull())
+    }
     var isRefreshing by remember { mutableStateOf(false) }
     var isSettingsOpen by remember { mutableStateOf(false) }
-    var useFeet by remember { mutableStateOf(false) }
+    var useFeet by remember { mutableStateOf(prefs.getBoolean(PREF_USE_FEET, false)) }
+    // True while the latest fix has no altitude (e.g. only approximate location
+    // was granted) — shows a hint instead of a silently blank screen.
+    var noAltitude by remember { mutableStateOf(false) }
     var currentViewMode by remember { mutableStateOf(ViewMode.INFORMATIVE) }
     var smoothedAltitude by remember { mutableStateOf<Double?>(null) }
     val smoothingFactor = 0.3
 
-    var hasPermission by remember {
-        mutableStateOf(
-            LOCATION_PERMISSIONS.any {
-                ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-            }
-        )
+    LaunchedEffect(baseHeight) {
+        val editor = prefs.edit()
+        val b = baseHeight
+        if (b != null) editor.putString(PREF_BASE_HEIGHT, b.toString()) else editor.remove(PREF_BASE_HEIGHT)
+        editor.apply()
     }
+    LaunchedEffect(useFeet) {
+        prefs.edit().putBoolean(PREF_USE_FEET, useFeet).apply()
+    }
+
+    fun checkPermission(): Boolean = LOCATION_PERMISSIONS.any {
+        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+    }
+
+    var hasPermission by remember { mutableStateOf(checkPermission()) }
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -181,80 +200,144 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
         hasPermission = LOCATION_PERMISSIONS.any { permissions[it] == true }
     }
 
+    // Re-check the permission on every resume, so granting it in the system
+    // Settings takes effect without restarting the app.
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) hasPermission = checkPermission()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     LaunchedEffect(hasPermission) {
-        if (hasPermission) {
-            // Track satellites
-            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                val gnssStatusCallback = object : GnssStatus.Callback() {
-                    override fun onSatelliteStatusChanged(status: GnssStatus) {
-                        var count = 0
-                        for (i in 0 until status.satelliteCount) {
-                            if (status.usedInFix(i)) count++
-                        }
-                        satelliteCount = count
-                    }
+        if (!hasPermission) launcher.launch(LOCATION_PERMISSIONS)
+    }
+
+    fun onLocation(location: Location) {
+        // Position, accuracy and terrain do not need altitude — update them first,
+        // so a fix without altitude (approximate location only) still fills them.
+        hAccuracy = location.accuracy
+        lastLat = location.latitude
+        lastLon = location.longitude
+
+        // Fetch ground elevation (GROUND) — opt-in only; sends location off-device
+        if (teroEnabled && System.currentTimeMillis() - lastNetworkFetchTime > 60000) {
+            lastNetworkFetchTime = System.currentTimeMillis()
+            coroutineScope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    fetchElevations(location.latitude, location.longitude)
                 }
+                terrainElevations = result
+            }
+        }
+
+        // Without altitude (common with approximate location) altitude reads 0.0,
+        // which would pull the smoothing, MSL and barometer towards sea level.
+        if (!location.hasAltitude()) {
+            noAltitude = true
+            return
+        }
+        noAltitude = false
+        val raw = location.altitude
+        smoothedAltitude = if (smoothedAltitude == null) raw else smoothedAltitude!! + smoothingFactor * (raw - smoothedAltitude!!)
+
+        gpsAltitude = smoothedAltitude
+
+        // Get Vertical Accuracy if available (Android 8.0+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (location.hasVerticalAccuracy()) {
+                vAccuracy = location.verticalAccuracyMeters
+            }
+        }
+
+        // Convert ellipsoidal GPS altitude to mean-sea-level (MSL).
+        // Prefer the device's native MSL (API 34+, EGM2008) when present;
+        // otherwise subtract the EGM96 geoid undulation N from the embedded
+        // grid so the correction always applies (most phones never report
+        // a native MSL altitude). Without this the headline and GROUND leak
+        // N as a constant error — ~+23 m in Stockholm, ~+36 m in Goteborg.
+        val nativeMsl = if (Build.VERSION.SDK_INT >= 34 /* UPSIDE_DOWN_CAKE */ && location.hasMslAltitude()) {
+            location.mslAltitudeMeters
+        } else null
+        val newMsl = nativeMsl
+            ?: Geoid.meanSeaLevel(location.latitude, location.longitude)
+                ?.let { n -> (smoothedAltitude ?: raw) - n }
+        mslAltitude = newMsl
+
+        // Keep the home-screen widget in sync while the app is open
+        // (no background location service — updates only in foreground).
+        // Show MSL like the headline; raw ellipsoidal only if MSL is unavailable.
+        AltitudeWidget.updateAllWidgets(context, "${String.format("%.1f", newMsl ?: smoothedAltitude ?: raw)}m")
+
+        // Anchor the barometer's sea-level-pressure reference to the current
+        // MSL altitude so BARO is absolute, not off by the weather-driven
+        // ±100 m. Re-anchors every few minutes (see BaroCalibrator).
+        newMsl?.let { if (BaroCalibrator.needsCalibration()) BaroCalibrator.calibrate(it) }
+    }
+    val currentOnLocation by rememberUpdatedState<(Location) -> Unit> { onLocation(it) }
+
+    // Location updates and the GNSS status callback run only while the activity
+    // is started: removed on ON_STOP and on dispose (rotation, leaving the
+    // composition), re-added on ON_START. Previously they were never removed, so
+    // each rotation added another listener, leaked the activity and kept GPS
+    // running in the background.
+    DisposableEffect(lifecycleOwner, hasPermission) {
+        if (!hasPermission) return@DisposableEffect onDispose {}
+
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val gnssStatusCallback = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            object : GnssStatus.Callback() {
+                override fun onSatelliteStatusChanged(status: GnssStatus) {
+                    var count = 0
+                    for (i in 0 until status.satelliteCount) {
+                        if (status.usedInFix(i)) count++
+                    }
+                    satelliteCount = count
+                }
+            }
+        } else null
+        val locationCallback = object : LocationCallback() {
+            override fun onLocationResult(p0: LocationResult) {
+                for (location in p0.locations) currentOnLocation(location)
+            }
+        }
+
+        var running = false
+        fun start() {
+            if (running) return
+            running = true
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && gnssStatusCallback != null) {
                 try {
                     locationManager.registerGnssStatusCallback(gnssStatusCallback, null)
                 } catch (e: SecurityException) {}
             }
-
-            startLocationUpdates(fusedLocationClient) { location ->
-                // Without altitude (common with approximate location) altitude reads 0.0,
-                // which would pull the smoothing, MSL and barometer towards sea level.
-                if (!location.hasAltitude()) return@startLocationUpdates
-                val raw = location.altitude
-                smoothedAltitude = if (smoothedAltitude == null) raw else smoothedAltitude!! + smoothingFactor * (raw - smoothedAltitude!!)
-                
-                gpsAltitude = smoothedAltitude
-                hAccuracy = location.accuracy
-                lastLat = location.latitude
-                lastLon = location.longitude
-
-                // Keep the home-screen widget in sync while the app is open
-                // (no background location service — updates only in foreground).
-                AltitudeWidget.updateAllWidgets(context, "${String.format("%.1f", smoothedAltitude ?: raw)}m")
-                
-                // Get Vertical Accuracy if available (Android 8.0+)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    if (location.hasVerticalAccuracy()) {
-                        vAccuracy = location.verticalAccuracyMeters
-                    }
-                }
-                
-                // Convert ellipsoidal GPS altitude to mean-sea-level (MSL).
-                // Prefer the device's native MSL (API 34+, EGM2008) when present;
-                // otherwise subtract the EGM96 geoid undulation N from the embedded
-                // grid so the correction always applies (most phones never report
-                // a native MSL altitude). Without this the headline and GROUND leak
-                // N as a constant error — ~+23 m in Stockholm, ~+36 m in Goteborg.
-                val nativeMsl = if (Build.VERSION.SDK_INT >= 34 /* UPSIDE_DOWN_CAKE */ && location.hasMslAltitude()) {
-                    location.mslAltitudeMeters
-                } else null
-                val newMsl = nativeMsl
-                    ?: Geoid.meanSeaLevel(location.latitude, location.longitude)
-                        ?.let { n -> (smoothedAltitude ?: raw) - n }
-                mslAltitude = newMsl
-
-                // Anchor the barometer's sea-level-pressure reference to the current
-                // MSL altitude so BARO is absolute, not off by the weather-driven
-                // ±100 m. Re-anchors every few minutes (see BaroCalibrator).
-                newMsl?.let { if (BaroCalibrator.needsCalibration()) BaroCalibrator.calibrate(it) }
-
-                // Fetch ground elevation (GROUND) — opt-in only; sends location off-device
-                if (teroEnabled && System.currentTimeMillis() - lastNetworkFetchTime > 60000) {
-                    lastNetworkFetchTime = System.currentTimeMillis()
-                    coroutineScope.launch {
-                        val result = withContext(Dispatchers.IO) {
-                            fetchElevations(location.latitude, location.longitude)
-                        }
-                        terrainElevations = result
-                    }
-                }
+            try {
+                startLocationUpdates(fusedLocationClient, locationCallback)
+            } catch (e: SecurityException) {}
+        }
+        fun stop() {
+            if (!running) return
+            running = false
+            fusedLocationClient.removeLocationUpdates(locationCallback)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && gnssStatusCallback != null) {
+                locationManager.unregisterGnssStatusCallback(gnssStatusCallback)
             }
-        } else {
-            launcher.launch(LOCATION_PERMISSIONS)
+        }
+
+        // A newly added observer is replayed up to the current state, so this
+        // also starts the updates right away if the activity is already started.
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> start()
+                Lifecycle.Event.ON_STOP -> stop()
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            stop()
         }
     }
 
@@ -327,6 +410,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         AltitudeDisplay(gpsAltitude, mslAltitude, baroAltitude.value, baseHeight, isRefreshing, useFeet, alwaysShowMsl = (currentViewMode == ViewMode.MINIMAL))
+                        if (noAltitude && gpsAltitude == null) NoAltitudeHint()
                     }
 
                     // Right Side: Info Grid (Always visible in Landscape for better space usage, or could be hidden if preferred)
@@ -345,6 +429,7 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         AltitudeDisplay(gpsAltitude, mslAltitude, baroAltitude.value, baseHeight, isRefreshing, useFeet, alwaysShowMsl = (currentViewMode == ViewMode.MINIMAL))
+                        if (noAltitude && gpsAltitude == null) NoAltitudeHint()
                     }
 
                     if (currentViewMode == ViewMode.INFORMATIVE) {
@@ -441,6 +526,16 @@ fun AltitudeDisplay(gps: Double?, msl: Double?, baro: Double?, base: Double?, is
     if (base != null && !alwaysShowMsl) {
         Text(stringResource(R.string.relative_label), color = Color(0xFF3B82F6), fontSize = 12.sp, fontWeight = FontWeight.Bold)
     }
+}
+
+@Composable
+fun NoAltitudeHint() {
+    Text(
+        stringResource(R.string.status_no_altitude),
+        color = Color.Gray,
+        fontSize = 12.sp,
+        modifier = Modifier.padding(horizontal = 24.dp)
+    )
 }
 
 @Composable
@@ -717,6 +812,7 @@ fun fetchElevations(lat: Double, lon: Double): TerrainElevations {
         val url = URL("https://api.opentopodata.org/v1/srtm30m,aster30m?locations=$lat,$lon")
         val conn = url.openConnection() as HttpURLConnection
         conn.connectTimeout = 8000
+        conn.readTimeout = 8000
         if (conn.responseCode == HttpURLConnection.HTTP_OK) {
             val json = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
             if (json.optString("status") == "OK") {
@@ -734,6 +830,7 @@ fun fetchElevations(lat: Double, lon: Double): TerrainElevations {
         val url = URL("https://api.opentopodata.org/v1/mapzen?locations=$lat,$lon")
         val conn = url.openConnection() as HttpURLConnection
         conn.connectTimeout = 5000
+        conn.readTimeout = 5000
         if (conn.responseCode == HttpURLConnection.HTTP_OK) {
             val json = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
             if (json.optString("status") == "OK") {
@@ -754,24 +851,20 @@ private val LOCATION_PERMISSIONS = arrayOf(
     Manifest.permission.ACCESS_COARSE_LOCATION
 )
 
+private const val PREF_BASE_HEIGHT = "base_height"
+private const val PREF_USE_FEET = "use_feet"
+
+/** Requests location updates for [locationCallback]; the caller removes them. */
 @SuppressLint("MissingPermission")
 fun startLocationUpdates(
     fusedLocationClient: FusedLocationProviderClient,
-    onLocationReceived: (Location) -> Unit
+    locationCallback: LocationCallback
 ) {
     val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000)
         .setWaitForAccurateLocation(false)
         .setMinUpdateIntervalMillis(1000)
         .setMaxUpdateDelayMillis(3000)
         .build()
-
-    val locationCallback = object : LocationCallback() {
-        override fun onLocationResult(p0: LocationResult) {
-            for (location in p0.locations) {
-                onLocationReceived(location)
-            }
-        }
-    }
 
     fusedLocationClient.requestLocationUpdates(
         locationRequest,
