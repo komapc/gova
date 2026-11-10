@@ -117,8 +117,10 @@
   }
 
   function _refreshDisplayedValues() {
-    const lastAlt = Storage.getLastAlt() || lastGpsAlt;
-    if (lastAlt !== null) {
+    // ?? (ne ||) por ke konservita 0 m ne perdiĝu; retropaŝo estas MSL, ne la
+    // kruda elipsoida GPS-alteco.
+    const lastAlt = Storage.getLastAlt() ?? lastMslAlt;
+    if (lastAlt !== null && lastAlt !== undefined) {
       _updateAltitudeDisplay(lastAlt, lastAccuracy || Storage.getLastAccuracy(), false);
     }
   }
@@ -612,9 +614,12 @@
   }
 
   if (elBtnSavePoint) elBtnSavePoint.onclick = () => {
-    const currentAlt = _effectiveBaroAlt() ?? lastMslAlt ?? Storage.getLastAlt();
-    if (currentAlt === null) return _showToast(I18n.get('toastNoGps'));
+    // Neniu Storage-retropaŝo: ĝi povus esti alteco el antaŭa sesio/loko,
+    // konservita kun la nunaj koordinatoj.
+    const currentAlt = _effectiveBaroAlt() ?? lastMslAlt;
+    if (currentAlt == null) return _showToast(I18n.get('toastNoGps'));
     if (lastLat === null) return _showToast(I18n.get('toastNoLoc'));
+    if (SavedPoints.isFull()) return _showToast(I18n.get('toastPointsFull'));
     const point = SavedPoints.save(currentAlt, lastLat, lastLon);
     if (point) {
       _showToast(I18n.get('toastSaved'));

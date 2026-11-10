@@ -91,6 +91,45 @@ test('getSummary redonas kalkulon kaj hodiaŭajn punktojn', () => {
   assert.ok(s.todayHigh);
 });
 
+test('save rifuzas ĉe la limo (20) anstataŭ forigi la plej malnovan', () => {
+  for (let i = 0; i < 20; i++) assert.ok(SavedPoints.save(100 + i, 50, 14), `punkto ${i + 1}`);
+  assert.ok(SavedPoints.isFull());
+  const first = SavedPoints.getAll()[0];
+  assert.equal(SavedPoints.save(999, 50, 14), null, '21-a punkto devas esti rifuzita');
+  const all = SavedPoints.getAll();
+  assert.equal(all.length, 20);
+  assert.equal(all[0].id, first.id, 'la plej malnova punkto restas');
+});
+
+test('save donas unikajn ID-ojn eĉ en la sama milisekundo', () => {
+  for (let i = 0; i < 5; i++) SavedPoints.save(100, 50, 14);
+  const ids = SavedPoints.getAll().map(p => p.id);
+  assert.equal(new Set(ids).size, ids.length);
+});
+
+test('defaŭltaj nomoj ne ripetiĝas post forigo', () => {
+  SavedPoints.save(100, 50, 14); // Punkto 1
+  const p2 = SavedPoints.save(100, 50, 14); // Punkto 2
+  SavedPoints.save(100, 50, 14); // Punkto 3
+  SavedPoints.remove(p2.id);
+  const p4 = SavedPoints.save(100, 50, 14);
+  assert.equal(p4.name, 'Punkto 4');
+  const names = SavedPoints.getAll().map(p => p.name);
+  assert.equal(new Set(names).size, names.length);
+});
+
+test('updateTodayPoints ne ĵetas se localStorage estas blokita', () => {
+  const orig = { get: localStorage.getItem, set: localStorage.setItem, rm: localStorage.removeItem };
+  const boom = () => { throw new Error('SecurityError'); };
+  localStorage.getItem = boom; localStorage.setItem = boom; localStorage.removeItem = boom;
+  try {
+    SavedPoints.updateTodayPoints(100, 50, 14);
+    assert.equal(SavedPoints.getTodayHigh(), null);
+  } finally {
+    localStorage.getItem = orig.get; localStorage.setItem = orig.set; localStorage.removeItem = orig.rm;
+  }
+});
+
 console.log('\n' + '='.repeat(50));
 console.log(`SavedPoints — Sukcesaj: ${results.passed}, Malsukcesaj: ${results.failed}`);
 console.log('='.repeat(50));

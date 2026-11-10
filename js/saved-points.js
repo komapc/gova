@@ -28,19 +28,46 @@ const SavedPoints = (() => {
   }
 
   /**
+   * Ĉu la limo de MAX_SAVED_POINTS estas atingita?
+   * @returns {boolean}
+   */
+  function isFull() {
+    return getAll().length >= MAX_SAVED_POINTS;
+  }
+
+  // Sekva defaŭlta nomo: plej granda ekzistanta "Punkto N" + 1, por ke nomoj
+  // ne ripetiĝu post forigo (antaŭe N = points.length + 1).
+  function _nextDefaultName(points) {
+    let max = 0;
+    for (const p of points) {
+      const m = /^Punkto (\d+)$/.exec(p.name || '');
+      if (m) max = Math.max(max, Number(m[1]));
+    }
+    return `Punkto ${max + 1}`;
+  }
+
+  /**
    * Konservas novan punkton.
    * @param {number} altitude - Alteco en metroj
    * @param {number} latitude - Latitudo
    * @param {number} longitude - Longitudo
    * @param {string} name - Opcian nomon
-   * @returns {Object} - La konservita punkto
+   * @returns {Object|null} - La konservita punkto, aŭ null se la limo estas
+   *   atingita (vidu isFull) aŭ localStorage malsukcesis
    */
   function save(altitude, latitude, longitude, name = null) {
     const points = getAll();
-    
+
+    // Ĉe la limo: rifuzi anstataŭ silente forigi la plej malnovan punkton.
+    if (points.length >= MAX_SAVED_POINTS) return null;
+
+    // Unika ID eĉ se du konservoj okazas en la sama milisekundo
+    let id = Date.now();
+    while (points.some(p => p.id === id)) id++;
+
     const point = {
-      id: Date.now(),
-      name: name || `Punkto ${points.length + 1}`,
+      id,
+      name: name || _nextDefaultName(points),
       altitude: Math.round(altitude * 10) / 10,
       latitude: Math.round(latitude * 1000000) / 1000000,
       longitude: Math.round(longitude * 1000000) / 1000000,
@@ -49,11 +76,6 @@ const SavedPoints = (() => {
     };
 
     points.push(point);
-
-    // Limigi al MAX_SAVED_POINTS
-    if (points.length > MAX_SAVED_POINTS) {
-      points.shift();
-    }
 
     try {
       localStorage.setItem(KEYS.SAVED, JSON.stringify(points));
@@ -107,14 +129,19 @@ const SavedPoints = (() => {
    * Kontrolas ĉu hodiaŭaj punktoj bezonas reset.
    */
   function checkDailyReset() {
-    const today = new Date().toDateString();
-    const lastReset = localStorage.getItem(KEYS.LAST_RESET);
-    
-    if (lastReset !== today) {
-      // Nova tago - reseti hodiaŭajn punktojn
-      localStorage.removeItem(KEYS.TODAY_HIGH);
-      localStorage.removeItem(KEYS.TODAY_LOW);
-      localStorage.setItem(KEYS.LAST_RESET, today);
+    // try/catch: se localStorage estas blokita, ne ĵeti ĉe ĉiu GPS-fikso
+    try {
+      const today = new Date().toDateString();
+      const lastReset = localStorage.getItem(KEYS.LAST_RESET);
+
+      if (lastReset !== today) {
+        // Nova tago - reseti hodiaŭajn punktojn
+        localStorage.removeItem(KEYS.TODAY_HIGH);
+        localStorage.removeItem(KEYS.TODAY_LOW);
+        localStorage.setItem(KEYS.LAST_RESET, today);
+      }
+    } catch {
+      // Silente ignoras
     }
   }
 
@@ -198,6 +225,8 @@ const SavedPoints = (() => {
 
   return {
     getAll,
+    isFull,
+    MAX_SAVED_POINTS,
     save,
     remove,
     rename,
