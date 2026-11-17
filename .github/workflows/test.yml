@@ -19,7 +19,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v7
       with:
-        node-version: '20'  # ESLint 10 requires Node 20+
+        node-version: '22'  # current LTS (ESLint 10 needs Node 20+)
         cache: 'npm'
 
     - name: Install dependencies

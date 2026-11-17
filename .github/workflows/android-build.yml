@@ -24,7 +24,29 @@ permissions:
   contents: read
 
 jobs:
+  # Same as test.yml: a build that may publish to Play must pass lint + tests first.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v7
+      with:
+        node-version: '22'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Lint
+      run: npm run lint
+
+    - name: Run tests
+      run: npm test
+
   build:
+    needs: test
     runs-on: ubuntu-latest
 
     defaults:
