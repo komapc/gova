@@ -1,5 +1,15 @@
 # Gova — Ŝanĝ-Protokolo
 
+## [v3.13.1] - 2026-11-18
+
+### 🔎 SEO kaj lingvoj
+- `privacy.html`: aldonitaj Open Graph-etikedoj (`og:type`, `og:title`,
+  `og:url`, `og:image` kun grandeco kaj `og:image:alt`, `og:site_name`,
+  `og:locale` en_US) kaj `twitter:card`.
+- `about.html`: aldonita `og:locale` en_US.
+- `/eo/`: `og:locale` `eo` → `eo_EO`.
+- Service Worker: kaŝmemoro → `gova-v3.25`.
+
 ## [v3.13.0] - 2026-11-10
 
 ### 🔎 SEO kaj lingvoj
