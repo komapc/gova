@@ -51,7 +51,7 @@ const PAGES = {
   eo: {
     file: 'eo/index.html',
     url: `${SITE}/eo/`,
-    ogLocale: 'eo',
+    ogLocale: 'eo_EO',
     preset: true,
     title: 'Gova — Alteco-Monitorilo: GPS- kaj barometra altimetro',
     description: 'Gova: la plej simpla kaj pura altimetro — senpaga kaj preciza, per GPS, barometro, EGM96-geoido kaj SRTM-tereno; funkcias senrete.',
