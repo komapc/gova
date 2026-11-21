@@ -84,4 +84,8 @@ dependencies {
     implementation 'androidx.compose.ui:ui-tooling-preview'
     implementation 'androidx.compose.material3:material3'
     implementation 'com.google.android.gms:play-services-location:21.3.0'
+    // Not used directly: play-services-base/basement (even 18.12.x) pull in
+    // androidx.fragment 1.1.0, which Play Console flags as outdated. Pin a
+    // current 1.8.x; 1.9+ needs Kotlin 2.1 and lifecycle 2.10.
+    implementation 'androidx.fragment:fragment:1.8.9'
 }

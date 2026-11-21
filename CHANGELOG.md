@@ -1,5 +1,13 @@
 # Gova — Ŝanĝ-Protokolo
 
+## [Neeldonita]
+
+### 📦 Pakaĵoj kaj Ilaro
+- Android: eksplicita `androidx.fragment:fragment:1.8.9`. Ĝi ne estas uzata
+  rekte, sed `play-services-base`/`-basement` (eĉ la plej novaj 18.12.x)
+  tiras la malnovan `1.1.0`, kiun Play Console markas kiel malaktualan SDK-on.
+  Neniu alia dependaĵo ŝanĝiĝis.
+
 ## [v3.13.1] - 2026-11-18
 
 ### 🔎 SEO kaj lingvoj
