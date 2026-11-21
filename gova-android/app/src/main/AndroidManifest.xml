@@ -23,6 +23,15 @@
                 android:resource="@xml/altitude_widget_info" />
         </receiver>
 
+        <!-- Tap on the widget: one GPS fix (small "Measuring…" card), then finish. -->
+        <activity
+            android:name=".WidgetRefreshActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.DeviceDefault.Dialog.NoActionBar.MinWidth" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

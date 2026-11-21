@@ -265,10 +265,11 @@ fun GovaApp(fusedLocationClient: FusedLocationProviderClient, baroAltitude: Stat
                 ?.let { n -> (smoothedAltitude ?: raw) - n }
         mslAltitude = newMsl
 
-        // Keep the home-screen widget in sync while the app is open
-        // (no background location service — updates only in foreground).
-        // Show MSL like the headline; raw ellipsoidal only if MSL is unavailable.
-        AltitudeWidget.updateAllWidgets(context, "${String.format("%.1f", newMsl ?: smoothedAltitude ?: raw)}m")
+        // Keep the home-screen widget in sync while the app is open (no
+        // background location; a tap on the widget takes its own fix, see
+        // WidgetRefreshActivity). Show MSL like the headline; raw ellipsoidal
+        // only if MSL is unavailable.
+        AltitudeWidget.saveReading(context, newMsl ?: smoothedAltitude ?: raw)
 
         // Anchor the barometer's sea-level-pressure reference to the current
         // MSL altitude so BARO is absolute, not off by the weather-driven
