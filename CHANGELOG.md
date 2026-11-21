@@ -7,6 +7,12 @@
   rekte, sed `play-services-base`/`-basement` (eĉ la plej novaj 18.12.x)
   tiras la malnovan `1.1.0`, kiun Play Console markas kiel malaktualan SDK-on.
   Neniu alia dependaĵo ŝanĝiĝis.
+- Android: R8 ŝaltita por la eldona versio (`minifyEnabled` +
+  `shrinkResources`). Play Console avertis, ke la DEX-optimumigo estas sub
+  sia sojlo (0 % obskurigo; limdato februaro 2027). La APK malgrandiĝas, kaj
+  CI nun alŝutas `mapping.txt` kune kun ĉiu pakaĵo, por ke kraŝ-raportoj en
+  Play restu legeblaj. Kontrolita en emulilo: lanĉo, agordoj, futoj, bazo,
+  reta tereno (opentopodata), fenestraĵo registrita.
 
 ## [v3.13.1] - 2026-11-18
 

@@ -46,7 +46,11 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            // R8: shrink, optimize and obfuscate. Play Console flags apps whose
+            // DEX optimization is below its threshold. CI uploads the mapping
+            // file with each bundle so crash reports stay readable.
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
