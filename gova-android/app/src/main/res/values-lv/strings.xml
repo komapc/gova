@@ -22,4 +22,9 @@
     <string name="accuracy_format">Precizitāte: H ±%1$s%2$s | V ±%3$s%4$s</string>
     <string name="status_searching">Meklē...</string>
     <string name="status_no_altitude">Šajā noteikšanā nav augstuma. Atļaujiet precīzu atrašanās vietu, lai redzētu augstumu.</string>
+    <string name="widget_tap">Pieskarieties, lai izmērītu</string>
+    <string name="widget_measuring">Mēra…</string>
+    <string name="widget_no_fix">Nav GPS signāla</string>
+    <string name="widget_description">Augstums virs jūras līmeņa. Pieskarieties, lai izmērītu.</string>
+    <string name="widget_measuring_title">Mēra augstumu…</string>
 </resources>
