@@ -2,6 +2,20 @@
 
 ## [Neeldonita]
 
+### 📱 Fenestraĵo (Android)
+- Tuŝo sur la fenestraĵo nun mezuras la altecon: unu freŝa GPS-fikso sen
+  malfermi la apon. Se la fikso ne venas tuj, aperas malgranda karto
+  «Measuring altitude…» kun «Nuligi»; tuŝo ekster ĝi aŭ «Reen» ankaŭ nuligas.
+  Ne necesas fona loko nek nova permeso (la apo estas malfonliste nur dum la
+  mezurado, do validas la jama permeso «dum uzado»).
+- La fenestraĵo memoras la lastan valoron kaj ĝian horon, do post restarto aŭ
+  ĝisdatigo ĝi ne plu montras «—». Sub la valoro: la horo de la mezuro,
+  «Measuring…» aŭ «No GPS fix».
+- Valoro en tutaj metroj aŭ futoj laŭ la agordo de la apo (antaŭe ĉiam
+  metroj kun dekumo). La malnova etikedo «ALTECO» forigita; tekstoj en
+  la angla, belorusa, esperanta kaj latva. Antaŭrigardo kaj priskribo en la
+  elektilo de fenestraĵoj (Android 12+).
+
 ### 📦 Pakaĵoj kaj Ilaro
 - Android: eksplicita `androidx.fragment:fragment:1.8.9`. Ĝi ne estas uzata
   rekte, sed `play-services-base`/`-basement` (eĉ la plej novaj 18.12.x)

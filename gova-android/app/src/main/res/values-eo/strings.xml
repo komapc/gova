@@ -22,4 +22,9 @@
     <string name="accuracy_format">Precizeco: H ±%1$s%2$s | V ±%3$s%4$s</string>
     <string name="status_searching">Serĉas...</string>
     <string name="status_no_altitude">Neniu alteco en ĉi tiu fikso. Permesu precizan lokon por vidi altecon.</string>
+    <string name="widget_tap">Tuŝu por mezuri</string>
+    <string name="widget_measuring">Mezurante…</string>
+    <string name="widget_no_fix">Neniu GPS-fikso</string>
+    <string name="widget_description">Alteco super la marnivelo. Tuŝu por mezuri.</string>
+    <string name="widget_measuring_title">Mezurante altecon…</string>
 </resources>

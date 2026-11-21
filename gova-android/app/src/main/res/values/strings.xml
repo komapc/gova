@@ -22,4 +22,9 @@
     <string name="accuracy_format">Accuracy: H ±%1$s%2$s | V ±%3$s%4$s</string>
     <string name="status_searching">Searching...</string>
     <string name="status_no_altitude">No altitude in this fix. Allow precise location to see altitude.</string>
+    <string name="widget_tap">Tap to measure</string>
+    <string name="widget_measuring">Measuring…</string>
+    <string name="widget_no_fix">No GPS fix</string>
+    <string name="widget_description">Altitude above sea level. Tap to measure.</string>
+    <string name="widget_measuring_title">Measuring altitude…</string>
 </resources>
