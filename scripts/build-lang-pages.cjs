@@ -23,6 +23,9 @@ const vm = require('vm');
 
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://gova.lipu.dev';
+const PLAY_URL = 'https://play.google.com/store/apps/details?id=com.komapc.gova';
+// Statika kampanjo-etikedo (sama por ĉiuj vizitantoj) — Play Console montras instalojn el la retejo
+const PLAY_LINK = `${PLAY_URL}&referrer=utm_source%3Dgova.lipu.dev%26utm_medium%3Dweb%26utm_campaign%3Dhome`;
 
 const PAGES = {
   en: {
@@ -86,7 +89,8 @@ function headBlock(lang) {
     name: 'Gova',
     url: p.url,
     image: `${SITE}/icons/icon-512.png`,
-    operatingSystem: 'Web, Android, iOS',
+    operatingSystem: 'Web, Android',
+    downloadUrl: PLAY_URL,
     applicationCategory: 'UtilitiesApplication',
     description: p.ldDescription,
     inLanguage: lang,
@@ -149,6 +153,7 @@ function introBlock(lang, S) {
     `    <h1 class="app-intro-title" data-i18n="introTitle">${t('introTitle')}</h1>`,
     `    <p class="app-intro-text" data-i18n="introLede">${t('introLede')}</p>`,
     '    <nav class="app-intro-links" aria-label="Gova">',
+    `      <a class="app-intro-play" href="${PLAY_LINK.replace(/&/g, '&amp;')}" data-i18n="androidApp">${t('androidApp')}</a>`,
     `      <a href="about.html" data-i18n="about">${t('about')}</a>`,
     `      <a href="history.html" data-i18n="history">${t('history')}</a>`,
     `      <a href="points.html" data-i18n="points">${t('points')}</a>`,

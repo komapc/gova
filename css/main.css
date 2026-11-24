@@ -1155,6 +1155,11 @@ body.home {
   text-decoration: underline;
 }
 
+/* Ligilo al la Android-aplikaĵo: pli videbla ol la aliaj ligiloj */
+.app-intro-links a.app-intro-play {
+  font-weight: 600;
+}
+
 .app-intro + .fullscreen-tap-area {
   flex: 1 1 auto;
   height: auto;
