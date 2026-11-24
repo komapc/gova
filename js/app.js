@@ -422,7 +422,7 @@
   }
 
   function _onGpsError(err) {
-    const msg = GPS.getErrorMessage(err);
+    const msg = I18n.get(GPS.getErrorKey(err));
     _setStatus('error', I18n.get('error'));
     _showToast(msg);
   }
@@ -629,7 +629,7 @@
 
   if (elBtnInstall) elBtnInstall.onclick = async () => {
     const success = await Install.prompt();
-    if (success) _showToast('Aplikaĵo instalita!', 3000);
+    if (success) _showToast(I18n.get('toastInstalled'), 3000);
   };
   
   if (elBtnCloseSettings) elBtnCloseSettings.onclick = _closeSettings;

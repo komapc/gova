@@ -40,6 +40,7 @@ exec('js/storage.js');
 exec('js/history.js');
 exec('js/saved-points.js');
 exec('js/coords.js');
+exec('js/i18n.js');
 exec('js/gps.js');
 exec('js/geoid.js');
 

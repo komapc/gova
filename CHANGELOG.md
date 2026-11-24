@@ -28,6 +28,17 @@
   la angla, belorusa, esperanta kaj latva. Antaŭrigardo kaj priskribo en la
   elektilo de fenestraĵoj (Android 12+).
 
+### 🌍 Tradukoj (retejo)
+- GPS-eraroj (rifuzita aliro, loko ne trovebla, tempolimo, nesubtenata,
+  nekonata) nun aperas en la UI-lingvo, ne ĉiam en Esperanto: `GPS.getErrorKey()`
+  redonas i18n-ŝlosilon (`gpsErr*`), `app.js` tradukas ĝin per `I18n.get`.
+  Antaŭe `GPS.getErrorMessage()` redonis fiksajn esperantajn frazojn, do en la
+  angla kaj rusa paĝoj aperis «Aliro al loko rifuzita…».
+- Same por la tosto «Aplikaĵo instalita!» (`toastInstalled`) kaj la
+  konfirmo antaŭ forigo de la historio (`confirmClearHistory`).
+- Novaj ŝlosiloj en ĉiuj ses lingvoj; testoj por la mapado kaj por la tradukoj.
+- SW-kaŝmemoro `gova-v3.27`.
+
 ### 📦 Pakaĵoj kaj Ilaro
 - Android: eksplicita `androidx.fragment:fragment:1.8.9`. Ĝi ne estas uzata
   rekte, sed `play-services-base`/`-basement` (eĉ la plej novaj 18.12.x)
