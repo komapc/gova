@@ -2,6 +2,18 @@
 
 ## [Neeldonita]
 
+### 🌐 Retejo
+- Ligilo al la Android-aplikaĵo en Google Play: en la kompakta kaplinio de la
+  ĉefpaĝoj (`/`, `/ru/`, `/eo/`, tradukita en ĉiuj ses lingvoj) kaj kiel dua
+  butono sur `about.html`. La ligiloj portas statikan kampanjo-etikedon
+  (`utm_source=gova.lipu.dev`, `utm_campaign=home|about`), sama por ĉiuj
+  vizitantoj, por ke Play Console montru instalojn el la retejo.
+- JSON-LD: `operatingSystem` nun «Web, Android» (iOS-aplikaĵo ne ekzistas) kaj
+  nova `downloadUrl` al la Play-paĝo.
+- `manifest.json`: `related_applications` kun la Play-aplikaĵo,
+  `prefer_related_applications: false` (la PWA-instalo restas).
+- SW-kaŝmemoro `gova-v3.26`.
+
 ### 📱 Fenestraĵo (Android)
 - Tuŝo sur la fenestraĵo nun mezuras la altecon: unu freŝa GPS-fikso sen
   malfermi la apon. Se la fikso ne venas tuj, aperas malgranda karto

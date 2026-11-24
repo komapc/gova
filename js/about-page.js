@@ -20,6 +20,7 @@
       ],
       closing: 'Built by one person who just wanted an honest altimeter. That’s it.',
       cta: 'Open Gova',
+      ctaPlay: 'Get the Android app',
       privacy: 'Privacy'
     },
     eo: {
@@ -36,6 +37,7 @@
       ],
       closing: 'Konstruita de unu persono kiu nur volis honestan altimetron. Jen ĉio.',
       cta: 'Malfermi Gova',
+      ctaPlay: 'Ricevi la Android-aplikaĵon',
       privacy: 'Privateco'
     },
     lv: {
@@ -52,6 +54,7 @@
       ],
       closing: 'Radīts vienam cilvēkam, kurš vienkārši gribēja godīgu altimetru. Tas arī viss.',
       cta: 'Atvērt Gova',
+      ctaPlay: 'Iegūt Android lietotni',
       privacy: 'Privātums'
     },
     be: {
@@ -68,6 +71,7 @@
       ],
       closing: 'Зроблена адным чалавекам, які проста хацеў сумленны вышынямер. Вось і ўсё.',
       cta: 'Адкрыць Gova',
+      ctaPlay: 'Атрымаць праграму для Android',
       privacy: 'Прыватнасць'
     },
     tp: {
@@ -84,6 +88,7 @@
       ],
       closing: 'jan wan li pali e ni. ona li wile taso e ilo pi sona sewi pona.',
       cta: 'open e ilo Gova',
+      ctaPlay: 'o kama jo e ilo Gova lon Android',
       privacy: 'sona len'
     }
   };
@@ -103,6 +108,7 @@
     document.getElementById('lede').textContent = t.lede;
     document.getElementById('closing').textContent = t.closing;
     document.getElementById('cta').textContent = t.cta;
+    document.getElementById('cta-play').textContent = t.ctaPlay;
     document.getElementById('f-privacy').textContent = t.privacy;
 
     var grid = document.getElementById('grid');
