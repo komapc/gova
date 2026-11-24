@@ -294,23 +294,18 @@ const GPS = (() => {
   }
 
   /**
-   * Redonas homan mesaĝon por GeolocationPositionError.
+   * Redonas la i18n-ŝlosilon de la eraro-mesaĝo por GeolocationPositionError
+   * (traduku per I18n.get).
    * @param {GeolocationPositionError|Error} err
-   * @returns {string}
+   * @returns {'gpsErrUnsupported'|'gpsErrDenied'|'gpsErrUnavailable'|'gpsErrTimeout'|'gpsErrUnknown'}
    */
-  function getErrorMessage(err) {
-    if (!err) return 'Nekonata eraro';
-
-    if (err.message === 'UNSUPPORTED') {
-      return 'Via aparato ne subtenas GPS';
-    }
-
-    const code = err.code;
-    if (code === 1) return 'Aliro al loko rifuzita — bonvolu permesi GPS';
-    if (code === 2) return 'Loko ne trovebla — kontrolu GPS-agordojn';
-    if (code === 3) return 'GPS-serĉo daŭris tro longe — retestante...';
-
-    return err.message || 'Nekonata GPS-eraro';
+  function getErrorKey(err) {
+    if (err && err.message === 'UNSUPPORTED') return 'gpsErrUnsupported';
+    const code = err && err.code;
+    if (code === 1) return 'gpsErrDenied';
+    if (code === 2) return 'gpsErrUnavailable';
+    if (code === 3) return 'gpsErrTimeout';
+    return 'gpsErrUnknown';
   }
 
   return {
@@ -319,7 +314,7 @@ const GPS = (() => {
     getAllElevations,
     startAutoRefresh,
     stopAutoRefresh,
-    getErrorMessage,
+    getErrorKey,
     startBarometer,
     stopBarometer,
     pressureToAltitude,

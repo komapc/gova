@@ -132,7 +132,7 @@
 
   // Forigi historion
   elBtnClearHistory.addEventListener('click', () => {
-    if (confirm('Ĉu vi certas ke vi volas forigi ĉiujn historio-datumojn?')) {
+    if (confirm(I18n.get('confirmClearHistory'))) {
       History.clear();
       elMenuOverlay.classList.add('hidden');
       loadData();

@@ -75,6 +75,29 @@ test('calibrateBarometer rifuzas sen premo-legado', () => {
   assert.ok(GPS.calibrateBarometer(500) === false, 'sen premo → ne kalibras');
 });
 
+test('getErrorKey mapas GeolocationPositionError-kodojn al i18n-ŝlosiloj', () => {
+  const cases = [
+    [{ code: 1 }, 'gpsErrDenied'],
+    [{ code: 2 }, 'gpsErrUnavailable'],
+    [{ code: 3 }, 'gpsErrTimeout'],
+    [new Error('UNSUPPORTED'), 'gpsErrUnsupported'],
+    [new Error('io alia'), 'gpsErrUnknown'],
+    [null, 'gpsErrUnknown'],
+  ];
+  for (const [err, key] of cases) {
+    const got = GPS.getErrorKey(err);
+    assert.ok(got === key, `${JSON.stringify(err && (err.code || err.message))} → ${key}, ricevis ${got}`);
+  }
+});
+
+test('ĉiu GPS-eraro-ŝlosilo estas tradukita en ĉiuj lingvoj', () => {
+  if (typeof I18n === 'undefined') return; // retumila testilo ne ŝargas i18n.js
+  const keys = ['gpsErrUnsupported', 'gpsErrDenied', 'gpsErrUnavailable', 'gpsErrTimeout', 'gpsErrUnknown'];
+  for (const [lang, strings] of Object.entries(I18n.STRINGS)) {
+    for (const k of keys) assert.ok(strings[k], `${lang}.${k} mankas`);
+  }
+});
+
 // --- Rezultoj ---
 console.log('\n' + '='.repeat(50));
 console.log(`GPS — Sukcesaj: ${results.passed}, Malsukcesaj: ${results.failed}`);
