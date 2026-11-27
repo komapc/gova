@@ -13,6 +13,11 @@
 - `manifest.json`: `related_applications` kun la Play-aplikaĵo,
   `prefer_related_applications: false` (la PWA-instalo restas).
 - SW-kaŝmemoro `gova-v3.26`.
+- SEO: la angla ĉefpaĝo nun celas ankaŭ la serĉon «what is my elevation».
+  «Elevation» aperas en `<title>` («What Is My Altitude & Elevation?»), en la
+  priskribo, en `og:title`, en JSON-LD kaj en la H1 («Your elevation above sea
+  level, right now»); la teksto sub la H1 plu diras «altitude». La rusa kaj la
+  esperanta paĝoj ne ŝanĝiĝis. SW-kaŝmemoro `gova-v3.28`.
 
 ### 📱 Fenestraĵo (Android)
 - Tuŝo sur la fenestraĵo nun mezuras la altecon: unu freŝa GPS-fikso sen

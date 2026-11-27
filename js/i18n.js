@@ -15,7 +15,7 @@ const I18n = (() => {
   const STRINGS = {
     en: {
       subtitle: 'Altitude Monitor',
-      introTitle: 'Your altitude above sea level, right now',
+      introTitle: 'Your elevation above sea level, right now',
       altitude: 'Altitude',
       searching: 'Searching GPS...',
       locked: 'GPS locked',
