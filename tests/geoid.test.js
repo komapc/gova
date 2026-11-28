@@ -23,19 +23,6 @@ if (typeof Geoid === 'undefined') {
   throw new Error('Geoid module not loaded');
 }
 
-const results = { passed: 0, failed: 0, tests: [] };
-
-function test(name, fn) {
-  try {
-    fn();
-    results.passed++;
-    console.log(`✓ ${name}`);
-  } catch (err) {
-    results.failed++;
-    console.error(`✗ ${name}`);
-    console.error(`  ${err.message}`);
-  }
-}
 
 // --- Testoj ---
 // Referencaj N-valoroj el la EGM96-modelo (egm96-universal). Toleremo 1 m
@@ -76,9 +63,3 @@ test('ekrankopia korekto: GROUND apud Goteborg falas de 35.6 al ~0', () => {
   const ground = Math.max(0, mslAlt - 12.0);
   assert.close(ground, 0, 1.0, 'GROUND devas esti ~0 starante sur la tero');
 });
-
-console.log(`\n${'='.repeat(50)}`);
-console.log(`Geoid — Sukcesaj: ${results.passed}, Malsukcesaj: ${results.failed}`);
-console.log('='.repeat(50));
-
-if (results.failed > 0 && typeof process !== 'undefined') process.exit(1);

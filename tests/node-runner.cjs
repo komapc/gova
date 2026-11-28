@@ -48,22 +48,95 @@ exec('js/geoid.js');
 let overallFailed = 0;
 ctx.process = { exit: (code) => { if (code) overallFailed = code; } };
 
-console.log('Running test suites...\n');
-execWrapped('tests/units.test.js');
-execWrapped('tests/storage.test.js');
-execWrapped('tests/history.test.js');
-execWrapped('tests/saved-points.test.js');
-execWrapped('tests/coords.test.js');
-execWrapped('tests/gps.test.js');
-execWrapped('tests/geoid.test.js');
+// Test files call test(name, fn) and optionally beforeEach(fn). The runner runs
+// the tests one by one and awaits each, so an async test that rejects fails the
+// run (before, its promise was dropped and the test was counted as passed).
+let registered = [];
+let setupFn = null;
+ctx.test = (name, fn) => { registered.push({ name, fn }); };
+ctx.beforeEach = (fn) => { setupFn = fn; };
 
-// Generated language pages (/, /ru/, /eo/) must match index.html + js/i18n.js
-const stale = require('../scripts/build-lang-pages.cjs').check();
-if (stale.length) {
-  console.error(`\n✗ Stale language pages: ${stale.join(', ')} — run: npm run build:lang`);
-  overallFailed = 1;
-} else {
-  console.log('\n✓ Language pages (/, /ru/, /eo/) up to date');
+const LOG = { ok: msg => console.log(msg), fail: msg => console.error(msg) };
+
+async function runTests(tests, setup, log) {
+  let passed = 0, failed = 0;
+  for (const { name, fn } of tests) {
+    try {
+      if (setup) await setup();
+      await fn();
+      passed++;
+      log.ok(`✓ ${name}`);
+    } catch (err) {
+      failed++;
+      log.fail(`✗ ${name}\n  ${err && err.message ? err.message : err}`);
+    }
+  }
+  return { passed, failed };
 }
 
-process.exit(overallFailed);
+// The harness itself: async failures, before or after an await, must count.
+async function selfTest() {
+  const quiet = { ok() {}, fail() {} };
+  const { passed, failed } = await runTests([
+    { name: 'rejects after await', fn: async () => { await null; throw new Error('x'); } },
+    { name: 'rejects at once', fn: async () => { throw new Error('x'); } },
+    { name: 'sync throw', fn: () => { throw new Error('x'); } },
+    { name: 'resolves after await', fn: async () => { await null; } },
+  ], null, quiet);
+  return passed === 1 && failed === 3;
+}
+
+async function runSuite(label, relPath) {
+  registered = [];
+  setupFn = null;
+  try {
+    execWrapped(relPath);
+  } catch (err) {
+    console.error(`✗ ${relPath}: ${err.message}`);
+    overallFailed = 1;
+    return;
+  }
+  const { passed, failed } = await runTests(registered, setupFn, LOG);
+  console.log('\n' + '='.repeat(50));
+  console.log(`${label} — Sukcesaj: ${passed}, Malsukcesaj: ${failed}`);
+  console.log('='.repeat(50) + '\n');
+  if (failed) overallFailed = 1;
+  if (!registered.length) {
+    console.error(`✗ ${relPath} registered no tests`);
+    overallFailed = 1;
+  }
+}
+
+// New test files must be added here.
+const SUITES = [
+  ['Units', 'tests/units.test.js'],
+  ['Storage', 'tests/storage.test.js'],
+  ['History', 'tests/history.test.js'],
+  ['SavedPoints', 'tests/saved-points.test.js'],
+  ['Coords', 'tests/coords.test.js'],
+  ['GPS', 'tests/gps.test.js'],
+  ['Geoid', 'tests/geoid.test.js'],
+];
+
+(async () => {
+  if (await selfTest()) {
+    console.log('✓ Runner: async test failures are caught\n');
+  } else {
+    console.error('✗ Runner: an async test failure was not caught');
+    overallFailed = 1;
+  }
+
+  console.log('Running test suites...\n');
+  for (const [label, file] of SUITES) await runSuite(label, file);
+
+  // Generated language pages (/, /ru/, /eo/) must match index.html + js/i18n.js
+  const stale = require('../scripts/build-lang-pages.cjs').check();
+  if (stale.length) {
+    console.error(`\n✗ Stale language pages: ${stale.join(', ')} — run: npm run build:lang`);
+    overallFailed = 1;
+  } else {
+    console.log('✓ Language pages (/, /ru/, /eo/) up to date');
+  }
+
+  process.exit(overallFailed);
+})().catch(err => { console.error(err); process.exit(1); });

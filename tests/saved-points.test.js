@@ -18,24 +18,15 @@ if (typeof SavedPoints === 'undefined') {
   throw new Error('SavedPoints module not loaded - use browser test runner');
 }
 
-const results = { passed: 0, failed: 0 };
-
-function test(name, fn) {
+// Each test starts with no saved points and no daily high/low.
+beforeEach(() => {
   try {
     localStorage.removeItem('gova_saved_points');
     localStorage.removeItem('gova_today_high');
     localStorage.removeItem('gova_today_low');
     localStorage.removeItem('gova_last_reset_date');
   } catch {}
-  try {
-    fn();
-    results.passed++;
-    console.log(`✓ ${name}`);
-  } catch (err) {
-    results.failed++;
-    console.error(`✗ ${name}: ${err.message}`);
-  }
-}
+});
 
 // --- Testoj ---
 
@@ -129,8 +120,3 @@ test('updateTodayPoints ne ĵetas se localStorage estas blokita', () => {
     localStorage.getItem = orig.get; localStorage.setItem = orig.set; localStorage.removeItem = orig.rm;
   }
 });
-
-console.log('\n' + '='.repeat(50));
-console.log(`SavedPoints — Sukcesaj: ${results.passed}, Malsukcesaj: ${results.failed}`);
-console.log('='.repeat(50));
-if (results.failed > 0 && typeof process !== 'undefined') process.exit(1);
