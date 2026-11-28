@@ -35,22 +35,6 @@ if (typeof Units === 'undefined') {
   throw new Error('Units module not loaded - use browser test runner');
 }
 
-// Test-rezultoj
-const results = { passed: 0, failed: 0, tests: [] };
-
-function test(name, fn) {
-  try {
-    fn();
-    results.passed++;
-    results.tests.push({ name, status: 'PASS' });
-    console.log(`✓ ${name}`);
-  } catch (err) {
-    results.failed++;
-    results.tests.push({ name, status: 'FAIL', error: err.message });
-    console.error(`✗ ${name}`);
-    console.error(`  ${err.message}`);
-  }
-}
 
 // --- Testoj ---
 
@@ -123,14 +107,3 @@ test('getUnitLabel redonas ĝustajn etikedojn', () => {
   assert.equal(Units.getUnitLabel('m'), 'm');
   assert.equal(Units.getUnitLabel('ft'), 'ft');
 });
-
-// --- Rezultoj ---
-console.log('\n' + '='.repeat(50));
-console.log(`Testoj: ${results.passed + results.failed}`);
-console.log(`Sukcesaj: ${results.passed}`);
-console.log(`Malsukcesaj: ${results.failed}`);
-console.log('='.repeat(50));
-
-if (results.failed > 0) {
-  process.exit(1);
-}

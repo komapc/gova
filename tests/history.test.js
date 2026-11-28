@@ -18,19 +18,10 @@ if (typeof History === 'undefined') {
   throw new Error('History module not loaded - use browser test runner');
 }
 
-const results = { passed: 0, failed: 0 };
-
-function test(name, fn) {
+// Each test starts with an empty history.
+beforeEach(() => {
   try { localStorage.removeItem('gova_history'); } catch {}
-  try {
-    fn();
-    results.passed++;
-    console.log(`✓ ${name}`);
-  } catch (err) {
-    results.failed++;
-    console.error(`✗ ${name}: ${err.message}`);
-  }
-}
+});
 
 // --- Testoj ---
 
@@ -170,8 +161,3 @@ test('maldensigo: kontinua 7-taga simulado plenigas la 24h- kaj 7d-vidojn', () =
     assert.ok(last24 >= 175, `24h-vido havas nur ${last24} erojn`);
   });
 });
-
-console.log('\n' + '='.repeat(50));
-console.log(`History — Sukcesaj: ${results.passed}, Malsukcesaj: ${results.failed}`);
-console.log('='.repeat(50));
-if (results.failed > 0 && typeof process !== 'undefined') process.exit(1);

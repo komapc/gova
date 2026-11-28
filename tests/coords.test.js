@@ -27,19 +27,6 @@ if (typeof Coords === 'undefined') {
   throw new Error('Coords module not loaded');
 }
 
-const results = { passed: 0, failed: 0, tests: [] };
-
-function test(name, fn) {
-  try {
-    fn();
-    results.passed++;
-    console.log(`✓ ${name}`);
-  } catch (err) {
-    results.failed++;
-    console.error(`✗ ${name}`);
-    console.error(`  ${err.message}`);
-  }
-}
 
 // --- Testoj ---
 
@@ -88,10 +75,3 @@ test('israelaj koordinatoj estas pozitivaj kaj en ITM-gamo', () => {
 test('format produktas "x / y" kun milaj apartigiloj', () => {
   assert.equal(Coords.format({ x: 179622, y: 665896 }), '179,622 / 665,896');
 });
-
-// --- Rezultoj ---
-console.log('\n' + '='.repeat(50));
-console.log(`Coords — Sukcesaj: ${results.passed}, Malsukcesaj: ${results.failed}`);
-console.log('='.repeat(50));
-
-if (results.failed > 0) process.exit(1);

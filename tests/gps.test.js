@@ -20,19 +20,6 @@ if (typeof GPS === 'undefined') {
   throw new Error('GPS module not loaded');
 }
 
-const results = { passed: 0, failed: 0 };
-
-function test(name, fn) {
-  try {
-    fn();
-    results.passed++;
-    console.log(`✓ ${name}`);
-  } catch (err) {
-    results.failed++;
-    console.error(`✗ ${name}`);
-    console.error(`  ${err.message}`);
-  }
-}
 
 // --- Testoj ---
 
@@ -97,10 +84,3 @@ test('ĉiu GPS-eraro-ŝlosilo estas tradukita en ĉiuj lingvoj', () => {
     for (const k of keys) assert.ok(strings[k], `${lang}.${k} mankas`);
   }
 });
-
-// --- Rezultoj ---
-console.log('\n' + '='.repeat(50));
-console.log(`GPS — Sukcesaj: ${results.passed}, Malsukcesaj: ${results.failed}`);
-console.log('='.repeat(50));
-
-if (results.failed > 0) process.exit(1);
